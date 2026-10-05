@@ -70,7 +70,7 @@
       <WarningLevel>Level4</WarningLevel>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj /utf-8</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -112,6 +112,9 @@
     <ClInclude Include="..\UI\Settings\SettingsWindow.xaml.h">
       <DependentUpon>..\UI\Settings\SettingsWindow.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="..\Windows\ClipboardHelper.h" />
+    <ClInclude Include="..\Windows\SelectionCapture.h" />
+    <ClInclude Include="..\Windows\WindowsIntegration.h" />
   </ItemGroup>
 
   <!-- XAML -->
@@ -139,6 +142,9 @@
     <ClCompile Include="..\UI\Settings\SettingsWindow.xaml.cpp">
       <DependentUpon>..\UI\Settings\SettingsWindow.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="..\Windows\ClipboardHelper.cpp" />
+    <ClCompile Include="..\Windows\SelectionCapture.cpp" />
+    <ClCompile Include="..\Windows\WindowsIntegration.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 

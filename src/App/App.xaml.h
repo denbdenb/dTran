@@ -12,5 +12,7 @@ namespace winrt::dTranslate::implementation
 
     private:
         winrt::Microsoft::UI::Xaml::Window m_window{ nullptr };
+        winrt::Microsoft::UI::Xaml::Window m_popupWindow{ nullptr };
+        winrt::Microsoft::UI::Xaml::Window m_settingsWindow{ nullptr };
     };
 }
