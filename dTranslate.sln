@@ -1,0 +1,24 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dTranslate", "src\App\dTranslate.vcxproj", "{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Debug|x64.ActiveCfg = Debug|x64
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Debug|x64.Build.0 = Debug|x64
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Debug|x64.Deploy.0 = Debug|x64
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Release|x64.ActiveCfg = Release|x64
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Release|x64.Build.0 = Release|x64
+		{7B3A6E5C-2D41-4F8A-9C1E-5A0B6D3F2E11}.Release|x64.Deploy.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

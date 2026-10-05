@@ -1,0 +1,72 @@
+# Build output
+build/
+bin/
+obj/
+x64/
+ARM64/
+Debug/
+Release/
+AppPackages/
+BundleArtifacts/
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.pfx
+*.cer
+*.snk
+
+# Visual Studio / MSBuild
+.vs/
+*.user
+*.suo
+*.aps
+*.ncb
+*.VC.db
+*.VC.VC.opendb
+*.ipch
+*.tlog
+*.pdb
+*.ilk
+*.obj
+*.pch
+*.log
+*.binlog
+*_i.c
+*_p.c
+*.tlb
+Generated Files/
+Generated\ Files/
+.vscode/
+*.TMP
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+
+# Local user data, secrets, credentials (never commit)
+*.local.json
+settings.json
+history.db
+history.sqlite*
+*.key
+*.secret
+secrets.*
+.env
+.env.*
+credentials*
+*.dpapi
+
+# Performance / diagnostic output
+perf-results/
+*.etl
+*.dmp
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Agent scratch
+.gemini/
