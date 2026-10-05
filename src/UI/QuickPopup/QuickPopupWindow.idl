@@ -1,0 +1,9 @@
+namespace dTranslate
+{
+    [default_interface]
+    runtimeclass QuickPopupWindow : Microsoft.UI.Xaml.Window
+    {
+        QuickPopupWindow();
+        void SetSelectedText(String text);
+    }
+}

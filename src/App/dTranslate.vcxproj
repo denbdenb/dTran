@@ -70,7 +70,7 @@
       <WarningLevel>Level4</WarningLevel>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj /utf-8</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -79,7 +79,7 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
     <Midl>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -106,12 +106,16 @@
     <ClInclude Include="..\UI\MainWindow\MainWindow.xaml.h">
       <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="..\UI\QuickPopup\QuickPopupWindow.xaml.h">
+      <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
+    </ClInclude>
   </ItemGroup>
 
   <!-- XAML -->
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
     <Page Include="..\UI\MainWindow\MainWindow.xaml" />
+    <Page Include="..\UI\QuickPopup\QuickPopupWindow.xaml" />
   </ItemGroup>
 
   <!-- Sources -->
@@ -125,6 +129,9 @@
     <ClCompile Include="..\UI\MainWindow\MainWindow.xaml.cpp">
       <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="..\UI\QuickPopup\QuickPopupWindow.xaml.cpp">
+      <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
+    </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 
@@ -132,6 +139,10 @@
   <ItemGroup>
     <Midl Include="..\UI\MainWindow\MainWindow.idl">
       <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="..\UI\QuickPopup\QuickPopupWindow.idl">
+      <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
   </ItemGroup>
