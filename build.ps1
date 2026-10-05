@@ -15,7 +15,10 @@ $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild 
 if (-not $msbuild) { throw 'MSBuild not found. See docs/DEVELOPMENT.md (Requirements).' }
 
 Write-Host "Using $msbuild"
-& $msbuild dTranslate.sln -restore -m -nologo -v:minimal `
+Stop-Process -Name dTranslate -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 200
+& $msbuild dTranslate.sln -restore -nologo -v:minimal `
+    -p:PreferredToolArchitecture=x64 `
     -p:Configuration=$Configuration -p:Platform=x64
 if ($LASTEXITCODE -ne 0) { throw "Build failed (exit code $LASTEXITCODE)." }
 Write-Host "Build OK: build\bin\x64\$Configuration" -ForegroundColor Green

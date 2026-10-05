@@ -21,6 +21,7 @@
     <DesktopCompatible>true</DesktopCompatible>
     <!-- Native project: skip the legacy managed-assembly NuGet resolution step. -->
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,7 +71,7 @@
       <WarningLevel>Level4</WarningLevel>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj /utf-8</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(ProjectDir)..\Networking;$(ProjectDir)..\Translation;$(ProjectDir)..\AI;$(ProjectDir)..\Dictionary;$(ProjectDir)..\Storage;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -115,6 +116,7 @@
     <ClInclude Include="..\Windows\ClipboardHelper.h" />
     <ClInclude Include="..\Windows\SelectionCapture.h" />
     <ClInclude Include="..\Windows\WindowsIntegration.h" />
+    <ClInclude Include="..\Networking\HttpClient.h" />
   </ItemGroup>
 
   <!-- XAML -->
@@ -145,6 +147,7 @@
     <ClCompile Include="..\Windows\ClipboardHelper.cpp" />
     <ClCompile Include="..\Windows\SelectionCapture.cpp" />
     <ClCompile Include="..\Windows\WindowsIntegration.cpp" />
+    <ClCompile Include="..\Networking\HttpClient.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 
