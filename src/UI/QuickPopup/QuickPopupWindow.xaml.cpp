@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "QuickPopupWindow.xaml.h"
+#include "SettingsWindow.xaml.h"
 #if __has_include("QuickPopupWindow.g.cpp")
 #include "QuickPopupWindow.g.cpp"
 #endif
@@ -27,6 +28,13 @@ namespace winrt::dTranslate::implementation
 
     void QuickPopupWindow::SetupEventHandlers()
     {
+        // Settings button
+        PopupSettingsBtn().Click([this](auto&&, auto&&)
+        {
+            auto settingsWin = make<SettingsWindow>();
+            settingsWin.Activate();
+        });
+
         // Close with Esc or close button
         PopupCloseBtn().Click([this](auto&&, auto&&)
         {

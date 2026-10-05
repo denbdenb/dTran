@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MainWindow.xaml.h"
+#include "SettingsWindow.xaml.h"
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
 #endif
@@ -79,6 +80,15 @@ namespace winrt::dTranslate::implementation
         ServiceYandexBtn().Click([this](auto&&, auto&&) { SelectService(1); });
         ServiceGeminiBtn().Click([this](auto&&, auto&&) { SelectService(2); });
         ServiceOpenAiBtn().Click([this](auto&&, auto&&) { SelectService(3); });
+
+        // Open Settings window
+        auto openSettings = [this](auto&&, auto&&)
+        {
+            auto settingsWin = make<SettingsWindow>();
+            settingsWin.Activate();
+        };
+        TopSettingsBtn().Click(openSettings);
+        SidebarSettingsBtn().Click(openSettings);
     }
 
     void MainWindow::SelectNavView(int index)

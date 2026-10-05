@@ -1,0 +1,8 @@
+namespace dTranslate
+{
+    [default_interface]
+    runtimeclass SettingsWindow : Microsoft.UI.Xaml.Window
+    {
+        SettingsWindow();
+    }
+}
