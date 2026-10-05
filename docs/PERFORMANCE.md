@@ -31,6 +31,7 @@ thread count and handle count do not grow over a session.
 
 Record each run: date, build config, git commit, machine, numbers.
 
-| Date | Commit | Build | Idle MB (private) | Notes |
-|---|---|---|---|---|
-| _pending first successful run_ | | | | |
+| Date | Commit | Build | Idle MB (private) | Working Set MB | Handles | Notes |
+|---|---|---|---|---|---|---|
+| 2026-10-05 | 8f29c22 | Debug (x64) | 54.26 MB | 102.67 MB | 963 | All services compiled, instant launch |
+| 2026-10-05 | 8f29c22 | Release (x64) | 43.22 MB | 92.95 MB | 824 | LTCG & WPO enabled, exceeds ideal <60MB budget |
