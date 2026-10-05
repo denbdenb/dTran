@@ -17,7 +17,7 @@ if (-not $msbuild) { throw 'MSBuild not found. See docs/DEVELOPMENT.md (Requirem
 Write-Host "Using $msbuild"
 Stop-Process -Name dTranslate -Force -ErrorAction SilentlyContinue
 Start-Sleep -Milliseconds 200
-& $msbuild dTranslate.sln -restore -nologo -v:minimal `
+& $msbuild dTranslate.sln -restore -m:2 -nologo -v:minimal `
     -p:PreferredToolArchitecture=x64 `
     -p:Configuration=$Configuration -p:Platform=x64
 if ($LASTEXITCODE -ne 0) { throw "Build failed (exit code $LASTEXITCODE)." }

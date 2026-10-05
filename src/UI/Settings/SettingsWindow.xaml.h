@@ -9,6 +9,7 @@ namespace winrt::dTranslate::implementation
         SettingsWindow();
 
     private:
+        void LoadSettings();
         void SetupEventHandlers();
     };
 }

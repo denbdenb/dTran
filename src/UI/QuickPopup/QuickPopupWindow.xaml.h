@@ -1,6 +1,7 @@
 #pragma once
 
 #include "QuickPopupWindow.g.h"
+#include <string>
 
 namespace winrt::dTranslate::implementation
 {
@@ -14,10 +15,12 @@ namespace winrt::dTranslate::implementation
         int m_selectedServiceIndex{ 0 };
 
         void SetupEventHandlers();
-        void OnTranslate();
+        void OnTranslateAsync();
         void OnSwapLanguages();
         void SelectService(int serviceId);
         void CopyTextToClipboard(winrt::hstring const& text);
+        std::wstring GetSourceLangCode();
+        std::wstring GetTargetLangCode();
     };
 }
 

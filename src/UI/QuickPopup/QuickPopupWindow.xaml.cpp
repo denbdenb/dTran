@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "QuickPopupWindow.xaml.h"
 #include "SettingsWindow.xaml.h"
+#include "TranslationManager.h"
+#include "GoogleTtsService.h"
+
 #if __has_include("QuickPopupWindow.g.cpp")
 #include "QuickPopupWindow.g.cpp"
 #endif
@@ -12,6 +15,8 @@ using namespace Microsoft::UI::Xaml::Media;
 using namespace Microsoft::UI::Xaml::Input;
 using namespace Windows::ApplicationModel::DataTransfer;
 using namespace Windows::System;
+using namespace ::dTranslate::Translation;
+using namespace ::dTranslate::Audio;
 
 namespace winrt::dTranslate::implementation
 {
@@ -24,6 +29,35 @@ namespace winrt::dTranslate::implementation
         AppWindow().Resize({ 370, 440 });
 
         SetupEventHandlers();
+    }
+
+    std::wstring QuickPopupWindow::GetSourceLangCode()
+    {
+        auto idx = PopupSourceLanguageCombo().SelectedIndex();
+        switch (idx)
+        {
+        case 0: return L"auto";
+        case 1: return L"en";
+        case 2: return L"ru";
+        case 3: return L"de";
+        case 4: return L"fr";
+        case 5: return L"es";
+        default: return L"auto";
+        }
+    }
+
+    std::wstring QuickPopupWindow::GetTargetLangCode()
+    {
+        auto idx = PopupTargetLanguageCombo().SelectedIndex();
+        switch (idx)
+        {
+        case 0: return L"ru";
+        case 1: return L"en";
+        case 2: return L"de";
+        case 3: return L"fr";
+        case 4: return L"es";
+        default: return L"ru";
+        }
     }
 
     void QuickPopupWindow::SetupEventHandlers()
@@ -64,6 +98,16 @@ namespace winrt::dTranslate::implementation
             CopyTextToClipboard(PopupResultTextBlock().Text());
         });
 
+        // TTS button
+        PopupSpeakBtn().Click([this](auto&&, auto&&)
+        {
+            auto text = PopupResultTextBlock().Text();
+            if (!text.empty() && text != L"Translating...")
+            {
+                GoogleTtsService::Instance().Speak(text.c_str(), GetTargetLangCode());
+            }
+        });
+
         // Swap languages
         PopupSwapLanguagesBtn().Click([this](auto&&, auto&&)
         {
@@ -73,7 +117,7 @@ namespace winrt::dTranslate::implementation
         // Translate button
         PopupTranslateActionBtn().Click([this](auto&&, auto&&)
         {
-            OnTranslate();
+            OnTranslateAsync();
         });
 
         // Service buttons
@@ -87,11 +131,11 @@ namespace winrt::dTranslate::implementation
         PopupSelectedTextBlock().Text(text);
         if (!text.empty())
         {
-            OnTranslate();
+            OnTranslateAsync();
         }
     }
 
-    void QuickPopupWindow::OnTranslate()
+    void QuickPopupWindow::OnTranslateAsync()
     {
         auto text = PopupSelectedTextBlock().Text();
         if (text.empty())
@@ -100,14 +144,31 @@ namespace winrt::dTranslate::implementation
             return;
         }
 
-        if (text == L"The quick brown fox jumps over the lazy dog.")
-        {
-            PopupResultTextBlock().Text(L"Быстрая коричневая лиса перепрыгивает через ленивую собаку.");
-        }
-        else
-        {
-            PopupResultTextBlock().Text(L"[" + text + L"]");
-        }
+        PopupResultTextBlock().Text(L"Translating...");
+        PopupTranslateActionBtn().IsEnabled(false);
+
+        TranslationRequest req;
+        req.text = text.c_str();
+        req.sourceLang = GetSourceLangCode();
+        req.targetLang = GetTargetLangCode();
+
+        TranslationManager::Instance().TranslateAsync(
+            req,
+            m_selectedServiceIndex,
+            DispatcherQueue(),
+            [this](TranslationResult const& result)
+            {
+                PopupTranslateActionBtn().IsEnabled(true);
+
+                if (result.success)
+                {
+                    PopupResultTextBlock().Text(winrt::hstring(result.translatedText));
+                }
+                else
+                {
+                    PopupResultTextBlock().Text(winrt::hstring(L"Error: " + result.errorMessage));
+                }
+            });
     }
 
     void QuickPopupWindow::OnSwapLanguages()
@@ -120,7 +181,7 @@ namespace winrt::dTranslate::implementation
 
         auto srcText = PopupSelectedTextBlock().Text();
         auto resText = PopupResultTextBlock().Text();
-        if (!resText.empty())
+        if (!resText.empty() && resText != L"Translating...")
         {
             PopupSelectedTextBlock().Text(resText);
             PopupResultTextBlock().Text(srcText);

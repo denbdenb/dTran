@@ -71,9 +71,11 @@
       <WarningLevel>Level4</WarningLevel>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj /utf-8</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(ProjectDir)..\Networking;$(ProjectDir)..\Translation;$(ProjectDir)..\AI;$(ProjectDir)..\Dictionary;$(ProjectDir)..\Storage;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(ProjectDir)..\Networking;$(ProjectDir)..\Translation;$(ProjectDir)..\AI;$(ProjectDir)..\Dictionary;$(ProjectDir)..\Storage;$(ProjectDir)..\Audio;$(ProjectDir)..\OCR;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ProcessorNumber>2</ProcessorNumber>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,6 +119,22 @@
     <ClInclude Include="..\Windows\SelectionCapture.h" />
     <ClInclude Include="..\Windows\WindowsIntegration.h" />
     <ClInclude Include="..\Networking\HttpClient.h" />
+    <ClInclude Include="..\Networking\UrlEncoder.h" />
+    <ClInclude Include="..\Storage\CredentialStore.h" />
+    <ClInclude Include="..\Storage\SettingsManager.h" />
+    <ClInclude Include="..\Storage\HistoryManager.h" />
+    <ClInclude Include="..\Translation\TranslationTypes.h" />
+    <ClInclude Include="..\Translation\GoogleTranslateService.h" />
+    <ClInclude Include="..\Translation\YandexTranslateService.h" />
+    <ClInclude Include="..\Translation\TranslationManager.h" />
+    <ClInclude Include="..\AI\AITypes.h" />
+    <ClInclude Include="..\AI\GeminiService.h" />
+    <ClInclude Include="..\AI\OpenAIService.h" />
+    <ClInclude Include="..\Dictionary\DictionaryTypes.h" />
+    <ClInclude Include="..\Dictionary\WikipediaService.h" />
+    <ClInclude Include="..\Dictionary\ReversoService.h" />
+    <ClInclude Include="..\Audio\GoogleTtsService.h" />
+    <ClInclude Include="..\OCR\WindowsOcrService.h" />
   </ItemGroup>
 
   <!-- XAML -->
@@ -148,6 +166,18 @@
     <ClCompile Include="..\Windows\SelectionCapture.cpp" />
     <ClCompile Include="..\Windows\WindowsIntegration.cpp" />
     <ClCompile Include="..\Networking\HttpClient.cpp" />
+    <ClCompile Include="..\Storage\CredentialStore.cpp" />
+    <ClCompile Include="..\Storage\SettingsManager.cpp" />
+    <ClCompile Include="..\Storage\HistoryManager.cpp" />
+    <ClCompile Include="..\Translation\GoogleTranslateService.cpp" />
+    <ClCompile Include="..\Translation\YandexTranslateService.cpp" />
+    <ClCompile Include="..\Translation\TranslationManager.cpp" />
+    <ClCompile Include="..\AI\GeminiService.cpp" />
+    <ClCompile Include="..\AI\OpenAIService.cpp" />
+    <ClCompile Include="..\Dictionary\WikipediaService.cpp" />
+    <ClCompile Include="..\Dictionary\ReversoService.cpp" />
+    <ClCompile Include="..\Audio\GoogleTtsService.cpp" />
+    <ClCompile Include="..\OCR\WindowsOcrService.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 
