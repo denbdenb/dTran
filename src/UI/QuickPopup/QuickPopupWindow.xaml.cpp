@@ -88,6 +88,35 @@ namespace winrt::dTranslate::implementation
         }
     }
 
+    static ComboBoxItem CreateLanguageComboItem(LanguageInfo const& lang)
+    {
+        ComboBoxItem item;
+        StackPanel sp;
+        sp.Orientation(Orientation::Horizontal);
+        sp.Spacing(8);
+        sp.VerticalAlignment(VerticalAlignment::Center);
+
+        Image img;
+        img.Width(20);
+        img.Height(15);
+        img.VerticalAlignment(VerticalAlignment::Center);
+
+        Microsoft::UI::Xaml::Media::Imaging::SvgImageSource svg;
+        svg.RasterizePixelWidth(24);
+        svg.RasterizePixelHeight(18);
+        svg.UriSource(Windows::Foundation::Uri(lang.FlagSvgPath()));
+        img.Source(svg);
+        sp.Children().Append(img);
+
+        TextBlock tb;
+        tb.Text(lang.DisplayNameClean());
+        tb.VerticalAlignment(VerticalAlignment::Center);
+        sp.Children().Append(tb);
+
+        item.Content(sp);
+        return item;
+    }
+
     void QuickPopupWindow::PopulateLanguagesForService(int serviceId)
     {
         auto const& settings = SettingsManager::Instance().GetSettings();
@@ -109,9 +138,7 @@ namespace winrt::dTranslate::implementation
         {
             auto const& lang = srcLangs[i];
             m_sourceLangCodes.push_back(lang.code);
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(lang.DisplayName())));
-            PopupSourceLanguageCombo().Items().Append(item);
+            PopupSourceLanguageCombo().Items().Append(CreateLanguageComboItem(lang));
             if (_wcsicmp(lang.code.c_str(), curSrc.c_str()) == 0)
             {
                 srcIdx = static_cast<int>(i);
@@ -126,9 +153,7 @@ namespace winrt::dTranslate::implementation
         {
             auto const& lang = tgtLangs[i];
             m_targetLangCodes.push_back(lang.code);
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(lang.DisplayName())));
-            PopupTargetLanguageCombo().Items().Append(item);
+            PopupTargetLanguageCombo().Items().Append(CreateLanguageComboItem(lang));
             if (_wcsicmp(lang.code.c_str(), curTgt.c_str()) == 0)
             {
                 tgtIdx = static_cast<int>(i);
@@ -184,13 +209,14 @@ namespace winrt::dTranslate::implementation
             CopyTextToClipboard(PopupResultTextBlock().Text());
         });
 
+        PopupSourceSpeakBtn().Click([this](auto&&, auto&&)
+        {
+            OnSpeakSource();
+        });
+
         PopupSpeakBtn().Click([this](auto&&, auto&&)
         {
-            auto text = PopupResultTextBlock().Text();
-            if (!text.empty() && text != L"Translating...")
-            {
-                GoogleTtsService::Instance().Speak(text.c_str(), GetTargetLangCode());
-            }
+            OnSpeakResult();
         });
 
         PopupSwapLanguagesBtn().Click([this](auto&&, auto&&)
@@ -245,12 +271,74 @@ namespace winrt::dTranslate::implementation
 
                 if (result.success)
                 {
+                    if (!result.detectedLanguage.empty())
+                    {
+                        m_lastDetectedSourceLang = result.detectedLanguage;
+                    }
                     PopupResultTextBlock().Text(winrt::hstring(result.translatedText));
                 }
                 else
                 {
                     PopupResultTextBlock().Text(winrt::hstring(L"Error: " + result.errorMessage));
                 }
+            });
+    }
+
+    void QuickPopupWindow::OnSpeakSource()
+    {
+        if (GoogleTtsService::Instance().IsPlaying())
+        {
+            GoogleTtsService::Instance().Stop();
+            PopupSourceSpeakIcon().Glyph(L"\uE767");
+            PopupSpeakResultIcon().Glyph(L"\uE767");
+            return;
+        }
+
+        auto text = PopupSelectedTextBlock().Text();
+        if (text.empty()) return;
+
+        std::wstring lang = GetSourceLangCode();
+        if (lang == L"auto" && !m_lastDetectedSourceLang.empty())
+        {
+            lang = m_lastDetectedSourceLang;
+        }
+        if (lang == L"auto")
+        {
+            lang = L"en";
+        }
+
+        PopupSourceSpeakIcon().Glyph(L"\uE74F");
+        GoogleTtsService::Instance().Speak(
+            text.c_str(),
+            lang,
+            DispatcherQueue(),
+            [this]()
+            {
+                PopupSourceSpeakIcon().Glyph(L"\uE767");
+            });
+    }
+
+    void QuickPopupWindow::OnSpeakResult()
+    {
+        if (GoogleTtsService::Instance().IsPlaying())
+        {
+            GoogleTtsService::Instance().Stop();
+            PopupSourceSpeakIcon().Glyph(L"\uE767");
+            PopupSpeakResultIcon().Glyph(L"\uE767");
+            return;
+        }
+
+        auto text = PopupResultTextBlock().Text();
+        if (text.empty() || text == L"Translating...") return;
+
+        PopupSpeakResultIcon().Glyph(L"\uE74F");
+        GoogleTtsService::Instance().Speak(
+            text.c_str(),
+            GetTargetLangCode(),
+            DispatcherQueue(),
+            [this]()
+            {
+                PopupSpeakResultIcon().Glyph(L"\uE767");
             });
     }
 

@@ -113,25 +113,9 @@ namespace winrt::dTranslate::implementation
         else
             ThemeCombo().SelectedIndex(0);
 
-        // Gemini models
-        ModelGeminiCombo().Items().Clear();
-        for (auto const& m : GeminiService::GetDefaultModels())
-        {
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(m)));
-            ModelGeminiCombo().Items().Append(item);
-        }
-        ModelGeminiCombo().Text(winrt::hstring(settings.geminiModel.empty() ? L"gemini-2.5-flash" : settings.geminiModel));
-
-        // OpenAI models
-        ModelOpenAiCombo().Items().Clear();
-        for (auto const& m : OpenAIService::GetDefaultModels())
-        {
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(m)));
-            ModelOpenAiCombo().Items().Append(item);
-        }
-        ModelOpenAiCombo().Text(winrt::hstring(settings.openAiModel.empty() ? L"gpt-4o-mini" : settings.openAiModel));
+        // AI Model read-only info
+        ModelGeminiInfoText().Text(winrt::hstring(L"Using: " + (settings.geminiModel.empty() ? L"gemini-2.5-flash" : settings.geminiModel)));
+        ModelOpenAiInfoText().Text(winrt::hstring(L"Using: " + (settings.openAiModel.empty() ? L"gpt-4o-mini" : settings.openAiModel)));
 
         // Hotkeys
         HotkeySelectionBox().Text(winrt::hstring(settings.globalHotkey.empty() ? L"Ctrl+Alt+T" : settings.globalHotkey));
@@ -179,68 +163,6 @@ namespace winrt::dTranslate::implementation
         PanelAbout().Visibility(index == 4 ? Visibility::Visible : Visibility::Collapsed);
     }
 
-    winrt::fire_and_forget SettingsWindow::RefreshGeminiModelsAsync()
-    {
-        auto key = KeyGeminiBox().Password();
-        if (key.empty())
-        {
-            GeminiTestResultText().Text(L"Please enter API key first.");
-            co_return;
-        }
-
-        RefreshGeminiModelsBtn().IsEnabled(false);
-        GeminiTestResultText().Text(L"Discovering Gemini models...");
-
-        co_await resume_background();
-        auto models = GeminiService::Instance().ListModels(key.c_str());
-
-        DispatcherQueue().TryEnqueue([this, models]()
-        {
-            RefreshGeminiModelsBtn().IsEnabled(true);
-            std::wstring curText = ModelGeminiCombo().Text().c_str();
-            ModelGeminiCombo().Items().Clear();
-            for (auto const& m : models)
-            {
-                ComboBoxItem item;
-                item.Content(box_value(winrt::hstring(m)));
-                ModelGeminiCombo().Items().Append(item);
-            }
-            ModelGeminiCombo().Text(winrt::hstring(curText.empty() ? L"gemini-2.5-flash" : curText));
-            GeminiTestResultText().Text(winrt::hstring(L"Found " + std::to_wstring(models.size()) + L" models ✓"));
-        });
-    }
-
-    winrt::fire_and_forget SettingsWindow::RefreshOpenAiModelsAsync()
-    {
-        auto key = KeyOpenAiBox().Password();
-        if (key.empty())
-        {
-            OpenAiTestResultText().Text(L"Please enter API key first.");
-            co_return;
-        }
-
-        RefreshOpenAiModelsBtn().IsEnabled(false);
-        OpenAiTestResultText().Text(L"Discovering OpenAI models...");
-
-        co_await resume_background();
-        auto models = OpenAIService::Instance().ListModels(key.c_str());
-
-        DispatcherQueue().TryEnqueue([this, models]()
-        {
-            RefreshOpenAiModelsBtn().IsEnabled(true);
-            std::wstring curText = ModelOpenAiCombo().Text().c_str();
-            ModelOpenAiCombo().Items().Clear();
-            for (auto const& m : models)
-            {
-                ComboBoxItem item;
-                item.Content(box_value(winrt::hstring(m)));
-                ModelOpenAiCombo().Items().Append(item);
-            }
-            ModelOpenAiCombo().Text(winrt::hstring(curText.empty() ? L"gpt-4o-mini" : curText));
-            OpenAiTestResultText().Text(winrt::hstring(L"Found " + std::to_wstring(models.size()) + L" models ✓"));
-        });
-    }
-
     void SettingsWindow::SetupEventHandlers()
     {
         TabGeneralBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(0); });
@@ -251,9 +173,6 @@ namespace winrt::dTranslate::implementation
 
         KeyGeminiBox().PasswordChanged([this](auto&&, auto&&) { UpdateAiStatuses(); });
         KeyOpenAiBox().PasswordChanged([this](auto&&, auto&&) { UpdateAiStatuses(); });
-
-        RefreshGeminiModelsBtn().Click([this](auto&&, auto&&) { RefreshGeminiModelsAsync(); });
-        RefreshOpenAiModelsBtn().Click([this](auto&&, auto&&) { RefreshOpenAiModelsAsync(); });
 
         TestGeminiBtn().Click([this](auto&&, auto&&) { TestGeminiAsync(); });
         TestOpenAiBtn().Click([this](auto&&, auto&&) { TestOpenAiAsync(); });
@@ -406,12 +325,6 @@ namespace winrt::dTranslate::implementation
             settings.quickHotkey = hkMain;
             settings.ocrHotkey = hkOcr;
 
-            auto gModel = ModelGeminiCombo().Text();
-            if (!gModel.empty()) settings.geminiModel = gModel.c_str();
-
-            auto oModel = ModelOpenAiCombo().Text();
-            if (!oModel.empty()) settings.openAiModel = oModel.c_str();
-
             SettingsManager::Instance().UpdateSettings(settings);
 
             // 2. Save or remove API credentials
@@ -460,11 +373,11 @@ namespace winrt::dTranslate::implementation
             TestGeminiBtn().IsEnabled(true);
             if (res.success)
             {
-                GeminiTestResultText().Text(L"Success! Connected to Gemini.");
+                GeminiTestResultText().Text(L"Connected successfully (gemini-2.5-flash) ✓");
             }
             else
             {
-                GeminiTestResultText().Text(winrt::hstring(L"Error: " + res.errorMessage));
+                GeminiTestResultText().Text(winrt::hstring(res.errorMessage));
             }
             UpdateAiStatuses();
         });
@@ -495,11 +408,11 @@ namespace winrt::dTranslate::implementation
             TestOpenAiBtn().IsEnabled(true);
             if (res.success)
             {
-                OpenAiTestResultText().Text(L"Success! Connected to OpenAI.");
+                OpenAiTestResultText().Text(L"Connected successfully (gpt-4o-mini) ✓");
             }
             else
             {
-                OpenAiTestResultText().Text(winrt::hstring(L"Error: " + res.errorMessage));
+                OpenAiTestResultText().Text(winrt::hstring(res.errorMessage));
             }
             UpdateAiStatuses();
         });

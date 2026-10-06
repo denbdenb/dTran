@@ -44,6 +44,9 @@ namespace winrt::dTranslate::implementation
         void OnSpeakSource();
         void OnSpeakResult();
         void RefreshHistory();
+        std::wstring m_lastDetectedSourceLang;
+        void UpdateRestoreDefaultsVisibility();
+        void OnRestoreDefaultLanguages();
 
         std::wstring GetSourceLangCode();
         std::wstring GetTargetLangCode();

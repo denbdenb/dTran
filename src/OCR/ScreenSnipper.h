@@ -34,6 +34,8 @@ namespace dTranslate::OCR
 
         HWND m_hWnd{ nullptr };
         HBITMAP m_hScreenBmp{ nullptr };
+        HBITMAP m_hDimmedBmp{ nullptr };
+        HBITMAP m_hBackBmp{ nullptr };
         int m_vx{ 0 };
         int m_vy{ 0 };
         int m_vw{ 0 };

@@ -13,9 +13,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="32" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="90" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*" MinHeight="90" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -59,7 +59,7 @@
         <!-- 2. Selected Text Card -->
         <Border Grid.Row="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                CornerRadius="8" Padding="12,8,12,8" Margin="0,0,0,10" MinHeight="75">
+                CornerRadius="8" Padding="12,8,12,8" Margin="0,0,0,10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -67,14 +67,20 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,4">
-                    <TextBlock Text="Selected text" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                    <Button x:Name="PopupClearTextBtn" HorizontalAlignment="Right" Width="20" Height="20"
-                            Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Clear">
-                        <FontIcon Glyph="&#xE711;" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                    </Button>
+                    <TextBlock Text="Selected text" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="4">
+                        <Button x:Name="PopupSourceSpeakBtn" Width="20" Height="20"
+                                Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Listen (TTS)">
+                            <FontIcon x:Name="PopupSourceSpeakIcon" Glyph="&#xE767;" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                        </Button>
+                        <Button x:Name="PopupClearTextBtn" Width="20" Height="20"
+                                Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Clear">
+                            <FontIcon Glyph="&#xE711;" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                        </Button>
+                    </StackPanel>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" MaxHeight="80" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <TextBlock x:Name="PopupSelectedTextBlock" TextWrapping="Wrap" FontSize="13"
                                Text="The quick brown fox jumps over the lazy dog." />
                 </ScrollViewer>
@@ -93,14 +99,14 @@
         <!-- 4. Result Area Card -->
         <Border Grid.Row="4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                CornerRadius="8" Padding="12,8,12,8" Margin="0,0,0,10" MinHeight="75">
+                CornerRadius="8" Padding="12,8,12,8" Margin="0,0,0,10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ScrollViewer Grid.Row="0" MaxHeight="80" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                     <TextBox x:Name="PopupResultTextBlock" TextWrapping="Wrap" AcceptsReturn="True"
                              IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0"
                              FontSize="13" Text="Быстрая коричневая лиса перепрыгивает через ленивую собаку." />
@@ -109,7 +115,7 @@
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,4,0,0">
                     <Button x:Name="PopupSpeakBtn" Width="26" Height="26" CornerRadius="4"
                             Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Listen (TTS)">
-                        <FontIcon Glyph="&#xE767;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <FontIcon x:Name="PopupSpeakResultIcon" Glyph="&#xE767;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </Button>
                     <Button x:Name="PopupCopyResultBtn" Width="26" Height="26" CornerRadius="4"
                             Padding="0" Background="Transparent" BorderThickness="0" ToolTipService.ToolTip="Copy translation">
@@ -132,19 +138,21 @@
             <Button x:Name="PopupServiceGoogleBtn" Grid.Column="0" HorizontalAlignment="Stretch" Height="36"
                     CornerRadius="6" Margin="0,0,3,0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="#2563EB" BorderThickness="1.5" ToolTipService.ToolTip="Google Translate">
-                <Border Width="18" Height="18" CornerRadius="3" Background="#E8F0FE">
-                    <TextBlock Text="G" FontWeight="Bold" FontSize="11" Foreground="#1A73E8"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
+                <Grid Width="16" Height="16" VerticalAlignment="Center">
+                    <Path Fill="#4285F4" Data="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z" />
+                    <Path Fill="#34A853" Data="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" />
+                    <Path Fill="#FBBC05" Data="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.173 0 7.547 0 9s.347 2.827.957 4.039l3.007-2.332z" />
+                    <Path Fill="#EA4335" Data="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" />
+                </Grid>
             </Button>
 
             <!-- Yandex -->
             <Button x:Name="PopupServiceYandexBtn" Grid.Column="1" HorizontalAlignment="Stretch" Height="36"
                     CornerRadius="6" Margin="3,0,3,0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" ToolTipService.ToolTip="Yandex Translate">
-                <Border Width="18" Height="18" CornerRadius="3" Background="#FC0">
-                    <TextBlock Text="Y" FontWeight="Bold" FontSize="11" Foreground="#D00"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border CornerRadius="8" Background="#FC3F1D" Width="16" Height="16" VerticalAlignment="Center">
+                    <Path Fill="White" Width="8" Height="10" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          Data="M7.7 0H4.3C2 0 .4 1.5.4 3.6c0 1.9 1 3.1 2.5 3.7L.2 12.3h2.3l2.5-4.7h.8v4.7h2v-12h-.1zm-2 5.6H4.2c-1.1 0-1.9-.7-1.9-1.9 0-1.2.8-1.9 1.9-1.9h1.5v3.8z" />
                 </Border>
             </Button>
 
@@ -152,7 +160,8 @@
             <Button x:Name="PopupServiceGeminiBtn" Grid.Column="2" HorizontalAlignment="Stretch" Height="36"
                     CornerRadius="6" Margin="3,0,3,0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" ToolTipService.ToolTip="Google Gemini">
-                <FontIcon Glyph="&#xE945;" FontSize="13" Foreground="#1E88E5" />
+                <Path Fill="#1A73E8" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="M12 0C12 6.627 6.627 12 0 12c6.627 0 12 5.373 12 12 0-6.627 5.373-12 12-12-6.627 0-12-5.373-12-12z" />
             </Button>
 
             <!-- OpenAI -->

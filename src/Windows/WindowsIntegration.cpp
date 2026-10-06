@@ -3,6 +3,7 @@
 #include "SelectionCapture.h"
 #include "ClipboardHelper.h"
 #include "SettingsManager.h"
+#include <filesystem>
 
 namespace dTranslate::Windows
 {
@@ -80,8 +81,38 @@ namespace dTranslate::Windows
         m_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         m_nid.uCallbackMessage = WM_TRAYICON;
 
-        // Use application standard icon
-        m_nid.hIcon = LoadIconW(nullptr, IDI_APPLICATION);
+        // Try to load custom branded icon, fallback to standard application icon
+        HICON hIcon = nullptr;
+        wchar_t exePath[MAX_PATH] = { 0 };
+        if (GetModuleFileNameW(nullptr, exePath, MAX_PATH) > 0)
+        {
+            std::filesystem::path dir = std::filesystem::path(exePath).parent_path();
+            std::vector<std::filesystem::path> candidates = {
+                dir / L"Assets" / L"app.ico",
+                dir / L"app.ico",
+                dir / L"assets" / L"app.ico",
+                dir / L".." / L".." / L"assets" / L"app.ico"
+            };
+            for (const auto& p : candidates)
+            {
+                if (std::filesystem::exists(p))
+                {
+                    hIcon = (HICON)LoadImageW(nullptr, p.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+                    if (hIcon) break;
+                }
+            }
+        }
+
+        if (hIcon)
+        {
+            m_hCustomIcon = hIcon;
+            m_nid.hIcon = hIcon;
+        }
+        else
+        {
+            m_nid.hIcon = LoadIconW(nullptr, IDI_APPLICATION);
+        }
+
         wcscpy_s(m_nid.szTip, L"dTranslate - Native Windows Translator");
 
         m_trayAdded = Shell_NotifyIconW(NIM_ADD, &m_nid) != FALSE;
@@ -94,6 +125,11 @@ namespace dTranslate::Windows
         {
             Shell_NotifyIconW(NIM_DELETE, &m_nid);
             m_trayAdded = false;
+        }
+        if (m_hCustomIcon)
+        {
+            DestroyIcon(m_hCustomIcon);
+            m_hCustomIcon = nullptr;
         }
     }
 

@@ -107,6 +107,45 @@ namespace dTranslate::OCR
         m_hScreenBmp = CreateCompatibleBitmap(hScreenDC, m_vw, m_vh);
         HGDIOBJ hOld = SelectObject(hMemDC, m_hScreenBmp);
         BitBlt(hMemDC, 0, 0, m_vw, m_vh, hScreenDC, m_vx, m_vy, SRCCOPY);
+
+        // Pre-create dimmed base bitmap once
+        m_hDimmedBmp = CreateCompatibleBitmap(hScreenDC, m_vw, m_vh);
+        HDC hDimmedDC = CreateCompatibleDC(hScreenDC);
+        HGDIOBJ hOldDim = SelectObject(hDimmedDC, m_hDimmedBmp);
+        BitBlt(hDimmedDC, 0, 0, m_vw, m_vh, hMemDC, 0, 0, SRCCOPY);
+
+        // Darken m_hDimmedBmp with 1x1 black DIB
+        HDC hBlackDC = CreateCompatibleDC(hScreenDC);
+        BITMAPINFO bmi1 = {};
+        bmi1.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmi1.bmiHeader.biWidth = 1;
+        bmi1.bmiHeader.biHeight = 1;
+        bmi1.bmiHeader.biPlanes = 1;
+        bmi1.bmiHeader.biBitCount = 32;
+        bmi1.bmiHeader.biCompression = BI_RGB;
+        void* pBlackBits = nullptr;
+        HBITMAP hBlackBmp = CreateDIBSection(hBlackDC, &bmi1, DIB_RGB_COLORS, &pBlackBits, nullptr, 0);
+        HGDIOBJ hOldBlack = SelectObject(hBlackDC, hBlackBmp);
+        if (pBlackBits) *static_cast<uint32_t*>(pBlackBits) = 0x00000000;
+
+        BLENDFUNCTION bf = {};
+        bf.BlendOp = AC_SRC_OVER;
+        bf.BlendFlags = 0;
+        bf.SourceConstantAlpha = 140; // 55% darkness
+        bf.AlphaFormat = 0;
+
+        AlphaBlend(hDimmedDC, 0, 0, m_vw, m_vh, hBlackDC, 0, 0, 1, 1, bf);
+
+        SelectObject(hBlackDC, hOldBlack);
+        DeleteObject(hBlackBmp);
+        DeleteDC(hBlackDC);
+
+        SelectObject(hDimmedDC, hOldDim);
+        DeleteDC(hDimmedDC);
+
+        // Pre-create back buffer bitmap once
+        m_hBackBmp = CreateCompatibleBitmap(hScreenDC, m_vw, m_vh);
+
         SelectObject(hMemDC, hOld);
         DeleteDC(hMemDC);
         ReleaseDC(nullptr, hScreenDC);
@@ -160,6 +199,16 @@ namespace dTranslate::OCR
             DeleteObject(m_hScreenBmp);
             m_hScreenBmp = nullptr;
         }
+        if (m_hDimmedBmp != nullptr)
+        {
+            DeleteObject(m_hDimmedBmp);
+            m_hDimmedBmp = nullptr;
+        }
+        if (m_hBackBmp != nullptr)
+        {
+            DeleteObject(m_hBackBmp);
+            m_hBackBmp = nullptr;
+        }
         m_isSelecting = false;
         m_selectionDone = false;
         m_hoveredBtn = 0;
@@ -211,43 +260,25 @@ namespace dTranslate::OCR
         PAINTSTRUCT ps;
         HDC hDC = BeginPaint(hWnd, &ps);
 
+        if (!m_hDimmedBmp || !m_hScreenBmp || !m_hBackBmp)
+        {
+            EndPaint(hWnd, &ps);
+            return;
+        }
+
         HDC hMemDC = CreateCompatibleDC(hDC);
-        HBITMAP hBackBmp = CreateCompatibleBitmap(hDC, m_vw, m_vh);
-        HGDIOBJ hOldBack = SelectObject(hMemDC, hBackBmp);
+        HGDIOBJ hOldBack = SelectObject(hMemDC, m_hBackBmp);
+
+        HDC hDimDC = CreateCompatibleDC(hDC);
+        HGDIOBJ hOldDim = SelectObject(hDimDC, m_hDimmedBmp);
 
         HDC hSrcDC = CreateCompatibleDC(hDC);
         HGDIOBJ hOldSrc = SelectObject(hSrcDC, m_hScreenBmp);
 
-        // 1. Draw base screenshot
-        BitBlt(hMemDC, 0, 0, m_vw, m_vh, hSrcDC, 0, 0, SRCCOPY);
+        // 1. Draw pre-dimmed base screenshot
+        BitBlt(hMemDC, 0, 0, m_vw, m_vh, hDimDC, 0, 0, SRCCOPY);
 
-        // 2. Dim full screen with dark tint
-        HDC hBlackDC = CreateCompatibleDC(hDC);
-        BITMAPINFO bmi1 = {};
-        bmi1.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        bmi1.bmiHeader.biWidth = 1;
-        bmi1.bmiHeader.biHeight = 1;
-        bmi1.bmiHeader.biPlanes = 1;
-        bmi1.bmiHeader.biBitCount = 32;
-        bmi1.bmiHeader.biCompression = BI_RGB;
-        void* pBlackBits = nullptr;
-        HBITMAP hBlackBmp = CreateDIBSection(hBlackDC, &bmi1, DIB_RGB_COLORS, &pBlackBits, nullptr, 0);
-        HGDIOBJ hOldBlack = SelectObject(hBlackDC, hBlackBmp);
-        if (pBlackBits) *static_cast<uint32_t*>(pBlackBits) = 0x00000000;
-
-        BLENDFUNCTION bf = {};
-        bf.BlendOp = AC_SRC_OVER;
-        bf.BlendFlags = 0;
-        bf.SourceConstantAlpha = 140; // 55% darkness
-        bf.AlphaFormat = 0;
-
-        AlphaBlend(hMemDC, 0, 0, m_vw, m_vh, hBlackDC, 0, 0, 1, 1, bf);
-
-        SelectObject(hBlackDC, hOldBlack);
-        DeleteObject(hBlackBmp);
-        DeleteDC(hBlackDC);
-
-        // 3. If dragging or selection is done, restore clear region
+        // 2. If dragging or selection is done, restore bright region
         RECT sel = m_selectedRect;
         int selW = sel.right - sel.left;
         int selH = sel.bottom - sel.top;
@@ -355,8 +386,10 @@ namespace dTranslate::OCR
         SelectObject(hSrcDC, hOldSrc);
         DeleteDC(hSrcDC);
 
+        SelectObject(hDimDC, hOldDim);
+        DeleteDC(hDimDC);
+
         SelectObject(hMemDC, hOldBack);
-        DeleteObject(hBackBmp);
         DeleteDC(hMemDC);
 
         EndPaint(hWnd, &ps);

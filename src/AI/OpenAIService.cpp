@@ -75,7 +75,7 @@ namespace dTranslate::AI
         if (!response.IsSuccess())
         {
             result.success = false;
-            std::wstring detailedError;
+            std::wstring errMessage, errType, errCode;
             try
             {
                 if (!response.body.empty())
@@ -84,31 +84,49 @@ namespace dTranslate::AI
                     JsonObject errObj;
                     if (JsonObject::TryParse(errJson, errObj) && errObj.HasKey(L"error"))
                     {
-                        auto errNode = errObj.GetNamedObject(L"error");
-                        if (errNode.HasKey(L"message"))
+                        auto errVal = errObj.GetNamedValue(L"error");
+                        if (errVal.ValueType() == JsonValueType::Object)
                         {
-                            detailedError = errNode.GetNamedString(L"message").c_str();
+                            auto errNode = errVal.GetObject();
+                            if (errNode.HasKey(L"message")) errMessage = errNode.GetNamedString(L"message").c_str();
+                            if (errNode.HasKey(L"type")) errType = errNode.GetNamedString(L"type").c_str();
+                            if (errNode.HasKey(L"code") && errNode.GetNamedValue(L"code").ValueType() == JsonValueType::String)
+                            {
+                                errCode = errNode.GetNamedString(L"code").c_str();
+                            }
                         }
                     }
                 }
             }
             catch (...) {}
 
-            if (!detailedError.empty())
+            // Distinct error states per AGENTS.md:
+            // 1. No API credits (insufficient_quota)
+            if (errCode == L"insufficient_quota" || errType == L"insufficient_quota" ||
+                errMessage.find(L"quota") != std::wstring::npos ||
+                errMessage.find(L"billing") != std::wstring::npos)
             {
-                result.errorMessage = detailedError;
+                result.errorMessage = L"No API credits. Your OpenAI account has exhausted its quota or has no billing credits.";
             }
-            else if (response.statusCode == 401)
+            // 2. Invalid API key (HTTP 401)
+            else if (response.statusCode == 401 || errCode == L"invalid_api_key")
             {
-                result.errorMessage = L"Invalid OpenAI API key (HTTP 401). Please check your key in Settings.";
+                result.errorMessage = L"Invalid API key. Please check your OpenAI API key in Settings.";
             }
+            // 3. Rate limited (HTTP 429)
+            else if (response.statusCode == 429 || errCode == L"rate_limit_exceeded")
+            {
+                result.errorMessage = L"OpenAI rate limit reached. Please wait before retrying.";
+            }
+            // 4. Model not found (HTTP 404)
             else if (response.statusCode == 404)
             {
-                result.errorMessage = L"OpenAI model \"" + model + L"\" not found (HTTP 404). Please refresh models in Settings.";
+                result.errorMessage = L"OpenAI model \"" + model + L"\" not found (HTTP 404).";
             }
-            else if (response.statusCode == 429)
+            // 5. Detailed message or status code
+            else if (!errMessage.empty())
             {
-                result.errorMessage = L"OpenAI rate limit / quota exceeded (HTTP 429). Please wait before retrying.";
+                result.errorMessage = errMessage;
             }
             else
             {

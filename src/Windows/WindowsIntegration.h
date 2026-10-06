@@ -50,6 +50,7 @@ namespace dTranslate::Windows
         HWND m_hWnd{ nullptr };
         NOTIFYICONDATAW m_nid{};
         bool m_trayAdded{ false };
+        HICON m_hCustomIcon{ nullptr };
 
         std::function<void()> m_onShowMainWindow;
         std::function<void(std::wstring const&)> m_onTranslateSelection;

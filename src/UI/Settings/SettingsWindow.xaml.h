@@ -14,8 +14,6 @@ namespace winrt::dTranslate::implementation
         void SelectSettingsTab(int index);
         void UpdateAiStatuses();
         void PopulateLanguageDropdowns();
-        winrt::fire_and_forget RefreshGeminiModelsAsync();
-        winrt::fire_and_forget RefreshOpenAiModelsAsync();
         winrt::fire_and_forget TestGeminiAsync();
         winrt::fire_and_forget TestOpenAiAsync();
     };

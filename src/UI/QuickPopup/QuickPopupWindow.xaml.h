@@ -24,7 +24,10 @@ namespace winrt::dTranslate::implementation
         void OnSwapLanguages();
         void SelectService(int serviceId);
         void ApplyTheme(std::wstring const& themeName);
+        std::wstring m_lastDetectedSourceLang;
         void CopyTextToClipboard(winrt::hstring const& text);
+        void OnSpeakSource();
+        void OnSpeakResult();
         std::wstring GetSourceLangCode();
         std::wstring GetTargetLangCode();
     };

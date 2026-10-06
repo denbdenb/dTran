@@ -225,6 +225,14 @@
     <Image Include="..\..\assets\Wide310x150Logo.png">
       <Link>Assets\Wide310x150Logo.png</Link>
     </Image>
+    <Content Include="..\..\assets\app.ico">
+      <Link>Assets\app.ico</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\assets\flags\*.svg">
+      <Link>Assets\flags\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- Only two NuGet packages: C++/WinRT and the Windows App SDK. -->

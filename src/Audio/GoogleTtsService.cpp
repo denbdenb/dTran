@@ -130,7 +130,12 @@ namespace dTranslate::Audio
         return chunks;
     }
 
-    void GoogleTtsService::PlaybackWorker(std::vector<std::wstring> chunks, std::wstring langCode, uint64_t playSessionId)
+    void GoogleTtsService::PlaybackWorker(
+        std::vector<std::wstring> chunks,
+        std::wstring langCode,
+        uint64_t playSessionId,
+        winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
+        std::function<void()> onFinished)
     {
         std::wstring tl = langCode.empty() || langCode == L"auto" ? L"en" : langCode;
         std::vector<std::pair<std::wstring, std::wstring>> headers = {
@@ -200,10 +205,25 @@ namespace dTranslate::Audio
         if (playSessionId == m_sessionCounter.load())
         {
             m_isPlaying.store(false);
+            if (onFinished)
+            {
+                if (dispatcher)
+                {
+                    dispatcher.TryEnqueue([onFinished]() { onFinished(); });
+                }
+                else
+                {
+                    onFinished();
+                }
+            }
         }
     }
 
-    bool GoogleTtsService::Speak(std::wstring const& text, std::wstring const& langCode)
+    bool GoogleTtsService::Speak(
+        std::wstring const& text,
+        std::wstring const& langCode,
+        winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
+        std::function<void()> onFinished)
     {
         if (text.empty()) return false;
 
@@ -218,9 +238,9 @@ namespace dTranslate::Audio
         m_cancelRequested.store(false);
 
         std::unique_lock<std::mutex> lock(m_threadMutex);
-        m_workerThread = std::thread([this, chunks = std::move(chunks), langCode, currentSession]()
+        m_workerThread = std::thread([this, chunks = std::move(chunks), langCode, currentSession, dispatcher, onFinished]()
         {
-            PlaybackWorker(chunks, langCode, currentSession);
+            PlaybackWorker(chunks, langCode, currentSession, dispatcher, onFinished);
         });
 
         return true;

@@ -141,6 +141,35 @@ namespace winrt::dTranslate::implementation
         ToolTipService::SetToolTip(ScreenOcrBtn(), box_value(winrt::hstring(tip)));
     }
 
+    static ComboBoxItem CreateLanguageComboItem(LanguageInfo const& lang)
+    {
+        ComboBoxItem item;
+        StackPanel sp;
+        sp.Orientation(Orientation::Horizontal);
+        sp.Spacing(8);
+        sp.VerticalAlignment(VerticalAlignment::Center);
+
+        Image img;
+        img.Width(20);
+        img.Height(15);
+        img.VerticalAlignment(VerticalAlignment::Center);
+
+        Microsoft::UI::Xaml::Media::Imaging::SvgImageSource svg;
+        svg.RasterizePixelWidth(24);
+        svg.RasterizePixelHeight(18);
+        svg.UriSource(Windows::Foundation::Uri(lang.FlagSvgPath()));
+        img.Source(svg);
+        sp.Children().Append(img);
+
+        TextBlock tb;
+        tb.Text(lang.DisplayNameClean());
+        tb.VerticalAlignment(VerticalAlignment::Center);
+        sp.Children().Append(tb);
+
+        item.Content(sp);
+        return item;
+    }
+
     void MainWindow::PopulateLanguagesForService(int serviceId)
     {
         auto const& settings = SettingsManager::Instance().GetSettings();
@@ -162,9 +191,7 @@ namespace winrt::dTranslate::implementation
         {
             auto const& lang = srcLangs[i];
             m_sourceLangCodes.push_back(lang.code);
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(lang.DisplayName())));
-            SourceLanguageCombo().Items().Append(item);
+            SourceLanguageCombo().Items().Append(CreateLanguageComboItem(lang));
             if (_wcsicmp(lang.code.c_str(), curSrc.c_str()) == 0)
             {
                 srcIdx = static_cast<int>(i);
@@ -179,15 +206,14 @@ namespace winrt::dTranslate::implementation
         {
             auto const& lang = tgtLangs[i];
             m_targetLangCodes.push_back(lang.code);
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(lang.DisplayName())));
-            TargetLanguageCombo().Items().Append(item);
+            TargetLanguageCombo().Items().Append(CreateLanguageComboItem(lang));
             if (_wcsicmp(lang.code.c_str(), curTgt.c_str()) == 0)
             {
                 tgtIdx = static_cast<int>(i);
             }
         }
         TargetLanguageCombo().SelectedIndex(tgtIdx);
+        UpdateRestoreDefaultsVisibility();
     }
 
     void MainWindow::PopulateDictionaryLanguages()
@@ -209,13 +235,8 @@ namespace winrt::dTranslate::implementation
             m_dictSourceLangCodes.push_back(lang.code);
             m_dictTargetLangCodes.push_back(lang.code);
 
-            ComboBoxItem item1;
-            item1.Content(box_value(winrt::hstring(lang.DisplayName())));
-            DictSourceLangCombo().Items().Append(item1);
-
-            ComboBoxItem item2;
-            item2.Content(box_value(winrt::hstring(lang.DisplayName())));
-            DictTargetLangCombo().Items().Append(item2);
+            DictSourceLangCombo().Items().Append(CreateLanguageComboItem(lang));
+            DictTargetLangCombo().Items().Append(CreateLanguageComboItem(lang));
 
             if (_wcsicmp(lang.code.c_str(), settings.dictSourceLang.c_str()) == 0)
             {
@@ -326,6 +347,22 @@ namespace winrt::dTranslate::implementation
         SwapLanguagesBtn().Click([this](auto&&, auto&&)
         {
             OnSwapLanguages();
+        });
+
+        // Restore Default Languages
+        RestoreDefaultLanguagesBtn().Click([this](auto&&, auto&&)
+        {
+            OnRestoreDefaultLanguages();
+        });
+
+        SourceLanguageCombo().SelectionChanged([this](auto&&, auto&&)
+        {
+            UpdateRestoreDefaultsVisibility();
+        });
+
+        TargetLanguageCombo().SelectionChanged([this](auto&&, auto&&)
+        {
+            UpdateRestoreDefaultsVisibility();
         });
 
         // Text Box change -> count
@@ -623,6 +660,40 @@ namespace winrt::dTranslate::implementation
             ResultTextBlock().Text(srcText);
             UpdateCharCount();
         }
+
+        UpdateRestoreDefaultsVisibility();
+    }
+
+    void MainWindow::UpdateRestoreDefaultsVisibility()
+    {
+        auto const& settings = SettingsManager::Instance().GetSettings();
+        auto curSrc = GetSourceLangCode();
+        auto curTgt = GetTargetLangCode();
+        bool differs = (_wcsicmp(curSrc.c_str(), settings.sourceLanguage.c_str()) != 0 ||
+                        _wcsicmp(curTgt.c_str(), settings.targetLanguage.c_str()) != 0);
+        RestoreDefaultLanguagesBtn().Visibility(differs ? Microsoft::UI::Xaml::Visibility::Visible : Microsoft::UI::Xaml::Visibility::Collapsed);
+    }
+
+    void MainWindow::OnRestoreDefaultLanguages()
+    {
+        auto const& settings = SettingsManager::Instance().GetSettings();
+        for (size_t i = 0; i < m_sourceLangCodes.size(); ++i)
+        {
+            if (_wcsicmp(m_sourceLangCodes[i].c_str(), settings.sourceLanguage.c_str()) == 0)
+            {
+                SourceLanguageCombo().SelectedIndex(static_cast<int>(i));
+                break;
+            }
+        }
+        for (size_t i = 0; i < m_targetLangCodes.size(); ++i)
+        {
+            if (_wcsicmp(m_targetLangCodes[i].c_str(), settings.targetLanguage.c_str()) == 0)
+            {
+                TargetLanguageCombo().SelectedIndex(static_cast<int>(i));
+                break;
+            }
+        }
+        UpdateRestoreDefaultsVisibility();
     }
 
     void MainWindow::OnTranslateAsync()
@@ -662,6 +733,10 @@ namespace winrt::dTranslate::implementation
             {
                 if (result.success)
                 {
+                    if (!result.detectedLanguage.empty())
+                    {
+                        m_lastDetectedSourceLang = result.detectedLanguage;
+                    }
                     ResultTextBlock().Text(winrt::hstring(result.translatedText));
                     HistoryItem item;
                     item.service = result.serviceName;
@@ -680,20 +755,60 @@ namespace winrt::dTranslate::implementation
 
     void MainWindow::OnSpeakSource()
     {
-        auto text = SourceTextBox().Text();
-        if (!text.empty())
+        if (GoogleTtsService::Instance().IsPlaying())
         {
-            GoogleTtsService::Instance().Speak(text.c_str(), GetSourceLangCode());
+            GoogleTtsService::Instance().Stop();
+            SpeakSourceIcon().Glyph(L"\uE767");
+            SpeakResultIcon().Glyph(L"\uE767");
+            return;
         }
+
+        auto text = SourceTextBox().Text();
+        if (text.empty()) return;
+
+        std::wstring lang = GetSourceLangCode();
+        if (lang == L"auto" && !m_lastDetectedSourceLang.empty())
+        {
+            lang = m_lastDetectedSourceLang;
+        }
+        if (lang == L"auto")
+        {
+            lang = L"en";
+        }
+
+        SpeakSourceIcon().Glyph(L"\uE74F");
+        GoogleTtsService::Instance().Speak(
+            text.c_str(),
+            lang,
+            DispatcherQueue(),
+            [this]()
+            {
+                SpeakSourceIcon().Glyph(L"\uE767");
+            });
     }
 
     void MainWindow::OnSpeakResult()
     {
-        auto text = ResultTextBlock().Text();
-        if (!text.empty() && text != L"Translation will appear here..." && text != L"Translating...")
+        if (GoogleTtsService::Instance().IsPlaying())
         {
-            GoogleTtsService::Instance().Speak(text.c_str(), GetTargetLangCode());
+            GoogleTtsService::Instance().Stop();
+            SpeakSourceIcon().Glyph(L"\uE767");
+            SpeakResultIcon().Glyph(L"\uE767");
+            return;
         }
+
+        auto text = ResultTextBlock().Text();
+        if (text.empty() || text == L"Translation will appear here..." || text == L"Translating...") return;
+
+        SpeakResultIcon().Glyph(L"\uE74F");
+        GoogleTtsService::Instance().Speak(
+            text.c_str(),
+            GetTargetLangCode(),
+            DispatcherQueue(),
+            [this]()
+            {
+                SpeakResultIcon().Glyph(L"\uE767");
+            });
     }
 
     void MainWindow::TriggerScreenOcr()

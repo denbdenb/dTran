@@ -44,6 +44,25 @@ namespace dTranslate::Translation
             }
             return L"[" + badge + L"] " + name;
         }
+
+        std::wstring DisplayNameClean() const
+        {
+            if (code == L"auto")
+            {
+                return L"Auto-detect";
+            }
+            if (!nativeName.empty() && name != nativeName)
+            {
+                return name + L" (" + nativeName + L")";
+            }
+            return name;
+        }
+
+        std::wstring FlagSvgPath() const
+        {
+            if (code == L"auto") return L"ms-appx:///Assets/flags/auto.svg";
+            return L"ms-appx:///Assets/flags/" + code + L".svg";
+        }
     };
 
     class LanguageCatalog

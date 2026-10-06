@@ -100,9 +100,10 @@ namespace dTranslate::Dictionary
 
         if (!response.IsSuccess() || response.body.empty())
         {
-            result.title = request.word;
-            result.content = L"View full Reverso dictionary and bilingual examples on Reverso Context.";
-            result.success = true;
+            result.success = false;
+            result.errorMessage = response.errorMessage.empty() ?
+                (L"Reverso service unavailable (HTTP " + std::to_wstring(response.statusCode) + L").") :
+                response.errorMessage;
             return result;
         }
 
@@ -115,6 +116,7 @@ namespace dTranslate::Dictionary
                 result.title = request.word;
                 std::wstring formattedContent;
 
+                // 1. Translations / Dictionary entries
                 if (resObj.HasKey(L"translation"))
                 {
                     auto transArr = resObj.GetNamedArray(L"translation");
@@ -128,6 +130,27 @@ namespace dTranslate::Dictionary
                     }
                 }
 
+                // 2. Dictionary entries with parts of speech if present
+                if (resObj.HasKey(L"dictionary_entry_list"))
+                {
+                    auto dictArr = resObj.GetNamedArray(L"dictionary_entry_list");
+                    if (dictArr.Size() > 0 && !resObj.HasKey(L"translation"))
+                    {
+                        formattedContent += L"Dictionary Entries:\n";
+                        for (uint32_t i = 0; i < dictArr.Size(); ++i)
+                        {
+                            auto entry = dictArr.GetObjectAt(i);
+                            std::wstring term = entry.HasKey(L"term") ? entry.GetNamedString(L"term").c_str() : L"";
+                            std::wstring pos = entry.HasKey(L"pos") ? (L" (" + std::wstring(entry.GetNamedString(L"pos").c_str()) + L")") : L"";
+                            if (!term.empty())
+                            {
+                                formattedContent += L"• " + term + pos + L"\n";
+                            }
+                        }
+                    }
+                }
+
+                // 3. Bilingual Context Examples
                 if (resObj.HasKey(L"contextResults"))
                 {
                     auto ctxObj = resObj.GetNamedObject(L"contextResults");
@@ -136,8 +159,8 @@ namespace dTranslate::Dictionary
                         auto resultsArr = ctxObj.GetNamedArray(L"results");
                         if (resultsArr.Size() > 0)
                         {
-                            formattedContent += L"\nContext Examples:\n";
-                            uint32_t count = (std::min)(resultsArr.Size(), 4u);
+                            formattedContent += L"\nBilingual Context Examples:\n";
+                            uint32_t count = (std::min)(resultsArr.Size(), 6u);
                             for (uint32_t i = 0; i < count; ++i)
                             {
                                 auto item = resultsArr.GetObjectAt(i);
@@ -145,8 +168,13 @@ namespace dTranslate::Dictionary
                                 {
                                     std::wstring cleanSource = StripHtmlTags(item.GetNamedString(L"source").c_str());
                                     std::wstring cleanTarget = StripHtmlTags(item.GetNamedString(L"target").c_str());
-                                    formattedContent += L"— " + cleanSource + L"\n";
-                                    formattedContent += L"  " + cleanTarget + L"\n\n";
+                                    std::wstring pos;
+                                    if (item.HasKey(L"pos"))
+                                    {
+                                        pos = L" [" + std::wstring(item.GetNamedString(L"pos").c_str()) + L"]";
+                                    }
+                                    formattedContent += std::to_wstring(i + 1) + L". " + cleanSource + pos + L"\n";
+                                    formattedContent += L"   ➔ " + cleanTarget + L"\n\n";
                                 }
                             }
                         }
@@ -155,7 +183,7 @@ namespace dTranslate::Dictionary
 
                 if (formattedContent.empty())
                 {
-                    formattedContent = L"No detailed entries found. Check Reverso Context online.";
+                    formattedContent = L"No bilingual context entries found for \"" + request.word + L"\".";
                 }
 
                 result.content = formattedContent;
@@ -167,9 +195,8 @@ namespace dTranslate::Dictionary
         {
         }
 
-        result.title = request.word;
-        result.content = L"Consult Reverso Context online for bilingual examples.";
-        result.success = true;
+        result.success = false;
+        result.errorMessage = L"Unable to parse Reverso dictionary response.";
         return result;
     }
 }
