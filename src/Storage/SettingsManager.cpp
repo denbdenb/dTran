@@ -52,7 +52,11 @@ namespace dTranslate::Storage
             root.SetNamedValue(L"autoStart", JsonValue::CreateBooleanValue(m_settings.autoStart));
             root.SetNamedValue(L"globalHotkey", JsonValue::CreateStringValue(m_settings.globalHotkey));
             root.SetNamedValue(L"quickHotkey", JsonValue::CreateStringValue(m_settings.quickHotkey));
+            root.SetNamedValue(L"ocrHotkey", JsonValue::CreateStringValue(m_settings.ocrHotkey));
             root.SetNamedValue(L"compareTranslations", JsonValue::CreateBooleanValue(m_settings.compareTranslations));
+            root.SetNamedValue(L"sidebarCollapsed", JsonValue::CreateBooleanValue(m_settings.sidebarCollapsed));
+            root.SetNamedValue(L"geminiModel", JsonValue::CreateStringValue(m_settings.geminiModel));
+            root.SetNamedValue(L"openAiModel", JsonValue::CreateStringValue(m_settings.openAiModel));
 
             std::wstring jsonStr = root.Stringify().c_str();
             std::wofstream file(path, std::ios::trunc);
@@ -105,8 +109,16 @@ namespace dTranslate::Storage
                     m_settings.globalHotkey = root.GetNamedString(L"globalHotkey").c_str();
                 if (root.HasKey(L"quickHotkey"))
                     m_settings.quickHotkey = root.GetNamedString(L"quickHotkey").c_str();
+                if (root.HasKey(L"ocrHotkey"))
+                    m_settings.ocrHotkey = root.GetNamedString(L"ocrHotkey").c_str();
                 if (root.HasKey(L"compareTranslations"))
                     m_settings.compareTranslations = root.GetNamedBoolean(L"compareTranslations");
+                if (root.HasKey(L"sidebarCollapsed"))
+                    m_settings.sidebarCollapsed = root.GetNamedBoolean(L"sidebarCollapsed");
+                if (root.HasKey(L"geminiModel"))
+                    m_settings.geminiModel = root.GetNamedString(L"geminiModel").c_str();
+                if (root.HasKey(L"openAiModel"))
+                    m_settings.openAiModel = root.GetNamedString(L"openAiModel").c_str();
             }
         }
         catch (...)

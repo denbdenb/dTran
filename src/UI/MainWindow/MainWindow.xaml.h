@@ -9,13 +9,18 @@ namespace winrt::dTranslate::implementation
     {
         MainWindow();
 
+        void TriggerScreenOcr();
+
     private:
         int m_currentNavIndex{ 0 };
         int m_currentServiceIndex{ 0 };
         bool m_isDarkMode{ false };
+        bool m_sidebarCollapsed{ false };
 
         void SetupEventHandlers();
         void SelectNavView(int index);
+        void ToggleSidebar();
+        void SetSidebarState(bool collapsed);
         void UpdateCharCount();
         void OnSwapLanguages();
         void OnTranslateAsync();
@@ -23,11 +28,9 @@ namespace winrt::dTranslate::implementation
         void SelectService(int serviceId);
         void CopyTextToClipboard(winrt::hstring const& text);
 
-        // New service integrations
-        void OnOcrAsync();
+        void OnScreenSnippingOcr();
         winrt::fire_and_forget OnAiRunAsync();
-        winrt::fire_and_forget OnWikipediaLookupAsync();
-        winrt::fire_and_forget OnDictionaryLookupAsync();
+        winrt::fire_and_forget OnDictionarySearch();
         void OnSpeakSource();
         void OnSpeakResult();
         void RefreshHistory();

@@ -21,6 +21,11 @@ namespace dTranslate::OCR
             winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
             std::function<void(OcrResult)> onComplete);
 
+        void RecognizeBmpBufferAsync(
+            std::vector<uint8_t> const& bmpBytes,
+            winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
+            std::function<void(OcrResult)> onComplete);
+
     private:
         WindowsOcrService() = default;
     };

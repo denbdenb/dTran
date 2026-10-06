@@ -31,14 +31,14 @@
         <!-- 1. Main Content: Sidebar + Panels -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="180" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Settings Left Sidebar -->
             <Border Grid.Column="0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0"
                     Background="{ThemeResource LayerFillColorAltBrush}">
-                <Grid Padding="12,12,12,12">
+                <Grid Padding="10,12,10,12">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -46,17 +46,17 @@
 
                     <!-- Header -->
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="4,0,0,16">
-                        <FontIcon Glyph="&#xE713;" FontSize="18" Foreground="#2563EB" />
+                        <FontIcon Glyph="&#xE713;" FontSize="17" Foreground="#2563EB" />
                         <TextBlock Text="Settings" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <!-- Nav Items -->
+                    <!-- Nav Items (General, Translation, AI, Hotkeys, About) -->
                     <StackPanel Grid.Row="1" Spacing="3">
                         <Button x:Name="TabGeneralBtn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                                 Height="36" CornerRadius="6" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                 BorderThickness="0" Padding="10,0,10,0">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE713;" FontSize="15" Foreground="#2563EB" />
+                                <FontIcon Glyph="&#xE713;" FontSize="14" Foreground="#2563EB" />
                                 <TextBlock Text="General" FontSize="13" FontWeight="Medium" />
                             </StackPanel>
                         </Button>
@@ -65,7 +65,7 @@
                                 Height="36" CornerRadius="6" Background="Transparent"
                                 BorderThickness="0" Padding="10,0,10,0">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE774;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <FontIcon Glyph="&#xE774;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 <TextBlock Text="Translation" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                         </Button>
@@ -74,35 +74,8 @@
                                 Height="36" CornerRadius="6" Background="Transparent"
                                 BorderThickness="0" Padding="10,0,10,0">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE945;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="AI" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button x:Name="TabDictionariesBtn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                                Height="36" CornerRadius="6" Background="Transparent"
-                                BorderThickness="0" Padding="10,0,10,0">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE82D;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="Dictionaries" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button x:Name="TabSpeechBtn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                                Height="36" CornerRadius="6" Background="Transparent"
-                                BorderThickness="0" Padding="10,0,10,0">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE767;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="Speech (TTS)" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button x:Name="TabOcrBtn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                                Height="36" CornerRadius="6" Background="Transparent"
-                                BorderThickness="0" Padding="10,0,10,0">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE8FF;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                <TextBlock Text="OCR" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <FontIcon Glyph="&#xE945;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="AI Services" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                         </Button>
 
@@ -110,7 +83,7 @@
                                 Height="36" CornerRadius="6" Background="Transparent"
                                 BorderThickness="0" Padding="10,0,10,0">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE765;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <FontIcon Glyph="&#xE765;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 <TextBlock Text="Hotkeys" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                         </Button>
@@ -119,7 +92,7 @@
                                 Height="36" CornerRadius="6" Background="Transparent"
                                 BorderThickness="0" Padding="10,0,10,0">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <FontIcon Glyph="&#xE946;" FontSize="15" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <FontIcon Glyph="&#xE946;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 <TextBlock Text="About" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                         </Button>
@@ -127,309 +100,383 @@
                 </Grid>
             </Border>
 
-            <!-- Settings Right Content: Services Grid matching concept screenshot -->
+            <!-- Settings Right Content Area -->
             <ScrollViewer Grid.Column="1" Padding="24,14,24,14">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Services" FontSize="18" FontWeight="SemiBold" />
+                <Grid>
+                    <!-- TAB 0: GENERAL -->
+                    <StackPanel x:Name="PanelGeneral" Spacing="14" Visibility="Visible">
+                        <TextBlock Text="General" FontSize="18" FontWeight="SemiBold" />
 
-                    <!-- Two-column Services Layout -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- LEFT COLUMN: Translators & AI -->
-                        <StackPanel Grid.Column="0" Spacing="16">
-                            <!-- Translators Section -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Translators" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                                <!-- Google Translate Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4" Background="#E8F0FE" Margin="0,0,10,0">
-                                            <TextBlock Text="G" FontWeight="Bold" FontSize="14" Foreground="#1A73E8"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Google Translate" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Primary translator" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleGoogle" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <!-- Yandex Translate Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4" Background="#FC0" Margin="0,0,10,0">
-                                            <TextBlock Text="Y" FontWeight="Bold" FontSize="14" Foreground="#D00"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Yandex Translate" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Alternative translator" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleYandex" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- AI Services Section -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="AI Services" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                                <!-- Gemini Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <FontIcon Grid.Column="0" Glyph="&#xE945;" FontSize="20" Foreground="#1E88E5" Margin="0,0,10,0" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Gemini" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Translate, rewrite, summary" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleGemini" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure API key">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <!-- OpenAI Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <FontIcon Grid.Column="0" Glyph="&#xE713;" FontSize="18" Foreground="#10A37F" Margin="0,0,10,0" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="OpenAI" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Translate, rewrite, summary" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleOpenAi" Grid.Column="2" IsOn="False" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure API key">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- RIGHT COLUMN: Dictionaries & Other -->
-                        <StackPanel Grid.Column="2" Spacing="16">
-                            <!-- Dictionaries Section -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Dictionaries" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                                <!-- Reverso Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <FontIcon Grid.Column="0" Glyph="&#xE82D;" FontSize="19" Foreground="#2563EB" Margin="0,0,10,0" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Reverso" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Translation, examples, definitions" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleReverso" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <!-- Wikipedia Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="W" FontSize="19" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Wikipedia" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Search &amp; reference" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleWikipedia" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- Other Services Section -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Other Services" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                                <!-- Google TTS Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <FontIcon Grid.Column="0" Glyph="&#xE767;" FontSize="19" Foreground="#2563EB" Margin="0,0,10,0" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Google TTS" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Text to speech" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleTts" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure voice">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <!-- Windows OCR Card -->
-                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="12,10,12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <FontIcon Grid.Column="0" Glyph="&#xE8FF;" FontSize="19" Foreground="#2563EB" Margin="0,0,10,0" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="Windows OCR" FontSize="13" FontWeight="Medium" />
-                                            <TextBlock Text="Text recognition" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                        </StackPanel>
-                                        <ToggleSwitch x:Name="ToggleOcr" Grid.Column="2" IsOn="True" MinWidth="0" Margin="0,0,6,0" />
-                                        <Button Grid.Column="3" Width="28" Height="28" CornerRadius="4" Background="Transparent"
-                                                BorderThickness="0" Padding="0" ToolTipService.ToolTip="Configure languages">
-                                            <FontIcon Glyph="&#xE713;" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- API Keys Section (Windows Credential Manager) -->
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                            CornerRadius="8" Padding="16,14,16,14" Margin="0,8,0,0">
-                        <StackPanel Spacing="12">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE72E;" FontSize="16" Foreground="#2563EB" />
-                                <TextBlock Text="API Keys &amp; Credentials (Stored in Windows Credential Manager)"
-                                           FontSize="13" FontWeight="SemiBold" />
-                            </StackPanel>
-
-                            <Grid ColumnSpacing="16" RowSpacing="10">
+                        <!-- Appearance Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <!-- Gemini Key -->
-                                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4">
-                                    <TextBlock Text="Gemini API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <PasswordBox x:Name="KeyGeminiBox" PlaceholderText="AIzaSy..." Height="34" CornerRadius="6" />
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Application Theme" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Select light, dark, or system default color scheme"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
-
-                                <!-- OpenAI Key -->
-                                <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4">
-                                    <TextBlock Text="OpenAI API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <PasswordBox x:Name="KeyOpenAiBox" PlaceholderText="sk-proj-..." Height="34" CornerRadius="6" />
-                                </StackPanel>
-
-                                <!-- Yandex Key -->
-                                <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4">
-                                    <TextBlock Text="Yandex Translate API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <PasswordBox x:Name="KeyYandexBox" PlaceholderText="Api-Key..." Height="34" CornerRadius="6" />
-                                </StackPanel>
-
-                                <!-- Google Cloud Key -->
-                                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
-                                    <TextBlock Text="Google Cloud API Key (Optional)" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <PasswordBox x:Name="KeyGoogleBox" PlaceholderText="Leave empty for instant translation..." Height="34" CornerRadius="6" />
-                                </StackPanel>
+                                <ComboBox x:Name="ThemeCombo" Grid.Column="1" MinWidth="130" Height="34" CornerRadius="6" VerticalAlignment="Center">
+                                    <ComboBoxItem Content="System Default" IsSelected="True" />
+                                    <ComboBoxItem Content="Light" />
+                                    <ComboBoxItem Content="Dark" />
+                                </ComboBox>
                             </Grid>
+                        </Border>
 
-                            <CheckBox x:Name="CompareTranslationsCheck" Content="Compare Google and Yandex translations side-by-side" Margin="0,4,0,0" />
+                        <!-- Auto-Start Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Start with Windows" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Launch dTranslate minimized to the system tray upon system startup"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="AutoStartToggle" Grid.Column="1" OnContent="" OffContent="" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Minimize to Tray Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Close Button Minimizes to Tray" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Keep global translation hotkeys active when the window is closed"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="MinimizeToTrayToggle" Grid.Column="1" IsOn="True" OnContent="" OffContent="" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- TAB 1: TRANSLATION -->
+                    <StackPanel x:Name="PanelTranslation" Spacing="14" Visibility="Collapsed">
+                        <TextBlock Text="Translation" FontSize="18" FontWeight="SemiBold" />
+
+                        <!-- Default Languages Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Default Languages" FontWeight="Medium" FontSize="14" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="4">
+                                        <TextBlock Text="Default Source Language" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <ComboBox x:Name="DefaultSourceLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6">
+                                            <ComboBoxItem Content="Auto-detect" IsSelected="True" />
+                                            <ComboBoxItem Content="🇺🇸 English" />
+                                            <ComboBoxItem Content="🇷🇺 Russian" />
+                                            <ComboBoxItem Content="🇩🇪 German" />
+                                            <ComboBoxItem Content="🇫🇷 French" />
+                                            <ComboBoxItem Content="🇪🇸 Spanish" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="4">
+                                        <TextBlock Text="Default Target Language" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <ComboBox x:Name="DefaultTargetLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6">
+                                            <ComboBoxItem Content="🇷🇺 Russian" IsSelected="True" />
+                                            <ComboBoxItem Content="🇺🇸 English" />
+                                            <ComboBoxItem Content="🇩🇪 German" />
+                                            <ComboBoxItem Content="🇫🇷 French" />
+                                            <ComboBoxItem Content="🇪🇸 Spanish" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Primary Engine Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Primary Translation Engine" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Default engine used for translation requests"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <ComboBox x:Name="PrimaryEngineCombo" Grid.Column="1" MinWidth="180" Height="34" CornerRadius="6" VerticalAlignment="Center">
+                                    <ComboBoxItem Content="Google (Web)" IsSelected="True" />
+                                    <ComboBoxItem Content="Yandex (Web)" />
+                                    <ComboBoxItem Content="Gemini (AI)" />
+                                    <ComboBoxItem Content="OpenAI (AI)" />
+                                </ComboBox>
+                            </Grid>
+                        </Border>
+
+                        <!-- No-Key Web Engines Note Card -->
+                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="14">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <FontIcon Glyph="&#xE946;" FontSize="18" Foreground="#2563EB" VerticalAlignment="Center" />
+                                <TextBlock Text="Google Translate and Yandex Translate are built-in no-config web engines. They do not require API keys or user accounts."
+                                           FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Compare Translations Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Translation Comparison" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Compare primary translation with secondary engine"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <CheckBox x:Name="CompareTranslationsCheck" Grid.Column="1" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- TAB 2: AI SERVICES -->
+                    <StackPanel x:Name="PanelAi" Spacing="14" Visibility="Collapsed">
+                        <StackPanel Spacing="3">
+                            <TextBlock Text="AI Services" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="Configure external AI keys. Credentials are encrypted and securely stored in Windows Credential Manager."
+                                       FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </StackPanel>
-                    </Border>
-                </StackPanel>
+
+                        <!-- Gemini Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="12">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                        <Border Width="26" Height="26" CornerRadius="5" Background="#E8F0FE">
+                                            <FontIcon Glyph="&#xE945;" FontSize="15" Foreground="#1E88E5"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="Google Gemini" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="GeminiStatusText" Text="Not configured" FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="4">
+                                        <TextBlock Text="API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <PasswordBox x:Name="KeyGeminiBox" PlaceholderText="Paste Gemini API key..." Height="34" CornerRadius="6" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="4">
+                                        <TextBlock Text="Model" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBox x:Name="ModelGeminiBox" Text="gemini-2.5-flash" Height="34" CornerRadius="6" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button x:Name="TestGeminiBtn" Content="Test Connection" Height="32" CornerRadius="6" />
+                                    <TextBlock x:Name="GeminiTestResultText" Text="" FontSize="12" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- OpenAI Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="12">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                        <Border Width="26" Height="26" CornerRadius="5" Background="#E6F4EA">
+                                            <FontIcon Glyph="&#xE713;" FontSize="14" Foreground="#10A37F"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="OpenAI" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="OpenAiStatusText" Text="Not configured" FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="4">
+                                        <TextBlock Text="API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <PasswordBox x:Name="KeyOpenAiBox" PlaceholderText="Paste OpenAI API key (sk-...)" Height="34" CornerRadius="6" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="4">
+                                        <TextBlock Text="Model" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBox x:Name="ModelOpenAiBox" Text="gpt-4o-mini" Height="34" CornerRadius="6" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button x:Name="TestOpenAiBtn" Content="Test Connection" Height="32" CornerRadius="6" />
+                                    <TextBlock x:Name="OpenAiTestResultText" Text="" FontSize="12" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- TAB 3: HOTKEYS -->
+                    <StackPanel x:Name="PanelHotkeys" Spacing="14" Visibility="Collapsed">
+                        <TextBlock Text="Global Hotkeys" FontSize="18" FontWeight="SemiBold" />
+
+                        <!-- Hotkey 1: Translate Selection -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Translate Selected Text" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Capture highlighted text in any application and show Quick Translation popup"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
+                                    <TextBlock Text="Ctrl + Alt + T" FontWeight="SemiBold" FontSize="13" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Hotkey 2: Show Main Window -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Show Main Window" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Bring the dTranslate workspace to the foreground"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
+                                    <TextBlock Text="Ctrl + Alt + D" FontWeight="SemiBold" FontSize="13" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Hotkey 3: Screen OCR & Translate -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="3">
+                                    <TextBlock Text="Screen OCR &amp; Translate" FontWeight="Medium" FontSize="14" />
+                                    <TextBlock Text="Snip any screen region and automatically recognize and translate text"
+                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
+                                    <TextBlock Text="Ctrl + Alt + O" FontWeight="SemiBold" FontSize="13" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- TAB 4: ABOUT -->
+                    <StackPanel x:Name="PanelAbout" Spacing="14" Visibility="Collapsed">
+                        <TextBlock Text="About" FontSize="18" FontWeight="SemiBold" />
+
+                        <!-- App Info Card -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="8">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Border Width="34" Height="34" CornerRadius="6" Background="#2563EB">
+                                        <TextBlock Text="dT" Foreground="White" FontSize="15" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="dTranslate" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Text="Version 1.0.0 (Native Windows 11)" FontSize="12"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <TextBlock Text="Lightweight native Windows 11 translation assistant built with C++20, C++/WinRT, WinUI 3, and WinHTTP."
+                                           FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- System & Services Status -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Diagnostics &amp; Integrations" FontWeight="Medium" FontSize="14" />
+                                <TextBlock Text="• Google Translate: Built-in web client (no key required)&#x0a;• Yandex Translate: Built-in web client (no key required)&#x0a;• Speech (TTS): Native streaming MP3 audio player&#x0a;• OCR: Windows 11 Native Media.Ocr Engine&#x0a;• Memory Consumption: ~43 MB private working set"
+                                           FontSize="12" LineHeight="20" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Unofficial Web Disclaimer -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Service Disclaimer" FontWeight="Medium" FontSize="13" />
+                                <TextBlock Text="Google Translate and Yandex Translate endpoints are unofficial web integrations intended for personal desktop translation without cloud API keys. Availability depends on upstream web service endpoints."
+                                           FontSize="11" LineHeight="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
         </Grid>
 
-        <!-- 2. Bottom Actions: Save & Cancel -->
-        <Border Grid.Row="2" Background="{ThemeResource LayerFillColorAltBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0"
-                Padding="16,12,24,12">
+        <!-- 2. Bottom Actions Bar -->
+        <Border Grid.Row="2" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0"
+                Background="{ThemeResource LayerFillColorAltBrush}" Padding="16,10,16,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-                <Button x:Name="SettingsSaveBtn" Style="{StaticResource AccentButtonStyle}"
-                        Content="Save" Width="100" Height="36" CornerRadius="6" />
-                <Button x:Name="SettingsCancelBtn" Content="Cancel" Width="90" Height="36" CornerRadius="6" />
+                <Button x:Name="SettingsCancelBtn" Content="Cancel" Width="90" Height="32" CornerRadius="6" />
+                <Button x:Name="SettingsSaveBtn" Content="Save &amp; Close" Style="{StaticResource AccentButtonStyle}"
+                        Width="120" Height="32" CornerRadius="6" />
             </StackPanel>
         </Border>
     </Grid>

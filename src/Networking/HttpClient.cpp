@@ -63,6 +63,17 @@ namespace dTranslate::Networking
         return ExecuteRequest(L"POST", url, jsonBody, reqHeaders, timeoutMs);
     }
 
+    HttpResponse HttpClient::PostForm(
+        std::wstring const& url,
+        std::string const& formData,
+        std::vector<std::pair<std::wstring, std::wstring>> const& headers,
+        int timeoutMs)
+    {
+        auto reqHeaders = headers;
+        reqHeaders.push_back({ L"Content-Type", L"application/x-www-form-urlencoded; charset=utf-8" });
+        return ExecuteRequest(L"POST", url, formData, reqHeaders, timeoutMs);
+    }
+
     HttpResponse HttpClient::ExecuteRequest(
         std::wstring const& verb,
         std::wstring const& url,

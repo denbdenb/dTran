@@ -1,49 +1,57 @@
 # Architecture
 
-Deliberately simple. Authoritative rules: [AGENTS.md](../AGENTS.md).
+Deliberately simple native architecture. Authoritative rules: [AGENTS.md](../AGENTS.md).
 
 ```
 dTranslate.exe  (one packaged WinUI 3 / C++/WinRT process)
-├── UI              src/UI/{MainWindow,QuickPopup,Settings,History,Dictionary,AI}
-├── Core            src/Core         orchestration: translate / AI / dictionary / TTS / OCR
-├── Windows         src/Windows      tray, global hotkeys, clipboard, selected-text capture
-├── Services        src/Translation  GoogleTranslateService, YandexTranslateService
-│                   src/AI           GeminiService, OpenAIService (one shared AI request path)
-│                   src/Dictionary   ReversoService, WikipediaService
-│                   src/Speech       GoogleTtsService
-│                   src/OCR          WindowsOcrService
-├── Networking      src/Networking   ONE shared WinHTTP implementation
-├── Storage         src/Storage      settings (local file) + credentials (Credential Manager)
-├── History         src/History      bounded, disk-backed
-└── App             src/App          entry point, project file, manifests
+├── UI              src/UI
+│   ├── MainWindow      Mica, collapsible sidebar, simplified translation cards, OCR snipping button
+│   ├── QuickPopup      Instant mouse-anchored popup for selected text / clipboard
+│   ├── Settings        General, Translation, AI, Hotkeys, About tabs
+│   ├── AI              Rewrite, Improve, Summarize, Explain operations
+│   ├── Dictionary      Reverso Context and Wikipedia lookup
+│   └── History         Disk-backed search and copy
+├── OCR             src/OCR
+│   ├── ScreenSnipper   Virtual-screen BitBlt, dimmed crosshair overlay, rectangular crop, action toolbar
+│   └── WindowsOcr      Windows.Media.Ocr engine integration for clipboard & snipped bitmaps
+├── Translation     src/Translation
+│   ├── GoogleTranslate Web client (no key required)
+│   ├── YandexTranslate Web client (no key required; browser instaserp endpoint + Mozhi/Trayslate fallback)
+│   └── TranslationMgr  Service orchestration & multi-engine fallback
+├── AI Services     src/AI
+│   ├── GeminiService   Google Gemini API (gemini-2.5-flash) with Windows Credential Manager storage
+│   └── OpenAIService   OpenAI API (gpt-4o-mini) with Windows Credential Manager storage
+├── Audio (TTS)     src/Audio
+│   └── GoogleTts       Direct streaming MP3 audio playback
+├── Networking      src/Networking
+│   ├── HttpClient      Shared WinHTTP session, connection pooling, SSL/TLS, POST form/JSON
+│   └── UrlEncoder      RFC 3986 UTF-8 query and form URL encoding
+├── Storage         src/Storage
+│   ├── CredentialStore Windows Credential Manager API (wincred.h) for AI secrets
+│   ├── SettingsManager JSON persistence in LocalAppData
+│   └── HistoryManager  Bounded JSON translation history
+└── Windows         src/Windows
+    ├── TrayIcon        Shell_NotifyIconW with context menu
+    ├── Hotkeys         RegisterHotKey (Ctrl+Alt+T, Ctrl+Alt+D, Ctrl+Alt+O)
+    ├── Selection       SendInput Ctrl+C / clipboard capture
+    └── Clipboard       Win32 clipboard access
 ```
 
-## Rules of thumb
+## Architectural Principles
 
-- Explicit service classes, no plugin/provider-manager layer, no DI container.
-- Services are created lazily, the first time they are used.
-- No network access at startup.
-- One WinHTTP session shared by every service.
-- History is read from disk on demand; only a small recent window lives in memory.
-
-## Current state (Phase 1)
-
-Only `src/App` and `src/UI/MainWindow` contain code: an application class and a
-placeholder window (Mica backdrop, custom title bar). Other folders are
-placeholders for later phases.
-
-## Build layout
-
-- `src/App/dTranslate.vcxproj` is the only project; the XAML and sources in
-  `src/UI/**` are compiled into it by relative path.
-- Output goes to `build/` (git-ignored): `build/bin/x64/<Config>` (package layout)
-  and `build/obj/...` (intermediates).
-- NuGet packages (only two): `Microsoft.Windows.CppWinRT`, `Microsoft.WindowsAppSDK`.
-- Packaged as MSIX (single-project). Dev runs register the loose layout via `run.ps1`.
-
-## Dependencies
-
-| Dependency | Why | Memory/runtime impact |
-|---|---|---|
-| Windows App SDK 1.8 (framework package) | WinUI 3 UI, Mica, windowing | Shared framework package; required by WinUI 3 |
-| C++/WinRT | Header-only projection of WinRT APIs | None at runtime |
+1. **No-Config Built-in Web Translation**:
+   - Google Translate and Yandex Translate are fixed built-in engines requiring zero API keys or user configuration.
+   - Yandex uses the lightweight browser endpoint `https://api.browser.yandex.com/instaserp/translate` (POST form) with fallbacks.
+   - Built-in engines have no enable/disable toggles; they are selectable via `[ Google ] [ Yandex ] [ Gemini ] [ OpenAI ]`.
+2. **AI Services via Windows Credential Manager**:
+   - Gemini and OpenAI require API keys stored securely encrypted via Windows Credential Manager (`wincred.h`).
+   - Settings → AI handles credential configuration, model selection, and connection testing.
+3. **Built-in Speech Action**:
+   - Google TTS is an inline speech action (🔊 button) on source and translation cards, not a separate service card or switch.
+4. **Screen-Snipping OCR Workflow**:
+   - Top-right `[ ⛶ ]` button and `Ctrl+Alt+O` hotkey launch the native `ScreenSnipper`.
+   - Dimmed crosshair overlay with rubberband selection and floating action bar: `[ Translate ] [ Copy Text ] [ Cancel ]`.
+   - Recognized text is processed by `Windows.Media.Ocr` and automatically translated with the active engine.
+5. **Zero Plugins, Zero WebViews**:
+   - Entirely native C++20 and C++/WinRT with WinUI 3 controls.
+   - Strictly obeys the memory footprint budget (< 100 MB target, measured at ~44 MB private bytes).

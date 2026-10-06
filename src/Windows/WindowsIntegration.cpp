@@ -100,11 +100,14 @@ namespace dTranslate::Windows
     {
         if (m_hWnd == nullptr) return false;
 
-        // Hotkey 1: Ctrl + Alt + T (or Alt + Q) for Translate Selected Text
+        // Hotkey 1: Ctrl + Alt + T for Translate Selected Text
         RegisterHotKey(m_hWnd, HOTKEY_ID_SELECTION, MOD_CONTROL | MOD_ALT, 'T');
 
         // Hotkey 2: Ctrl + Alt + D for Show Main Window
         RegisterHotKey(m_hWnd, HOTKEY_ID_MAIN, MOD_CONTROL | MOD_ALT, 'D');
+
+        // Hotkey 3: Ctrl + Alt + O for Screen OCR & Translate
+        RegisterHotKey(m_hWnd, HOTKEY_ID_OCR, MOD_CONTROL | MOD_ALT, 'O');
 
         return true;
     }
@@ -115,6 +118,7 @@ namespace dTranslate::Windows
         {
             UnregisterHotKey(m_hWnd, HOTKEY_ID_SELECTION);
             UnregisterHotKey(m_hWnd, HOTKEY_ID_MAIN);
+            UnregisterHotKey(m_hWnd, HOTKEY_ID_OCR);
         }
     }
 
@@ -142,6 +146,7 @@ namespace dTranslate::Windows
 
         AppendMenuW(hMenu, MF_STRING, IDM_TRAY_OPEN, L"Open dTranslate");
         AppendMenuW(hMenu, MF_STRING, IDM_TRAY_CLIPBOARD, L"Translate Clipboard");
+        AppendMenuW(hMenu, MF_STRING, IDM_TRAY_OCR, L"Screen OCR & Translate");
         AppendMenuW(hMenu, MF_STRING, IDM_TRAY_SETTINGS, L"Settings...");
         AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
         AppendMenuW(hMenu, MF_STRING, IDM_TRAY_EXIT, L"Exit");
@@ -186,6 +191,13 @@ namespace dTranslate::Windows
                     pThis->m_onShowMainWindow();
                 }
             }
+            else if (wParam == HOTKEY_ID_OCR)
+            {
+                if (pThis->m_onScreenOcr)
+                {
+                    pThis->m_onScreenOcr();
+                }
+            }
             return 0;
 
         case WM_COMMAND:
@@ -196,6 +208,9 @@ namespace dTranslate::Windows
                 break;
             case IDM_TRAY_CLIPBOARD:
                 if (pThis->m_onTranslateClipboard) pThis->m_onTranslateClipboard();
+                break;
+            case IDM_TRAY_OCR:
+                if (pThis->m_onScreenOcr) pThis->m_onScreenOcr();
                 break;
             case IDM_TRAY_SETTINGS:
                 if (pThis->m_onOpenSettings) pThis->m_onOpenSettings();

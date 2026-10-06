@@ -20,6 +20,7 @@ namespace dTranslate::Windows
         void SetOnShowMainWindow(std::function<void()> callback) { m_onShowMainWindow = callback; }
         void SetOnTranslateSelection(std::function<void(std::wstring const&)> callback) { m_onTranslateSelection = callback; }
         void SetOnTranslateClipboard(std::function<void()> callback) { m_onTranslateClipboard = callback; }
+        void SetOnScreenOcr(std::function<void()> callback) { m_onScreenOcr = callback; }
         void SetOnOpenSettings(std::function<void()> callback) { m_onOpenSettings = callback; }
         void SetOnExit(std::function<void()> callback) { m_onExit = callback; }
 
@@ -45,16 +46,19 @@ namespace dTranslate::Windows
         std::function<void()> m_onShowMainWindow;
         std::function<void(std::wstring const&)> m_onTranslateSelection;
         std::function<void()> m_onTranslateClipboard;
+        std::function<void()> m_onScreenOcr;
         std::function<void()> m_onOpenSettings;
         std::function<void()> m_onExit;
 
         static constexpr UINT WM_TRAYICON = WM_USER + 101;
         static constexpr int HOTKEY_ID_SELECTION = 2001;
         static constexpr int HOTKEY_ID_MAIN = 2002;
+        static constexpr int HOTKEY_ID_OCR = 2003;
 
         static constexpr UINT IDM_TRAY_OPEN = 3001;
         static constexpr UINT IDM_TRAY_CLIPBOARD = 3002;
-        static constexpr UINT IDM_TRAY_SETTINGS = 3003;
-        static constexpr UINT IDM_TRAY_EXIT = 3004;
+        static constexpr UINT IDM_TRAY_OCR = 3003;
+        static constexpr UINT IDM_TRAY_SETTINGS = 3004;
+        static constexpr UINT IDM_TRAY_EXIT = 3005;
     };
 }

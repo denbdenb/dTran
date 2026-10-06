@@ -13,7 +13,11 @@ namespace dTranslate::Storage
         bool autoStart{ false };
         std::wstring globalHotkey{ L"Ctrl+Alt+T" };
         std::wstring quickHotkey{ L"Ctrl+Alt+D" };
+        std::wstring ocrHotkey{ L"Ctrl+Alt+O" };
         bool compareTranslations{ false };
+        bool sidebarCollapsed{ false };
+        std::wstring geminiModel{ L"gemini-2.5-flash" };
+        std::wstring openAiModel{ L"gpt-4o-mini" };
     };
 
     class SettingsManager

@@ -2,6 +2,7 @@
 #include "OpenAIService.h"
 #include "HttpClient.h"
 #include "CredentialStore.h"
+#include "SettingsManager.h"
 #include "UrlEncoder.h"
 #include <winrt/Windows.Data.Json.h>
 
@@ -20,7 +21,7 @@ namespace dTranslate::AI
     AIResult OpenAIService::Execute(AIRequest const& request)
     {
         AIResult result;
-        result.serviceName = L"OpenAI (GPT-4o-mini)";
+        result.serviceName = L"OpenAI";
 
         if (request.text.empty())
         {
@@ -41,8 +42,11 @@ namespace dTranslate::AI
 
         std::wstring instruction = GetSystemInstruction(request.operation, request.targetLang);
 
+        std::wstring model = SettingsManager::Instance().GetSettings().openAiModel;
+        if (model.empty()) model = L"gpt-4o-mini";
+
         JsonObject root;
-        root.SetNamedValue(L"model", JsonValue::CreateStringValue(L"gpt-4o-mini"));
+        root.SetNamedValue(L"model", JsonValue::CreateStringValue(model));
 
         JsonArray messages;
 

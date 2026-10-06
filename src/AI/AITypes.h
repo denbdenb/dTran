@@ -5,16 +5,16 @@ namespace dTranslate::AI
 {
     enum class AIOperation
     {
-        Translate,
-        Rewrite,
-        Improve,
-        Summarize,
-        Explain
+        Translate = 0,
+        Rewrite = 1,
+        Improve = 2,
+        Summarize = 3,
+        Explain = 4
     };
 
     struct AIRequest
     {
-        AIOperation operation{ AIOperation::Translate };
+        AIOperation operation{ AIOperation::Rewrite };
         std::wstring text;
         std::wstring targetLang{ L"English" };
     };
@@ -32,7 +32,7 @@ namespace dTranslate::AI
         switch (op)
         {
         case AIOperation::Translate:
-            return L"Translate the following text into " + targetLang + L". Return only the translated text without preamble.";
+            return L"Translate the following text into " + targetLang + L". Return only the translated text without preamble or commentary.";
         case AIOperation::Rewrite:
             return L"Rewrite the following text clearly, naturally, and concisely in the same language. Preserve the original meaning.";
         case AIOperation::Improve:

@@ -37,6 +37,12 @@ namespace dTranslate::Networking
             std::vector<std::pair<std::wstring, std::wstring>> const& headers = {},
             int timeoutMs = 15000);
 
+        HttpResponse PostForm(
+            std::wstring const& url,
+            std::string const& formData,
+            std::vector<std::pair<std::wstring, std::wstring>> const& headers = {},
+            int timeoutMs = 15000);
+
     private:
         HttpClient();
         ~HttpClient();

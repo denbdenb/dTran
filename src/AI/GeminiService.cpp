@@ -2,6 +2,7 @@
 #include "GeminiService.h"
 #include "HttpClient.h"
 #include "CredentialStore.h"
+#include "SettingsManager.h"
 #include "UrlEncoder.h"
 #include <winrt/Windows.Data.Json.h>
 
@@ -37,7 +38,10 @@ namespace dTranslate::AI
             return result;
         }
 
-        std::wstring url = L"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+        std::wstring model = SettingsManager::Instance().GetSettings().geminiModel;
+        if (model.empty()) model = L"gemini-2.5-flash";
+
+        std::wstring url = L"https://generativelanguage.googleapis.com/v1beta/models/" + model + L":generateContent?key=" + apiKey;
 
         std::wstring instruction = GetSystemInstruction(request.operation, request.targetLang);
 

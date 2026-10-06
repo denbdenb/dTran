@@ -12,5 +12,9 @@ namespace dTranslate::Translation
 
     private:
         YandexTranslateService() = default;
+
+        TranslationResult TranslateViaBrowserApi(TranslationRequest const& request);
+        TranslationResult TranslateViaMozhi(TranslationRequest const& request, std::wstring const& host);
+        TranslationResult TranslateViaTrayslate(TranslationRequest const& request);
     };
 }

@@ -20,7 +20,7 @@ namespace dTranslate::Translation
     TranslationResult GoogleTranslateService::Translate(TranslationRequest const& request)
     {
         TranslationResult result;
-        result.serviceName = L"Google Translate";
+        result.serviceName = L"Google Translate (Web)";
         result.originalText = request.text;
 
         if (request.text.empty())

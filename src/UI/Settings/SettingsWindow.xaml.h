@@ -11,6 +11,10 @@ namespace winrt::dTranslate::implementation
     private:
         void LoadSettings();
         void SetupEventHandlers();
+        void SelectSettingsTab(int index);
+        void UpdateAiStatuses();
+        winrt::fire_and_forget TestGeminiAsync();
+        winrt::fire_and_forget TestOpenAiAsync();
     };
 }
 

@@ -135,6 +135,7 @@
     <ClInclude Include="..\Dictionary\ReversoService.h" />
     <ClInclude Include="..\Audio\GoogleTtsService.h" />
     <ClInclude Include="..\OCR\WindowsOcrService.h" />
+    <ClInclude Include="..\OCR\ScreenSnipper.h" />
   </ItemGroup>
 
   <!-- XAML -->
@@ -178,6 +179,7 @@
     <ClCompile Include="..\Dictionary\ReversoService.cpp" />
     <ClCompile Include="..\Audio\GoogleTtsService.cpp" />
     <ClCompile Include="..\OCR\WindowsOcrService.cpp" />
+    <ClCompile Include="..\OCR\ScreenSnipper.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 

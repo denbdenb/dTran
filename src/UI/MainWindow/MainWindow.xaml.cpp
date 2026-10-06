@@ -4,12 +4,15 @@
 #include "TranslationManager.h"
 #include "GoogleTtsService.h"
 #include "WindowsOcrService.h"
+#include "ScreenSnipper.h"
 #include "WikipediaService.h"
 #include "ReversoService.h"
 #include "GeminiService.h"
 #include "OpenAIService.h"
 #include "HistoryManager.h"
 #include "SettingsManager.h"
+#include "CredentialStore.h"
+#include "WindowsIntegration.h"
 
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
@@ -40,7 +43,11 @@ namespace winrt::dTranslate::implementation
         SetupEventHandlers();
         UpdateCharCount();
 
-        // Default sample text matching the concept design
+        // Restore sidebar collapsed state
+        auto const& settings = SettingsManager::Instance().GetSettings();
+        SetSidebarState(settings.sidebarCollapsed);
+
+        // Default sample text matching concept design
         SourceTextBox().Text(L"The quick brown fox jumps over the lazy dog.");
         ResultTextBlock().Text(L"Быстрая коричневая лиса перепрыгивает через ленивую собаку.");
         UpdateCharCount();
@@ -107,6 +114,12 @@ namespace winrt::dTranslate::implementation
             RefreshHistory();
         });
 
+        // Sidebar Collapse Toggle
+        SidebarToggleBtn().Click([this](auto&&, auto&&)
+        {
+            ToggleSidebar();
+        });
+
         // Source text changes
         SourceTextBox().TextChanged([this](auto&&, auto&&) { UpdateCharCount(); });
         ClearSourceBtn().Click([this](auto&&, auto&&)
@@ -143,37 +156,27 @@ namespace winrt::dTranslate::implementation
         {
             OnSpeakResult();
         });
-        UtilityTtsBtn().Click([this](auto&&, auto&&)
+        SpeakSourceBtn().Click([this](auto&&, auto&&)
         {
             OnSpeakSource();
         });
 
-        // OCR Button
-        UtilityOcrBtn().Click([this](auto&&, auto&&)
+        // Screen OCR & Translate Button
+        ScreenOcrBtn().Click([this](auto&&, auto&&)
         {
-            OnOcrAsync();
-        });
-
-        // Wikipedia Button
-        UtilityWikipediaBtn().Click([this](auto&&, auto&&)
-        {
-            OnWikipediaLookupAsync();
-        });
-
-        // Dictionary Button
-        UtilityDictionaryBtn().Click([this](auto&&, auto&&)
-        {
-            SelectNavView(1);
-            DictionarySearchBox().Text(SourceTextBox().Text());
-            OnDictionaryLookupAsync();
+            OnScreenSnippingOcr();
         });
 
         // Dictionary View Search
+        DictionarySearchBtn().Click([this](auto&&, auto&&)
+        {
+            OnDictionarySearch();
+        });
         DictionarySearchBox().KeyDown([this](auto&&, Input::KeyRoutedEventArgs const& e)
         {
             if (e.Key() == Windows::System::VirtualKey::Enter)
             {
-                OnDictionaryLookupAsync();
+                OnDictionarySearch();
                 e.Handled(true);
             }
         });
@@ -218,13 +221,41 @@ namespace winrt::dTranslate::implementation
         ServiceOpenAiBtn().Click([this](auto&&, auto&&) { SelectService(3); });
 
         // Open Settings window
-        auto openSettings = [this](auto&&, auto&&)
+        SidebarSettingsBtn().Click([this](auto&&, auto&&)
         {
             auto settingsWin = make<SettingsWindow>();
             settingsWin.Activate();
-        };
-        TopSettingsBtn().Click(openSettings);
-        SidebarSettingsBtn().Click(openSettings);
+        });
+
+        // Global Screen OCR hotkey trigger
+        ::dTranslate::Windows::WindowsIntegration::Instance().SetOnScreenOcr([this]()
+        {
+            OnScreenSnippingOcr();
+        });
+    }
+
+    void MainWindow::SetSidebarState(bool collapsed)
+    {
+        m_sidebarCollapsed = collapsed;
+        SidebarColumn().Width(GridLength{ collapsed ? 56.0 : 180.0, GridUnitType::Pixel });
+
+        auto visibility = collapsed ? Visibility::Collapsed : Visibility::Visible;
+        SidebarBrandPanel().Visibility(visibility);
+        NavTranslateText().Visibility(visibility);
+        NavDictionaryText().Visibility(visibility);
+        NavAiText().Visibility(visibility);
+        NavHistoryText().Visibility(visibility);
+        ThemeText().Visibility(visibility);
+        ThemeChevron().Visibility(visibility);
+        SettingsText().Visibility(visibility);
+    }
+
+    void MainWindow::ToggleSidebar()
+    {
+        SetSidebarState(!m_sidebarCollapsed);
+        auto settings = SettingsManager::Instance().GetSettings();
+        settings.sidebarCollapsed = m_sidebarCollapsed;
+        SettingsManager::Instance().UpdateSettings(settings);
     }
 
     void MainWindow::SelectNavView(int index)
@@ -330,56 +361,35 @@ namespace winrt::dTranslate::implementation
         }
     }
 
-    void MainWindow::OnOcrAsync()
+    void MainWindow::TriggerScreenOcr()
     {
-        ResultTextBlock().Text(L"Scanning clipboard image with Windows OCR...");
-        WindowsOcrService::Instance().RecognizeFromClipboardAsync(
+        OnScreenSnippingOcr();
+    }
+
+    void MainWindow::OnScreenSnippingOcr()
+    {
+        ScreenSnipper::Instance().StartSnipping(
             DispatcherQueue(),
-            [this](OcrResult const& ocrResult)
+            [this](std::wstring const& recognizedText, bool autoTranslate)
             {
-                if (ocrResult.success)
+                if (recognizedText.empty()) return;
+
+                if (autoTranslate)
                 {
-                    SourceTextBox().Text(winrt::hstring(ocrResult.text));
+                    SourceTextBox().Text(winrt::hstring(recognizedText));
                     UpdateCharCount();
+                    SelectNavView(0);
+                    AppWindow().Show();
                     OnTranslateAsync();
                 }
                 else
                 {
-                    ResultTextBlock().Text(winrt::hstring(ocrResult.errorMessage));
+                    CopyTextToClipboard(winrt::hstring(recognizedText));
                 }
             });
     }
 
-    fire_and_forget MainWindow::OnWikipediaLookupAsync()
-    {
-        auto text = SourceTextBox().Text();
-        if (text.empty())
-        {
-            ResultTextBlock().Text(L"Enter a search topic in the source box to look up on Wikipedia.");
-            co_return;
-        }
-
-        ResultTextBlock().Text(L"Searching Wikipedia...");
-        DictionaryRequest req;
-        req.word = text.c_str();
-        req.sourceLang = GetSourceLangCode();
-        req.targetLang = GetTargetLangCode();
-
-        co_await resume_background();
-        auto result = WikipediaService::Instance().Lookup(req);
-
-        if (result.success)
-        {
-            std::wstring output = result.title + L"\n\n" + result.content;
-            ResultTextBlock().Text(winrt::hstring(output));
-        }
-        else
-        {
-            ResultTextBlock().Text(winrt::hstring(result.errorMessage));
-        }
-    }
-
-    fire_and_forget MainWindow::OnDictionaryLookupAsync()
+    fire_and_forget MainWindow::OnDictionarySearch()
     {
         auto query = DictionarySearchBox().Text();
         if (query.empty())
@@ -393,11 +403,12 @@ namespace winrt::dTranslate::implementation
 
         if (query.empty())
         {
-            DictionaryResultText().Text(L"Enter a word or phrase to look up.");
+            DictionaryResultText().Text(L"Enter a word, phrase or topic to look up.");
             co_return;
         }
 
-        DictionaryResultText().Text(L"Searching Reverso Context...");
+        int sourceIdx = DictionarySourceCombo().SelectedIndex();
+        DictionaryResultText().Text(sourceIdx == 1 ? L"Searching Wikipedia..." : L"Searching Reverso Context...");
 
         DictionaryRequest req;
         req.word = query.c_str();
@@ -405,15 +416,37 @@ namespace winrt::dTranslate::implementation
         req.targetLang = GetTargetLangCode();
 
         co_await resume_background();
-        auto result = ReversoService::Instance().Lookup(req);
 
-        if (result.success)
+        if (sourceIdx == 1) // Wikipedia
         {
-            DictionaryResultText().Text(winrt::hstring(result.content));
+            auto result = WikipediaService::Instance().Lookup(req);
+            DispatcherQueue().TryEnqueue([this, result]()
+            {
+                if (result.success)
+                {
+                    std::wstring output = result.title + L"\n\n" + result.content;
+                    DictionaryResultText().Text(winrt::hstring(output));
+                }
+                else
+                {
+                    DictionaryResultText().Text(winrt::hstring(result.errorMessage));
+                }
+            });
         }
-        else
+        else // Reverso
         {
-            DictionaryResultText().Text(winrt::hstring(result.errorMessage));
+            auto result = ReversoService::Instance().Lookup(req);
+            DispatcherQueue().TryEnqueue([this, result]()
+            {
+                if (result.success)
+                {
+                    DictionaryResultText().Text(winrt::hstring(result.content));
+                }
+                else
+                {
+                    DictionaryResultText().Text(winrt::hstring(result.errorMessage));
+                }
+            });
         }
     }
 
@@ -435,16 +468,47 @@ namespace winrt::dTranslate::implementation
             co_return;
         }
 
+        int backendIdx = AiBackendCombo().SelectedIndex();
+        int opIdx = AiOperationCombo().SelectedIndex();
+
+        // Check if API key is configured
+        if (backendIdx == 0)
+        {
+            auto key = CredentialStore::GetCredential(CredentialStore::KeyGemini);
+            if (key.empty())
+            {
+                AiResultText().Text(L"Gemini API key is not configured. Please open Settings → AI to configure your API key.");
+                co_return;
+            }
+        }
+        else
+        {
+            auto key = CredentialStore::GetCredential(CredentialStore::KeyOpenAI);
+            if (key.empty())
+            {
+                AiResultText().Text(L"OpenAI API key is not configured. Please open Settings → AI to configure your API key.");
+                co_return;
+            }
+        }
+
         AiResultText().Text(L"Processing with AI...");
         AiRunBtn().IsEnabled(false);
 
-        int backendIdx = AiBackendCombo().SelectedIndex();
-        int opIdx = AiOperationCombo().SelectedIndex();
+        // Map AI operation: 0=Rewrite, 1=Improve, 2=Summarize, 3=Explain
+        AIOperation op = AIOperation::Rewrite;
+        switch (opIdx)
+        {
+        case 0: op = AIOperation::Rewrite; break;
+        case 1: op = AIOperation::Improve; break;
+        case 2: op = AIOperation::Summarize; break;
+        case 3: op = AIOperation::Explain; break;
+        default: op = AIOperation::Rewrite; break;
+        }
 
         AIRequest req;
         req.text = input.c_str();
         req.targetLang = GetTargetLangCode() == L"ru" ? L"Russian" : L"English";
-        req.operation = static_cast<AIOperation>(opIdx >= 0 ? opIdx : 0);
+        req.operation = op;
 
         co_await resume_background();
 
@@ -458,16 +522,18 @@ namespace winrt::dTranslate::implementation
             result = OpenAIService::Instance().Execute(req);
         }
 
-        AiRunBtn().IsEnabled(true);
-
-        if (result.success)
+        DispatcherQueue().TryEnqueue([this, result]()
         {
-            AiResultText().Text(winrt::hstring(result.text));
-        }
-        else
-        {
-            AiResultText().Text(winrt::hstring(L"AI Error: " + result.errorMessage));
-        }
+            AiRunBtn().IsEnabled(true);
+            if (result.success)
+            {
+                AiResultText().Text(winrt::hstring(result.text));
+            }
+            else
+            {
+                AiResultText().Text(winrt::hstring(L"AI Error: " + result.errorMessage));
+            }
+        });
     }
 
     void MainWindow::RefreshHistory()
