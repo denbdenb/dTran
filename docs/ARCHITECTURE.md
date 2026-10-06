@@ -15,7 +15,8 @@ dTranslate.exe  (one packaged WinUI 3 / C++/WinRT process)
 │   ├── ScreenSnipper   Virtual-screen BitBlt, dimmed crosshair overlay, rectangular crop, action toolbar
 │   └── WindowsOcr      Windows.Media.Ocr engine integration for clipboard & snipped bitmaps
 ├── Translation     src/Translation
-│   ├── GoogleTranslate Web client (no key required)
+│   ├── LanguageCatalog 92 standard ISO languages, capability masks, text badges
+│   ├── GoogleTranslate Web client (no key required, 429 backoff & circuit breaker)
 │   ├── YandexTranslate Web client (no key required; browser instaserp endpoint + Mozhi/Trayslate fallback)
 │   └── TranslationMgr  Service orchestration & multi-engine fallback
 ├── AI Services     src/AI

@@ -2,12 +2,14 @@
 #include "ReversoService.h"
 #include "HttpClient.h"
 #include "UrlEncoder.h"
+#include "LanguageCatalog.h"
 #include <winrt/Windows.Data.Json.h>
 
 namespace dTranslate::Dictionary
 {
     using namespace winrt::Windows::Data::Json;
     using namespace dTranslate::Networking;
+    using namespace dTranslate::Translation;
 
     ReversoService& ReversoService::Instance()
     {
@@ -17,15 +19,30 @@ namespace dTranslate::Dictionary
 
     std::wstring ReversoService::MapLanguageCode(std::wstring const& langCode)
     {
-        if (langCode == L"en") return L"eng";
-        if (langCode == L"ru") return L"rus";
-        if (langCode == L"de") return L"ger";
-        if (langCode == L"fr") return L"fra";
-        if (langCode == L"es") return L"spa";
-        if (langCode == L"it") return L"ita";
-        if (langCode == L"zh") return L"chi";
-        if (langCode == L"ja") return L"jpn";
-        return langCode.empty() ? L"eng" : langCode;
+        return LanguageCatalog::GetReversoCode(langCode);
+    }
+
+    static std::wstring StripHtmlTags(std::wstring const& text)
+    {
+        std::wstring result;
+        result.reserve(text.size());
+        bool insideTag = false;
+        for (wchar_t ch : text)
+        {
+            if (ch == L'<')
+            {
+                insideTag = true;
+            }
+            else if (ch == L'>')
+            {
+                insideTag = false;
+            }
+            else if (!insideTag)
+            {
+                result += ch;
+            }
+        }
+        return result;
     }
 
     DictionaryResult ReversoService::Lookup(DictionaryRequest const& request)
@@ -40,8 +57,20 @@ namespace dTranslate::Dictionary
             return result;
         }
 
-        std::wstring fromCode = MapLanguageCode(request.sourceLang == L"auto" ? L"en" : request.sourceLang);
-        std::wstring toCode = MapLanguageCode(request.targetLang.empty() ? L"ru" : request.targetLang);
+        std::wstring srcLang = (request.sourceLang.empty() || request.sourceLang == L"auto") ? L"en" : request.sourceLang;
+        std::wstring tgtLang = request.targetLang.empty() ? L"ru" : request.targetLang;
+
+        if (!LanguageCatalog::IsServiceSupported(4, srcLang) || !LanguageCatalog::IsServiceSupported(4, tgtLang))
+        {
+            result.success = false;
+            result.errorMessage = L"Reverso Context does not support " +
+                LanguageCatalog::GetDisplayName(srcLang) + L" ➔ " +
+                LanguageCatalog::GetDisplayName(tgtLang) + L". Please try Wikipedia or standard translation.";
+            return result;
+        }
+
+        std::wstring fromCode = MapLanguageCode(srcLang);
+        std::wstring toCode = MapLanguageCode(tgtLang);
 
         std::wstring url = L"https://api.reverso.net/translate/v1/translation";
 
@@ -61,20 +90,18 @@ namespace dTranslate::Dictionary
         std::string jsonBody = ToUtf8(root.Stringify().c_str());
 
         std::vector<std::pair<std::wstring, std::wstring>> headers = {
-            { L"User-Agent", L"dTranslate/1.0 (Windows 11)" }
+            { L"User-Agent", L"dTranslate/1.0 (Windows 11 Desktop)" }
         };
 
         result.sourceUrl = L"https://context.reverso.net/translation/" +
-            (request.sourceLang == L"auto" ? L"english" : request.sourceLang) + L"-" +
-            request.targetLang + L"/" + UrlEncode(request.word);
+            srcLang + L"-" + tgtLang + L"/" + UrlEncode(request.word);
 
-        auto response = HttpClient::Instance().PostJson(url, jsonBody, headers);
+        auto response = HttpClient::Instance().PostJson(url, jsonBody, headers, 12000);
 
-        if (!response.IsSuccess())
+        if (!response.IsSuccess() || response.body.empty())
         {
-            // Even if API endpoint returns status, provide context link
             result.title = request.word;
-            result.content = L"View full Reverso dictionary and contextual examples on Reverso Context.";
+            result.content = L"View full Reverso dictionary and bilingual examples on Reverso Context.";
             result.success = true;
             return result;
         }
@@ -110,14 +137,16 @@ namespace dTranslate::Dictionary
                         if (resultsArr.Size() > 0)
                         {
                             formattedContent += L"\nContext Examples:\n";
-                            uint32_t count = (std::min)(resultsArr.Size(), 3u);
+                            uint32_t count = (std::min)(resultsArr.Size(), 4u);
                             for (uint32_t i = 0; i < count; ++i)
                             {
                                 auto item = resultsArr.GetObjectAt(i);
                                 if (item.HasKey(L"source") && item.HasKey(L"target"))
                                 {
-                                    formattedContent += L"— " + std::wstring(item.GetNamedString(L"source").c_str()) + L"\n";
-                                    formattedContent += L"  " + std::wstring(item.GetNamedString(L"target").c_str()) + L"\n\n";
+                                    std::wstring cleanSource = StripHtmlTags(item.GetNamedString(L"source").c_str());
+                                    std::wstring cleanTarget = StripHtmlTags(item.GetNamedString(L"target").c_str());
+                                    formattedContent += L"— " + cleanSource + L"\n";
+                                    formattedContent += L"  " + cleanTarget + L"\n\n";
                                 }
                             }
                         }

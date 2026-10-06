@@ -51,10 +51,21 @@ namespace dTranslate::Windows
             }
         }
 
-        // 5. Restore clipboard if requested and if selection was captured
-        if (restoreClipboard && !originalText.empty() && originalText != selectedText)
+        // 5. Restore clipboard if requested
+        if (restoreClipboard)
         {
-            ClipboardHelper::SetText(originalText);
+            if (!originalText.empty())
+            {
+                ClipboardHelper::SetText(originalText);
+            }
+            else
+            {
+                if (OpenClipboard(nullptr))
+                {
+                    EmptyClipboard();
+                    CloseClipboard();
+                }
+            }
         }
 
         return selectedText;

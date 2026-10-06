@@ -13,6 +13,7 @@ namespace dTranslate::OCR
         static ScreenSnipper& Instance();
 
         void StartSnipping(
+            std::wstring const& langCode,
             winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
             std::function<void(std::wstring const& recognizedText, bool autoTranslate)> onResult);
 
@@ -49,6 +50,7 @@ namespace dTranslate::OCR
         RECT m_btnCancelRect{ 0, 0, 0, 0 };
         int m_hoveredBtn{ 0 }; // 0 = none, 1 = Translate, 2 = Copy, 3 = Cancel
 
+        std::wstring m_langCode{ L"auto" };
         winrt::Microsoft::UI::Dispatching::DispatcherQueue m_dispatcher{ nullptr };
         std::function<void(std::wstring const& recognizedText, bool autoTranslate)> m_onResult;
     };

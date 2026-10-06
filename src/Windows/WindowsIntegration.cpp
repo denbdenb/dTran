@@ -2,6 +2,7 @@
 #include "WindowsIntegration.h"
 #include "SelectionCapture.h"
 #include "ClipboardHelper.h"
+#include "SettingsManager.h"
 
 namespace dTranslate::Windows
 {
@@ -96,20 +97,131 @@ namespace dTranslate::Windows
         }
     }
 
+    static bool ParseHotkey(std::wstring const& str, UINT& outModifiers, UINT& outVk)
+    {
+        outModifiers = 0;
+        outVk = 0;
+        if (str.empty()) return false;
+
+        std::wstringstream ss(str);
+        std::wstring part;
+        std::vector<std::wstring> parts;
+        while (std::getline(ss, part, L'+'))
+        {
+            size_t first = part.find_first_not_of(L" \t");
+            size_t last = part.find_last_not_of(L" \t");
+            if (first != std::wstring::npos)
+            {
+                parts.push_back(part.substr(first, (last - first + 1)));
+            }
+        }
+
+        if (parts.size() < 2) return false;
+
+        for (size_t i = 0; i < parts.size(); ++i)
+        {
+            auto p = parts[i];
+            std::wstring upper = p;
+            for (auto& c : upper) c = towupper(c);
+
+            if (i < parts.size() - 1)
+            {
+                if (upper == L"CTRL" || upper == L"CONTROL") outModifiers |= MOD_CONTROL;
+                else if (upper == L"ALT") outModifiers |= MOD_ALT;
+                else if (upper == L"SHIFT") outModifiers |= MOD_SHIFT;
+                else if (upper == L"WIN" || upper == L"WINDOWS") outModifiers |= MOD_WIN;
+                else return false;
+            }
+            else
+            {
+                if (upper.size() == 1)
+                {
+                    wchar_t ch = upper[0];
+                    if ((ch >= L'A' && ch <= L'Z') || (ch >= L'0' && ch <= L'9'))
+                    {
+                        outVk = static_cast<UINT>(ch);
+                    }
+                    else return false;
+                }
+                else if (upper == L"F1") outVk = VK_F1;
+                else if (upper == L"F2") outVk = VK_F2;
+                else if (upper == L"F3") outVk = VK_F3;
+                else if (upper == L"F4") outVk = VK_F4;
+                else if (upper == L"F5") outVk = VK_F5;
+                else if (upper == L"F6") outVk = VK_F6;
+                else if (upper == L"F7") outVk = VK_F7;
+                else if (upper == L"F8") outVk = VK_F8;
+                else if (upper == L"F9") outVk = VK_F9;
+                else if (upper == L"F10") outVk = VK_F10;
+                else if (upper == L"F11") outVk = VK_F11;
+                else if (upper == L"F12") outVk = VK_F12;
+                else if (upper == L"SPACE") outVk = VK_SPACE;
+                else if (upper == L"TAB") outVk = VK_TAB;
+                else return false;
+            }
+        }
+
+        return (outModifiers != 0 && outVk != 0);
+    }
+
+    bool WindowsIntegration::ValidateHotkey(std::wstring const& hotkeyStr, std::wstring& outError)
+    {
+        UINT mods = 0;
+        UINT vk = 0;
+        if (!ParseHotkey(hotkeyStr, mods, vk))
+        {
+            outError = L"Invalid combination. Must include a modifier (Ctrl, Alt, Shift, Win) and a key (e.g. Ctrl+Alt+T).";
+            return false;
+        }
+        return true;
+    }
+
     bool WindowsIntegration::RegisterHotkeys()
+    {
+        std::wstring err;
+        auto const& s = dTranslate::Storage::SettingsManager::Instance().GetSettings();
+        return ReRegisterHotkeys(s.globalHotkey, s.quickHotkey, s.ocrHotkey, err);
+    }
+
+    bool WindowsIntegration::ReRegisterHotkeys(
+        std::wstring const& selectionKey,
+        std::wstring const& mainKey,
+        std::wstring const& ocrKey,
+        std::wstring& outError)
     {
         if (m_hWnd == nullptr) return false;
 
-        // Hotkey 1: Ctrl + Alt + T for Translate Selected Text
-        RegisterHotKey(m_hWnd, HOTKEY_ID_SELECTION, MOD_CONTROL | MOD_ALT, 'T');
+        UnregisterHotkeys();
 
-        // Hotkey 2: Ctrl + Alt + D for Show Main Window
-        RegisterHotKey(m_hWnd, HOTKEY_ID_MAIN, MOD_CONTROL | MOD_ALT, 'D');
+        UINT mod1 = 0, vk1 = 0;
+        UINT mod2 = 0, vk2 = 0;
+        UINT mod3 = 0, vk3 = 0;
 
-        // Hotkey 3: Ctrl + Alt + O for Screen OCR & Translate
-        RegisterHotKey(m_hWnd, HOTKEY_ID_OCR, MOD_CONTROL | MOD_ALT, 'O');
+        if (!ParseHotkey(selectionKey, mod1, vk1))
+        {
+            mod1 = MOD_CONTROL | MOD_ALT;
+            vk1 = 'T';
+        }
+        if (!ParseHotkey(mainKey, mod2, vk2))
+        {
+            mod2 = MOD_CONTROL | MOD_ALT;
+            vk2 = 'D';
+        }
+        if (!ParseHotkey(ocrKey, mod3, vk3))
+        {
+            mod3 = MOD_CONTROL | MOD_ALT;
+            vk3 = 'O';
+        }
 
-        return true;
+        bool ok1 = RegisterHotKey(m_hWnd, HOTKEY_ID_SELECTION, mod1, vk1) != FALSE;
+        bool ok2 = RegisterHotKey(m_hWnd, HOTKEY_ID_MAIN, mod2, vk2) != FALSE;
+        bool ok3 = RegisterHotKey(m_hWnd, HOTKEY_ID_OCR, mod3, vk3) != FALSE;
+
+        if (!ok1) outError = L"Conflict: " + selectionKey + L" is in use by another application.";
+        else if (!ok2) outError = L"Conflict: " + mainKey + L" is in use by another application.";
+        else if (!ok3) outError = L"Conflict: " + ocrKey + L" is in use by another application.";
+
+        return ok1 && ok2 && ok3;
     }
 
     void WindowsIntegration::UnregisterHotkeys()

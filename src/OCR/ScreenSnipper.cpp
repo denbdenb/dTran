@@ -83,6 +83,7 @@ namespace dTranslate::OCR
     }
 
     void ScreenSnipper::StartSnipping(
+        std::wstring const& langCode,
         winrt::Microsoft::UI::Dispatching::DispatcherQueue dispatcher,
         std::function<void(std::wstring const& recognizedText, bool autoTranslate)> onResult)
     {
@@ -91,6 +92,7 @@ namespace dTranslate::OCR
             return; // Already open
         }
 
+        m_langCode = langCode;
         m_dispatcher = dispatcher;
         m_onResult = onResult;
 
@@ -265,32 +267,53 @@ namespace dTranslate::OCR
         // 4. If selection is done, draw floating toolbar
         if (m_selectionDone && selW > 10 && selH > 10)
         {
-            int tbW = 340;
-            int tbH = 46;
-            int tbX = sel.left + (selW - tbW) / 2;
-            if (tbX < 10) tbX = 10;
-            if (tbX + tbW > m_vw - 10) tbX = m_vw - tbW - 10;
+            UINT dpi = GetDpiForWindow(hWnd);
+            if (dpi == 0) dpi = GetDpiForSystem();
+            float scale = (dpi > 0) ? (static_cast<float>(dpi) / 96.0f) : 1.0f;
+            if (scale < 1.0f) scale = 1.0f;
 
-            int tbY = sel.bottom + 10;
-            if (tbY + tbH > m_vh - 10) tbY = sel.top - tbH - 10;
-            if (tbY < 10) tbY = 10;
+            int tbW = static_cast<int>(360 * scale);
+            int tbH = static_cast<int>(48 * scale);
+            int margin = static_cast<int>(10 * scale);
+            int padding = static_cast<int>(8 * scale);
+            int btnH = static_cast<int>(34 * scale);
+            int fontH = static_cast<int>(14 * scale);
+            int cornerR = static_cast<int>(8 * scale);
+
+            int tbX = sel.left + (selW - tbW) / 2;
+            if (tbX < margin) tbX = margin;
+            if (tbX + tbW > m_vw - margin) tbX = m_vw - tbW - margin;
+
+            int tbY = sel.bottom + margin;
+            if (tbY + tbH > m_vh - margin) tbY = sel.top - tbH - margin;
+            if (tbY < margin) tbY = margin;
 
             RECT tbRect = { tbX, tbY, tbX + tbW, tbY + tbH };
             HBRUSH hTbBg = CreateSolidBrush(RGB(30, 30, 30));
             HPEN hTbBorder = CreatePen(PS_SOLID, 1, RGB(70, 70, 75));
             HGDIOBJ hOldB = SelectObject(hMemDC, hTbBg);
             HGDIOBJ hOldP = SelectObject(hMemDC, hTbBorder);
-            RoundRect(hMemDC, tbRect.left, tbRect.top, tbRect.right, tbRect.bottom, 10, 10);
+            RoundRect(hMemDC, tbRect.left, tbRect.top, tbRect.right, tbRect.bottom, cornerR + 2, cornerR + 2);
             SelectObject(hMemDC, hOldB);
             SelectObject(hMemDC, hOldP);
             DeleteObject(hTbBg);
             DeleteObject(hTbBorder);
 
-            m_btnTranslateRect = { tbX + 8, tbY + 7, tbX + 116, tbY + 39 };
-            m_btnCopyRect = { tbX + 122, tbY + 7, tbX + 230, tbY + 39 };
-            m_btnCancelRect = { tbX + 236, tbY + 7, tbX + 332, tbY + 39 };
+            int btnW1 = static_cast<int>(115 * scale);
+            int btnW2 = static_cast<int>(115 * scale);
+            int btnW3 = static_cast<int>(95 * scale);
+            int btnGap = static_cast<int>(8 * scale);
 
-            HFONT hFont = CreateFontW(14, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+            int b1Left = tbX + padding;
+            int b2Left = b1Left + btnW1 + btnGap;
+            int b3Left = b2Left + btnW2 + btnGap;
+            int btnTop = tbY + (tbH - btnH) / 2;
+
+            m_btnTranslateRect = { b1Left, btnTop, b1Left + btnW1, btnTop + btnH };
+            m_btnCopyRect = { b2Left, btnTop, b2Left + btnW2, btnTop + btnH };
+            m_btnCancelRect = { b3Left, btnTop, b3Left + btnW3, btnTop + btnH };
+
+            HFONT hFont = CreateFontW(-fontH, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
                 DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                 DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
             HGDIOBJ hOldFont = SelectObject(hMemDC, hFont);
@@ -302,7 +325,7 @@ namespace dTranslate::OCR
                 HPEN hBtnPen = CreatePen(PS_SOLID, 1, bgCol);
                 HGDIOBJ oB = SelectObject(hMemDC, hBtnBg);
                 HGDIOBJ oP = SelectObject(hMemDC, hBtnPen);
-                RoundRect(hMemDC, rc.left, rc.top, rc.right, rc.bottom, 8, 8);
+                RoundRect(hMemDC, rc.left, rc.top, rc.right, rc.bottom, cornerR, cornerR);
                 SelectObject(hMemDC, oB);
                 SelectObject(hMemDC, oP);
                 DeleteObject(hBtnBg);
@@ -473,12 +496,20 @@ namespace dTranslate::OCR
         {
             WindowsOcrService::Instance().RecognizeBmpBufferAsync(
                 bmpBytes,
+                m_langCode,
                 dispatcher,
                 [onResult, autoTranslate](OcrResult const& res)
                 {
-                    if (onResult && res.success)
+                    if (onResult)
                     {
-                        onResult(res.text, autoTranslate);
+                        if (res.success)
+                        {
+                            onResult(res.text, autoTranslate);
+                        }
+                        else
+                        {
+                            onResult(res.errorMessage, false);
+                        }
                     }
                 });
         }

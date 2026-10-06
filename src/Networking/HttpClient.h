@@ -14,6 +14,7 @@ namespace dTranslate::Networking
         int statusCode{ 0 };
         std::string body;
         std::wstring errorMessage;
+        int retryAfterSeconds{ 0 };
 
         bool IsSuccess() const
         {

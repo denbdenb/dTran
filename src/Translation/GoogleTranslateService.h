@@ -1,5 +1,8 @@
 #pragma once
 #include "TranslationTypes.h"
+#include <chrono>
+#include <mutex>
+#include <string>
 
 namespace dTranslate::Translation
 {
@@ -13,6 +16,14 @@ namespace dTranslate::Translation
     private:
         GoogleTranslateService() = default;
         TranslationResult TranslateWithInstantApi(TranslationRequest const& request);
-        TranslationResult TranslateWithCloudApi(TranslationRequest const& request, std::wstring const& apiKey);
+        TranslationResult TranslateWithFallbackApi(TranslationRequest const& request);
+
+        bool IsPrimaryInCooldown();
+        void RecordPrimarySuccess();
+        void RecordPrimaryThrottled(int retryAfterSeconds);
+
+        std::mutex m_mutex;
+        std::chrono::steady_clock::time_point m_primaryCooldownUntil{};
+        int m_primaryConsecutive429{ 0 };
     };
 }

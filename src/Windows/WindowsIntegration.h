@@ -26,6 +26,14 @@ namespace dTranslate::Windows
 
         void TriggerTranslateSelection();
 
+        bool ReRegisterHotkeys(
+            std::wstring const& selectionKey,
+            std::wstring const& mainKey,
+            std::wstring const& ocrKey,
+            std::wstring& outError);
+
+        static bool ValidateHotkey(std::wstring const& hotkeyStr, std::wstring& outError);
+
     private:
         WindowsIntegration();
         ~WindowsIntegration();

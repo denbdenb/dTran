@@ -18,6 +18,7 @@
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
     <DesktopCompatible>true</DesktopCompatible>
     <!-- Native project: skip the legacy managed-assembly NuGet resolution step. -->
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
@@ -47,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -95,7 +96,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
@@ -124,6 +125,7 @@
     <ClInclude Include="..\Storage\SettingsManager.h" />
     <ClInclude Include="..\Storage\HistoryManager.h" />
     <ClInclude Include="..\Translation\TranslationTypes.h" />
+    <ClInclude Include="..\Translation\LanguageCatalog.h" />
     <ClInclude Include="..\Translation\GoogleTranslateService.h" />
     <ClInclude Include="..\Translation\YandexTranslateService.h" />
     <ClInclude Include="..\Translation\TranslationManager.h" />
@@ -171,6 +173,7 @@
     <ClCompile Include="..\Storage\SettingsManager.cpp" />
     <ClCompile Include="..\Storage\HistoryManager.cpp" />
     <ClCompile Include="..\Translation\GoogleTranslateService.cpp" />
+    <ClCompile Include="..\Translation\LanguageCatalog.cpp" />
     <ClCompile Include="..\Translation\YandexTranslateService.cpp" />
     <ClCompile Include="..\Translation\TranslationManager.cpp" />
     <ClCompile Include="..\AI\GeminiService.cpp" />

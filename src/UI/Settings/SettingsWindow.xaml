@@ -184,60 +184,13 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <TextBlock Text="Default Source Language" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <ComboBox x:Name="DefaultSourceLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6">
-                                            <ComboBoxItem Content="Auto-detect" IsSelected="True" />
-                                            <ComboBoxItem Content="🇺🇸 English" />
-                                            <ComboBoxItem Content="🇷🇺 Russian" />
-                                            <ComboBoxItem Content="🇩🇪 German" />
-                                            <ComboBoxItem Content="🇫🇷 French" />
-                                            <ComboBoxItem Content="🇪🇸 Spanish" />
-                                        </ComboBox>
+                                        <ComboBox x:Name="DefaultSourceLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4">
                                         <TextBlock Text="Default Target Language" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <ComboBox x:Name="DefaultTargetLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6">
-                                            <ComboBoxItem Content="🇷🇺 Russian" IsSelected="True" />
-                                            <ComboBoxItem Content="🇺🇸 English" />
-                                            <ComboBoxItem Content="🇩🇪 German" />
-                                            <ComboBoxItem Content="🇫🇷 French" />
-                                            <ComboBoxItem Content="🇪🇸 Spanish" />
-                                        </ComboBox>
+                                        <ComboBox x:Name="DefaultTargetLangCombo" HorizontalAlignment="Stretch" Height="34" CornerRadius="6" />
                                     </StackPanel>
                                 </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Primary Engine Card -->
-                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="16">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Spacing="3">
-                                    <TextBlock Text="Primary Translation Engine" FontWeight="Medium" FontSize="14" />
-                                    <TextBlock Text="Default engine used for translation requests"
-                                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                </StackPanel>
-                                <ComboBox x:Name="PrimaryEngineCombo" Grid.Column="1" MinWidth="180" Height="34" CornerRadius="6" VerticalAlignment="Center">
-                                    <ComboBoxItem Content="Google (Web)" IsSelected="True" />
-                                    <ComboBoxItem Content="Yandex (Web)" />
-                                    <ComboBoxItem Content="Gemini (AI)" />
-                                    <ComboBoxItem Content="OpenAI (AI)" />
-                                </ComboBox>
-                            </Grid>
-                        </Border>
-
-                        <!-- No-Key Web Engines Note Card -->
-                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="14">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <FontIcon Glyph="&#xE946;" FontSize="18" Foreground="#2563EB" VerticalAlignment="Center" />
-                                <TextBlock Text="Google Translate and Yandex Translate are built-in no-config web engines. They do not require API keys or user accounts."
-                                           FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" />
                             </StackPanel>
                         </Border>
 
@@ -298,7 +251,16 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4">
                                         <TextBlock Text="Model" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <TextBox x:Name="ModelGeminiBox" Text="gemini-2.5-flash" Height="34" CornerRadius="6" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox x:Name="ModelGeminiCombo" IsEditable="True" Height="34" CornerRadius="6" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+                                            <Button x:Name="RefreshGeminiModelsBtn" Grid.Column="1" Width="34" Height="34" CornerRadius="6" Padding="0" ToolTipService.ToolTip="Discover models from Gemini">
+                                                <FontIcon Glyph="&#xE72C;" FontSize="13" />
+                                            </Button>
+                                        </Grid>
                                     </StackPanel>
                                 </Grid>
 
@@ -331,7 +293,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="14" />
-                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="220" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <TextBlock Text="API Key" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
@@ -339,7 +301,16 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4">
                                         <TextBlock Text="Model" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <TextBox x:Name="ModelOpenAiBox" Text="gpt-4o-mini" Height="34" CornerRadius="6" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox x:Name="ModelOpenAiCombo" IsEditable="True" Height="34" CornerRadius="6" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+                                            <Button x:Name="RefreshOpenAiModelsBtn" Grid.Column="1" Width="34" Height="34" CornerRadius="6" Padding="0" ToolTipService.ToolTip="Discover models from OpenAI">
+                                                <FontIcon Glyph="&#xE72C;" FontSize="13" />
+                                            </Button>
+                                        </Grid>
                                     </StackPanel>
                                 </Grid>
 
@@ -353,7 +324,11 @@
 
                     <!-- TAB 3: HOTKEYS -->
                     <StackPanel x:Name="PanelHotkeys" Spacing="14" Visibility="Collapsed">
-                        <TextBlock Text="Global Hotkeys" FontSize="18" FontWeight="SemiBold" />
+                        <StackPanel Spacing="3">
+                            <TextBlock Text="Global Hotkeys" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="Configure shortcuts for quick translation actions. Use modifier keys (Ctrl, Alt, Shift, Win) + a key."
+                                       FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
 
                         <!-- Hotkey 1: Translate Selection -->
                         <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -369,10 +344,7 @@
                                     <TextBlock Text="Capture highlighted text in any application and show Quick Translation popup"
                                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
-                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
-                                    <TextBlock Text="Ctrl + Alt + T" FontWeight="SemiBold" FontSize="13" />
-                                </Border>
+                                <TextBox x:Name="HotkeySelectionBox" Grid.Column="1" Text="Ctrl+Alt+T" Width="160" Height="34" CornerRadius="6" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
 
@@ -390,10 +362,7 @@
                                     <TextBlock Text="Bring the dTranslate workspace to the foreground"
                                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
-                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
-                                    <TextBlock Text="Ctrl + Alt + D" FontWeight="SemiBold" FontSize="13" />
-                                </Border>
+                                <TextBox x:Name="HotkeyMainBox" Grid.Column="1" Text="Ctrl+Alt+D" Width="160" Height="34" CornerRadius="6" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
 
@@ -411,12 +380,15 @@
                                     <TextBlock Text="Snip any screen region and automatically recognize and translate text"
                                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
-                                <Border Grid.Column="1" Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                        CornerRadius="5" Padding="10,6,10,6" VerticalAlignment="Center">
-                                    <TextBlock Text="Ctrl + Alt + O" FontWeight="SemiBold" FontSize="13" />
-                                </Border>
+                                <TextBox x:Name="HotkeyOcrBox" Grid.Column="1" Text="Ctrl+Alt+O" Width="160" Height="34" CornerRadius="6" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button x:Name="HotkeyResetBtn" Content="Reset to Defaults" Height="32" CornerRadius="6" />
+                            <TextBlock x:Name="HotkeyStatusText" Text="" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- TAB 4: ABOUT -->

@@ -41,6 +41,12 @@ namespace dTranslate::AI
         std::wstring model = SettingsManager::Instance().GetSettings().geminiModel;
         if (model.empty()) model = L"gemini-2.5-flash";
 
+        // Normalize model name: strip "models/" prefix if present
+        if (model.rfind(L"models/", 0) == 0)
+        {
+            model = model.substr(7);
+        }
+
         std::wstring url = L"https://generativelanguage.googleapis.com/v1beta/models/" + model + L":generateContent?key=" + apiKey;
 
         std::wstring instruction = GetSystemInstruction(request.operation, request.targetLang);
@@ -74,8 +80,47 @@ namespace dTranslate::AI
         if (!response.IsSuccess())
         {
             result.success = false;
-            result.errorMessage = response.errorMessage.empty() ?
-                (L"Gemini API Error: " + std::to_wstring(response.statusCode)) : response.errorMessage;
+            // Parse Google JSON error payload for clear diagnosis
+            std::wstring detailedError;
+            try
+            {
+                if (!response.body.empty())
+                {
+                    std::wstring errJson = FromUtf8(response.body);
+                    JsonObject errObj;
+                    if (JsonObject::TryParse(errJson, errObj) && errObj.HasKey(L"error"))
+                    {
+                        auto errNode = errObj.GetNamedObject(L"error");
+                        if (errNode.HasKey(L"message"))
+                        {
+                            detailedError = errNode.GetNamedString(L"message").c_str();
+                        }
+                    }
+                }
+            }
+            catch (...) {}
+
+            if (!detailedError.empty())
+            {
+                result.errorMessage = detailedError;
+            }
+            else if (response.statusCode == 404)
+            {
+                result.errorMessage = L"Gemini model \"" + model + L"\" not found (HTTP 404). Please refresh models in Settings.";
+            }
+            else if (response.statusCode == 400)
+            {
+                result.errorMessage = L"Invalid Gemini request or API key (HTTP 400). Please check your key in Settings.";
+            }
+            else if (response.statusCode == 429)
+            {
+                result.errorMessage = L"Gemini rate limit / quota exceeded (HTTP 429). Please wait before retrying.";
+            }
+            else
+            {
+                result.errorMessage = response.errorMessage.empty() ?
+                    (L"Gemini API Error: HTTP " + std::to_wstring(response.statusCode)) : response.errorMessage;
+            }
             return result;
         }
 
@@ -116,5 +161,87 @@ namespace dTranslate::AI
         }
 
         return result;
+    }
+
+    std::vector<std::wstring> GeminiService::GetDefaultModels()
+    {
+        return {
+            L"gemini-2.5-flash",
+            L"gemini-2.5-pro",
+            L"gemini-2.0-flash",
+            L"gemini-2.0-flash-lite"
+        };
+    }
+
+    std::vector<std::wstring> GeminiService::ListModels(std::wstring const& apiKey)
+    {
+        if (apiKey.empty())
+        {
+            return GetDefaultModels();
+        }
+
+        std::wstring url = L"https://generativelanguage.googleapis.com/v1beta/models?key=" + apiKey;
+        auto response = HttpClient::Instance().Get(url, {}, 15000);
+
+        if (!response.IsSuccess() || response.body.empty())
+        {
+            return GetDefaultModels();
+        }
+
+        std::vector<std::wstring> models;
+        try
+        {
+            std::wstring jsonStr = FromUtf8(response.body);
+            JsonObject root;
+            if (JsonObject::TryParse(jsonStr, root) && root.HasKey(L"models"))
+            {
+                auto modelsArr = root.GetNamedArray(L"models");
+                for (uint32_t i = 0; i < modelsArr.Size(); ++i)
+                {
+                    auto mObj = modelsArr.GetObjectAt(i);
+                    // Filter: must support generateContent
+                    bool supportsGen = false;
+                    if (mObj.HasKey(L"supportedGenerationMethods"))
+                    {
+                        auto methods = mObj.GetNamedArray(L"supportedGenerationMethods");
+                        for (uint32_t j = 0; j < methods.Size(); ++j)
+                        {
+                            if (methods.GetStringAt(j) == L"generateContent")
+                            {
+                                supportsGen = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (supportsGen && mObj.HasKey(L"name"))
+                    {
+                        std::wstring name = mObj.GetNamedString(L"name").c_str();
+                        if (name.rfind(L"models/", 0) == 0)
+                        {
+                            name = name.substr(7);
+                        }
+                        // Only add modern text/chat models
+                        if (name.rfind(L"gemini-", 0) == 0)
+                        {
+                            models.push_back(name);
+                        }
+                    }
+                }
+            }
+        }
+        catch (...)
+        {
+            return GetDefaultModels();
+        }
+
+        if (models.empty())
+        {
+            return GetDefaultModels();
+        }
+
+        // Sort models
+        std::sort(models.begin(), models.end());
+        return models;
     }
 }

@@ -36,3 +36,4 @@ Record each run: date, build config, git commit, machine, numbers.
 | 2026-10-05 | 8f29c22 | Debug (x64) | 54.26 MB | 102.67 MB | All services compiled, instant launch |
 | 2026-10-05 | 8f29c22 | Release (x64) | 43.22 MB | 92.95 MB | LTCG & WPO enabled, exceeds ideal <60MB budget |
 | 2026-10-06 | latest | Release (x64) | 44.02 MB | 89.66 MB | Final UX revision: No-key Yandex web endpoint, Screen Snipping OCR, collapsible sidebar |
+| 2026-10-06 | latest | Release (x64) | 42.24 MB | 91.41 MB | Stability pass: Circuit breaker, 92-lang catalog, High-DPI Snipper, model discovery |

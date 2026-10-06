@@ -173,6 +173,24 @@ namespace dTranslate::Networking
                 response.statusCode = static_cast<int>(statusCode);
             }
 
+            // Query Retry-After header if present
+            wchar_t retryHeader[64] = {};
+            DWORD retrySize = sizeof(retryHeader);
+            if (WinHttpQueryHeaders(
+                hRequest,
+                WINHTTP_QUERY_CUSTOM,
+                L"Retry-After",
+                retryHeader,
+                &retrySize,
+                WINHTTP_NO_HEADER_INDEX))
+            {
+                try
+                {
+                    response.retryAfterSeconds = std::stoi(retryHeader);
+                }
+                catch (...) {}
+            }
+
             // Read response stream
             DWORD dwBytesAvailable = 0;
             while (WinHttpQueryDataAvailable(hRequest, &dwBytesAvailable) && dwBytesAvailable > 0)
