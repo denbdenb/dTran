@@ -2,8 +2,6 @@
 #include "TranslationManager.h"
 #include "GoogleTranslateService.h"
 #include "YandexTranslateService.h"
-#include "GeminiService.h"
-#include "OpenAIService.h"
 #include "SettingsManager.h"
 #include "HistoryManager.h"
 #include <chrono>
@@ -15,7 +13,6 @@ namespace dTranslate::Translation
     using namespace winrt;
     using namespace winrt::Microsoft::UI::Dispatching;
     using namespace dTranslate::Storage;
-    using namespace dTranslate::AI;
 
     TranslationManager& TranslationManager::Instance()
     {
@@ -54,36 +51,6 @@ namespace dTranslate::Translation
         case 1: // Yandex Translate
             result = YandexTranslateService::Instance().Translate(request);
             break;
-
-        case 2: // Gemini
-        {
-            AIRequest aiReq;
-            aiReq.operation = AIOperation::Translate;
-            aiReq.text = request.text;
-            aiReq.targetLang = request.targetLang;
-            auto aiRes = GeminiService::Instance().Execute(aiReq);
-            result.success = aiRes.success;
-            result.originalText = request.text;
-            result.translatedText = aiRes.text;
-            result.serviceName = aiRes.serviceName;
-            result.errorMessage = aiRes.errorMessage;
-            break;
-        }
-
-        case 3: // OpenAI
-        {
-            AIRequest aiReq;
-            aiReq.operation = AIOperation::Translate;
-            aiReq.text = request.text;
-            aiReq.targetLang = request.targetLang;
-            auto aiRes = OpenAIService::Instance().Execute(aiReq);
-            result.success = aiRes.success;
-            result.originalText = request.text;
-            result.translatedText = aiRes.text;
-            result.serviceName = aiRes.serviceName;
-            result.errorMessage = aiRes.errorMessage;
-            break;
-        }
 
         default:
             result = GoogleTranslateService::Instance().Translate(request);

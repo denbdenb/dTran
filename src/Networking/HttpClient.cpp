@@ -90,17 +90,18 @@ namespace dTranslate::Networking
         }
 
         URL_COMPONENTS urlComp = { sizeof(URL_COMPONENTS) };
-        wchar_t hostName[256] = {};
-        wchar_t urlPath[2048] = {};
+        std::vector<wchar_t> hostName(256);
+        std::vector<wchar_t> urlPath(url.length() + 256);
 
-        urlComp.lpszHostName = hostName;
-        urlComp.dwHostNameLength = ARRAYSIZE(hostName);
-        urlComp.lpszUrlPath = urlPath;
-        urlComp.dwUrlPathLength = ARRAYSIZE(urlPath);
+        urlComp.lpszHostName = hostName.data();
+        urlComp.dwHostNameLength = static_cast<DWORD>(hostName.size());
+        urlComp.lpszUrlPath = urlPath.data();
+        urlComp.dwUrlPathLength = static_cast<DWORD>(urlPath.size());
 
         if (!WinHttpCrackUrl(url.c_str(), static_cast<DWORD>(url.length()), 0, &urlComp))
         {
-            response.errorMessage = L"Invalid URL format.";
+            DWORD crackErr = GetLastError();
+            response.errorMessage = (crackErr == ERROR_INSUFFICIENT_BUFFER) ? L"URL buffer overflow." : L"Invalid URL format.";
             return response;
         }
 

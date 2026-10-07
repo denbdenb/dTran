@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GoogleTranslateService.h"
+#include "TextChunker.h"
 #include "HttpClient.h"
 #include "UrlEncoder.h"
 #include <winrt/Windows.Data.Json.h>
@@ -66,6 +67,53 @@ namespace dTranslate::Translation
             return result;
         }
 
+        // For large texts (> 2500 characters), split into natural chunks
+        if (request.text.size() > 2500)
+        {
+            auto chunks = TextChunker::Split(request.text, 2500);
+            if (chunks.size() > 1)
+            {
+                std::vector<std::wstring> translatedParts;
+                translatedParts.reserve(chunks.size());
+
+                for (size_t i = 0; i < chunks.size(); ++i)
+                {
+                    TranslationRequest subReq = request;
+                    subReq.text = chunks[i].text;
+                    auto subRes = TranslateSingleChunk(subReq);
+                    if (!subRes.success)
+                    {
+                        return subRes; // Return the failure directly
+                    }
+                    if (result.detectedLanguage.empty() && !subRes.detectedLanguage.empty())
+                    {
+                        result.detectedLanguage = subRes.detectedLanguage;
+                    }
+                    translatedParts.push_back(subRes.translatedText);
+                }
+
+                result.translatedText = TextChunker::Combine(translatedParts, chunks);
+                result.success = true;
+                return result;
+            }
+        }
+
+        return TranslateSingleChunk(request);
+    }
+
+    TranslationResult GoogleTranslateService::TranslateSingleChunk(TranslationRequest const& request)
+    {
+        TranslationResult result;
+        result.serviceName = L"Google Translate (Web)";
+        result.originalText = request.text;
+
+        if (request.text.empty())
+        {
+            result.success = true;
+            result.translatedText = L"";
+            return result;
+        }
+
         // 1. If primary endpoint is not in cooldown, try it first
         if (!IsPrimaryInCooldown())
         {
@@ -107,14 +155,21 @@ namespace dTranslate::Translation
         result.serviceName = L"Google Translate (Web)";
         result.originalText = request.text;
 
-        std::wstring encodedQuery = UrlEncode(request.text);
         std::wstring sl = request.sourceLang.empty() ? L"auto" : request.sourceLang;
         std::wstring tl = request.targetLang.empty() ? L"en" : request.targetLang;
 
-        std::wstring url = L"https://translate.googleapis.com/translate_a/single?client=gtx&sl=" +
-            sl + L"&tl=" + tl + L"&dt=t&q=" + encodedQuery;
+        std::string formData = "client=gtx&sl=" + ToUtf8(UrlEncode(sl)) +
+            "&tl=" + ToUtf8(UrlEncode(tl)) +
+            "&dt=t&q=" + ToUtf8(UrlEncode(request.text));
 
-        auto response = HttpClient::Instance().Get(url);
+        std::wstring url = L"https://translate.googleapis.com/translate_a/single";
+
+        std::vector<std::pair<std::wstring, std::wstring>> headers = {
+            { L"Accept", L"*/*" },
+            { L"User-Agent", L"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" }
+        };
+
+        auto response = HttpClient::Instance().PostForm(url, formData, headers, 12000);
 
         if (!response.IsSuccess())
         {
@@ -215,18 +270,34 @@ namespace dTranslate::Translation
                 if (first.ValueType() == JsonValueType::String)
                 {
                     result.translatedText = first.GetString().c_str();
+                    if (rootArr.Size() > 1 && rootArr.GetAt(1).ValueType() == JsonValueType::String)
+                    {
+                        result.detectedLanguage = rootArr.GetStringAt(1).c_str();
+                    }
                     result.success = true;
                     return result;
                 }
                 if (first.ValueType() == JsonValueType::Array)
                 {
-                    auto subArr = first.GetArray();
+                    // Response is array of chunk pairs: [ ["translated chunk", "en"], ... ]
                     std::wstring combined;
-                    for (uint32_t i = 0; i < subArr.Size(); ++i)
+                    for (uint32_t i = 0; i < rootArr.Size(); ++i)
                     {
-                        if (subArr.GetAt(i).ValueType() == JsonValueType::String)
+                        auto item = rootArr.GetAt(i);
+                        if (item.ValueType() == JsonValueType::Array)
                         {
-                            combined += subArr.GetStringAt(i).c_str();
+                            auto subArr = item.GetArray();
+                            if (subArr.Size() > 0 && subArr.GetAt(0).ValueType() == JsonValueType::String)
+                            {
+                                combined += subArr.GetStringAt(0).c_str();
+                            }
+                            if (subArr.Size() > 1 && subArr.GetAt(1).ValueType() == JsonValueType::String)
+                            {
+                                if (result.detectedLanguage.empty())
+                                {
+                                    result.detectedLanguage = subArr.GetStringAt(1).c_str();
+                                }
+                            }
                         }
                     }
                     if (!combined.empty())

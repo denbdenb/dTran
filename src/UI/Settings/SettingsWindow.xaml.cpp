@@ -1,66 +1,221 @@
 #include "pch.h"
 #include "SettingsWindow.xaml.h"
-#include "SettingsManager.h"
-#include "CredentialStore.h"
-#include "GeminiService.h"
-#include "OpenAIService.h"
-#include "LanguageCatalog.h"
-#include "WindowsIntegration.h"
-
 #if __has_include("SettingsWindow.g.cpp")
 #include "SettingsWindow.g.cpp"
+#endif
+
+#include "../../Storage/SettingsManager.h"
+#include "../../Storage/LocalizationManager.h"
+#include "../../Translation/LanguageCatalog.h"
+#include "../../Windows/WindowsIntegration.h"
+#include <winrt/Microsoft.UI.Windowing.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <winrt/Windows.Foundation.h>
+#include <microsoft.ui.xaml.window.h>
+#include <filesystem>
+#include <dwmapi.h>
+
+#pragma comment(lib, "dwmapi.lib")
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 using namespace Microsoft::UI::Xaml::Controls;
 using namespace Microsoft::UI::Xaml::Media;
-using namespace Microsoft::UI::Xaml::Input;
 using namespace ::dTranslate::Storage;
-using namespace ::dTranslate::AI;
 using namespace ::dTranslate::Translation;
 using namespace ::dTranslate::Windows;
 
 namespace winrt::dTranslate::implementation
 {
+    static ComboBoxItem CreateLanguageComboItem(LanguageInfo const& lang)
+    {
+        ComboBoxItem item;
+        StackPanel sp;
+        sp.Orientation(Orientation::Horizontal);
+        sp.Spacing(8);
+        sp.VerticalAlignment(VerticalAlignment::Center);
+
+        Image img;
+        img.Width(20);
+        img.Height(15);
+        img.VerticalAlignment(VerticalAlignment::Center);
+
+        Microsoft::UI::Xaml::Media::Imaging::SvgImageSource svg;
+        svg.RasterizePixelWidth(24);
+        svg.RasterizePixelHeight(18);
+        svg.UriSource(Windows::Foundation::Uri(lang.FlagSvgPath()));
+        img.Source(svg);
+        sp.Children().Append(img);
+
+        TextBlock tb;
+        std::wstring dispName = lang.DisplayNameClean();
+        if (lang.code == L"auto")
+        {
+            dispName = LocalizationManager::Instance().Get(L"AutoDetect");
+        }
+        tb.Text(winrt::hstring(dispName));
+        tb.VerticalAlignment(VerticalAlignment::Center);
+        sp.Children().Append(tb);
+
+        item.Content(sp);
+        return item;
+    }
+
     SettingsWindow::SettingsWindow()
     {
         InitializeComponent();
 
+        HWND hwnd = nullptr;
+        if (auto windowNative = this->try_as<IWindowNative>())
+        {
+            windowNative->get_WindowHandle(&hwnd);
+        }
+        m_hwnd = hwnd;
+        WindowsIntegration::SetWindowAppIcon(hwnd);
+
+        wchar_t exePath[MAX_PATH] = { 0 };
+        if (GetModuleFileNameW(nullptr, exePath, MAX_PATH) > 0)
+        {
+            std::filesystem::path dir = std::filesystem::path(exePath).parent_path();
+            std::vector<std::filesystem::path> candidates = {
+                dir / L"Assets" / L"app.ico",
+                dir / L"app.ico",
+                dir / L"assets" / L"app.ico",
+                dir / L".." / L".." / L"assets" / L"app.ico"
+            };
+            for (const auto& p : candidates)
+            {
+                if (std::filesystem::exists(p))
+                {
+                    AppWindow().SetIcon(winrt::hstring(p.wstring()));
+                    break;
+                }
+            }
+        }
+
+        UINT dpi = hwnd ? ::GetDpiForWindow(hwnd) : 96;
+        float scale = dpi / 96.0f;
+        int scaledW = static_cast<int>(500 * scale);
+        int scaledH = static_cast<int>(640 * scale);
+        AppWindow().Resize({ scaledW, scaledH });
+
+        if (auto presenter = AppWindow().Presenter().try_as<Microsoft::UI::Windowing::OverlappedPresenter>())
+        {
+            presenter.IsResizable(false);
+            presenter.IsMinimizable(false);
+            presenter.IsMaximizable(false);
+        }
+
         ExtendsContentIntoTitleBar(true);
         SetTitleBar(SettingsTitleBar());
 
-        auto const& settings = SettingsManager::Instance().GetSettings();
-        int w = settings.settingsWindowWidth > 400 ? settings.settingsWindowWidth : 960;
-        int h = settings.settingsWindowHeight > 400 ? settings.settingsWindowHeight : 680;
-        AppWindow().Resize({ w, h });
+        Closed([this](auto&&, auto&&)
+        {
+            SaveSettings();
+            ::SetProcessWorkingSetSize(::GetCurrentProcess(), (SIZE_T)-1, (SIZE_T)-1);
+        });
 
-        // Apply theme to settings window
+        // React to system theme changes in real-time when theme is System
         if (auto root = Content().try_as<FrameworkElement>())
         {
-            if (settings.theme == L"Light") root.RequestedTheme(ElementTheme::Light);
-            else if (settings.theme == L"Dark") root.RequestedTheme(ElementTheme::Dark);
-            else root.RequestedTheme(ElementTheme::Default);
+            root.ActualThemeChanged([this](auto&& sender, auto&&)
+            {
+                auto s = SettingsManager::Instance().GetSettings();
+                if (s.theme == L"System" || s.theme.empty())
+                {
+                    bool isDark = (sender.ActualTheme() == ElementTheme::Dark);
+                    UpdateTitleBarColors(isDark);
+                }
+            });
         }
+
+        LocalizationManager::Instance().RegisterObserver(reinterpret_cast<uintptr_t>(this), [this](std::wstring const&)
+        {
+            DispatcherQueue().TryEnqueue([this]()
+            {
+                ApplyLocalization();
+            });
+        });
 
         PopulateLanguageDropdowns();
         LoadSettings();
         SetupEventHandlers();
+        ApplyLocalization();
+    }
 
-        AppWindow().Changed([this](auto&& sender, Microsoft::UI::Windowing::AppWindowChangedEventArgs const& args)
+    SettingsWindow::~SettingsWindow()
+    {
+        LocalizationManager::Instance().UnregisterObserver(reinterpret_cast<uintptr_t>(this));
+    }
+
+    void SettingsWindow::ApplyTheme(std::wstring const& themeName)
+    {
+        auto root = Content().try_as<FrameworkElement>();
+        if (!root) return;
+
+        if (themeName == L"Light")
+            root.RequestedTheme(ElementTheme::Light);
+        else if (themeName == L"Dark")
+            root.RequestedTheme(ElementTheme::Dark);
+        else
+            root.RequestedTheme(ElementTheme::Default);
+
+        bool isDark = false;
+        if (themeName == L"Dark")
         {
-            if (args.DidSizeChange())
+            isDark = true;
+        }
+        else if (themeName == L"Light")
+        {
+            isDark = false;
+        }
+        else
+        {
+            isDark = (root.ActualTheme() == ElementTheme::Dark);
+        }
+
+        UpdateTitleBarColors(isDark);
+    }
+
+    void SettingsWindow::UpdateTitleBarColors(bool isDark)
+    {
+        if (m_hwnd)
+        {
+            BOOL dwmDark = isDark ? TRUE : FALSE;
+            DwmSetWindowAttribute(m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dwmDark, sizeof(dwmDark));
+        }
+
+        if (auto titleBar = AppWindow().TitleBar())
+        {
+            if (isDark)
             {
-                auto size = sender.Size();
-                if (size.Width > 400 && size.Height > 400)
-                {
-                    auto s = SettingsManager::Instance().GetSettings();
-                    s.settingsWindowWidth = size.Width;
-                    s.settingsWindowHeight = size.Height;
-                    SettingsManager::Instance().UpdateSettings(s);
-                }
+                // Dark Theme: Bright white close button glyph with subtle white hover/pressed states
+                titleBar.ButtonBackgroundColor(Microsoft::UI::Colors::Transparent());
+                titleBar.ButtonForegroundColor(Microsoft::UI::ColorHelper::FromArgb(245, 255, 255, 255));
+                titleBar.ButtonHoverBackgroundColor(Microsoft::UI::ColorHelper::FromArgb(38, 255, 255, 255));
+                titleBar.ButtonHoverForegroundColor(Microsoft::UI::Colors::White());
+                titleBar.ButtonPressedBackgroundColor(Microsoft::UI::ColorHelper::FromArgb(65, 255, 255, 255));
+                titleBar.ButtonPressedForegroundColor(Microsoft::UI::Colors::White());
+                titleBar.ButtonInactiveBackgroundColor(Microsoft::UI::Colors::Transparent());
+                titleBar.ButtonInactiveForegroundColor(Microsoft::UI::ColorHelper::FromArgb(135, 255, 255, 255));
             }
-        });
+            else
+            {
+                // Light Theme: Crisp dark close button glyph with subtle dark hover/pressed states
+                titleBar.ButtonBackgroundColor(Microsoft::UI::Colors::Transparent());
+                titleBar.ButtonForegroundColor(Microsoft::UI::ColorHelper::FromArgb(235, 20, 20, 20));
+                titleBar.ButtonHoverBackgroundColor(Microsoft::UI::ColorHelper::FromArgb(25, 0, 0, 0));
+                titleBar.ButtonHoverForegroundColor(Microsoft::UI::Colors::Black());
+                titleBar.ButtonPressedBackgroundColor(Microsoft::UI::ColorHelper::FromArgb(45, 0, 0, 0));
+                titleBar.ButtonPressedForegroundColor(Microsoft::UI::Colors::Black());
+                titleBar.ButtonInactiveBackgroundColor(Microsoft::UI::Colors::Transparent());
+                titleBar.ButtonInactiveForegroundColor(Microsoft::UI::ColorHelper::FromArgb(120, 0, 0, 0));
+            }
+        }
     }
 
     void SettingsWindow::PopulateLanguageDropdowns()
@@ -73,9 +228,7 @@ namespace winrt::dTranslate::implementation
         int srcIdx = 0;
         for (size_t i = 0; i < allLangs.size(); ++i)
         {
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(allLangs[i].DisplayName())));
-            DefaultSourceLangCombo().Items().Append(item);
+            DefaultSourceLangCombo().Items().Append(CreateLanguageComboItem(allLangs[i]));
             if (_wcsicmp(allLangs[i].code.c_str(), settings.sourceLanguage.c_str()) == 0)
             {
                 srcIdx = static_cast<int>(i);
@@ -88,9 +241,7 @@ namespace winrt::dTranslate::implementation
         int tgtIdx = 0;
         for (size_t i = 1; i < allLangs.size(); ++i)
         {
-            ComboBoxItem item;
-            item.Content(box_value(winrt::hstring(allLangs[i].DisplayName())));
-            DefaultTargetLangCombo().Items().Append(item);
+            DefaultTargetLangCombo().Items().Append(CreateLanguageComboItem(allLangs[i]));
             if (_wcsicmp(allLangs[i].code.c_str(), settings.targetLanguage.c_str()) == 0)
             {
                 tgtIdx = static_cast<int>(i - 1);
@@ -99,12 +250,41 @@ namespace winrt::dTranslate::implementation
         DefaultTargetLangCombo().SelectedIndex(tgtIdx);
     }
 
+    void SettingsWindow::UpdateAutoStartStatus(WindowsStartupState state)
+    {
+        auto const& loc = LocalizationManager::Instance();
+        std::wstring tip;
+        switch (state)
+        {
+        case WindowsStartupState::Enabled:
+        case WindowsStartupState::EnabledByPolicy:
+            tip = loc.Get(L"StartupTooltipEnabled");
+            break;
+        case WindowsStartupState::DisabledByUser:
+            tip = loc.Get(L"StartupTooltipDisabledByUser");
+            break;
+        case WindowsStartupState::DisabledByPolicy:
+            tip = loc.Get(L"StartupTooltipDisabledByPolicy");
+            break;
+        default:
+            tip = loc.Get(L"StartupTooltipDisabled");
+            break;
+        }
+
+        ToolTipService::SetToolTip(AutoStartToggle(), box_value(winrt::hstring(tip)));
+    }
+
     void SettingsWindow::LoadSettings()
     {
+        m_isLoadingSettings = true;
         auto const& settings = SettingsManager::Instance().GetSettings();
-        CompareTranslationsCheck().IsChecked(settings.compareTranslations);
-        AutoStartToggle().IsOn(settings.autoStart);
-        MinimizeToTrayToggle().IsOn(settings.closeToTray);
+        CompareTranslationsToggle().IsOn(settings.compareTranslations);
+
+        auto startupState = SettingsManager::GetStartupTaskState();
+        bool isStartupEnabled = (startupState == WindowsStartupState::Enabled ||
+                                 startupState == WindowsStartupState::EnabledByPolicy);
+        AutoStartToggle().IsOn(isStartupEnabled);
+        UpdateAutoStartStatus(startupState);
 
         if (settings.theme == L"Light")
             ThemeCombo().SelectedIndex(1);
@@ -113,87 +293,102 @@ namespace winrt::dTranslate::implementation
         else
             ThemeCombo().SelectedIndex(0);
 
-        // AI Model read-only info
-        ModelGeminiInfoText().Text(winrt::hstring(L"Using: " + (settings.geminiModel.empty() ? L"gemini-2.5-flash" : settings.geminiModel)));
-        ModelOpenAiInfoText().Text(winrt::hstring(L"Using: " + (settings.openAiModel.empty() ? L"gpt-4o-mini" : settings.openAiModel)));
+        AppLanguageCombo().SelectedIndex(settings.appLanguage == L"ru" ? 1 : 0);
+
+        ApplyTheme(settings.theme);
 
         // Hotkeys
-        HotkeySelectionBox().Text(winrt::hstring(settings.globalHotkey.empty() ? L"Ctrl+Alt+T" : settings.globalHotkey));
-        HotkeyMainBox().Text(winrt::hstring(settings.quickHotkey.empty() ? L"Ctrl+Alt+D" : settings.quickHotkey));
+        HotkeyTranslateBox().Text(winrt::hstring(settings.translateSelectedHotkey.empty() ? L"Ctrl+Alt+T" : settings.translateSelectedHotkey));
         HotkeyOcrBox().Text(winrt::hstring(settings.ocrHotkey.empty() ? L"Ctrl+Alt+O" : settings.ocrHotkey));
-
-        // Load existing API keys if configured
-        auto geminiKey = CredentialStore::GetCredential(CredentialStore::KeyGemini);
-        if (!geminiKey.empty()) KeyGeminiBox().Password(winrt::hstring(geminiKey));
-
-        auto openAiKey = CredentialStore::GetCredential(CredentialStore::KeyOpenAI);
-        if (!openAiKey.empty()) KeyOpenAiBox().Password(winrt::hstring(openAiKey));
-
-        UpdateAiStatuses();
-    }
-
-    void SettingsWindow::UpdateAiStatuses()
-    {
-        bool hasGemini = !KeyGeminiBox().Password().empty();
-        GeminiStatusText().Text(hasGemini ? L"Configured ✓" : L"Not configured");
-        GeminiStatusText().Foreground(SolidColorBrush(hasGemini ?
-            Windows::UI::Color{ 255, 16, 185, 129 } : Windows::UI::Color{ 255, 160, 160, 160 }));
-
-        bool hasOpenAi = !KeyOpenAiBox().Password().empty();
-        OpenAiStatusText().Text(hasOpenAi ? L"Configured ✓" : L"Not configured");
-        OpenAiStatusText().Foreground(SolidColorBrush(hasOpenAi ?
-            Windows::UI::Color{ 255, 16, 185, 129 } : Windows::UI::Color{ 255, 160, 160, 160 }));
-    }
-
-    void SettingsWindow::SelectSettingsTab(int index)
-    {
-        auto transparentBrush = SolidColorBrush(Windows::UI::Color{ 0, 0, 0, 0 });
-        auto activeBrush = SolidColorBrush(Windows::UI::Color{ 25, 37, 99, 235 });
-
-        TabGeneralBtn().Background(index == 0 ? activeBrush : transparentBrush);
-        TabTranslationBtn().Background(index == 1 ? activeBrush : transparentBrush);
-        TabAiBtn().Background(index == 2 ? activeBrush : transparentBrush);
-        TabHotkeysBtn().Background(index == 3 ? activeBrush : transparentBrush);
-        TabAboutBtn().Background(index == 4 ? activeBrush : transparentBrush);
-
-        PanelGeneral().Visibility(index == 0 ? Visibility::Visible : Visibility::Collapsed);
-        PanelTranslation().Visibility(index == 1 ? Visibility::Visible : Visibility::Collapsed);
-        PanelAi().Visibility(index == 2 ? Visibility::Visible : Visibility::Collapsed);
-        PanelHotkeys().Visibility(index == 3 ? Visibility::Visible : Visibility::Collapsed);
-        PanelAbout().Visibility(index == 4 ? Visibility::Visible : Visibility::Collapsed);
+        m_isLoadingSettings = false;
     }
 
     void SettingsWindow::SetupEventHandlers()
     {
-        TabGeneralBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(0); });
-        TabTranslationBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(1); });
-        TabAiBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(2); });
-        TabHotkeysBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(3); });
-        TabAboutBtn().Click([this](auto&&, auto&&) { SelectSettingsTab(4); });
-
-        KeyGeminiBox().PasswordChanged([this](auto&&, auto&&) { UpdateAiStatuses(); });
-        KeyOpenAiBox().PasswordChanged([this](auto&&, auto&&) { UpdateAiStatuses(); });
-
-        TestGeminiBtn().Click([this](auto&&, auto&&) { TestGeminiAsync(); });
-        TestOpenAiBtn().Click([this](auto&&, auto&&) { TestOpenAiAsync(); });
-
-        // Hotkey Recorder
-        auto SetupHotkeyRecorder = [this](TextBox const& box)
+        // 0. AutoStart toggle handler with real Windows StartupTask API
+        AutoStartToggle().Toggled([this](auto&& sender, auto&&) -> winrt::fire_and_forget
         {
-            box.PreviewKeyDown([this, box](auto&&, KeyRoutedEventArgs const& args)
+            if (m_isLoadingSettings) co_return;
+
+            auto toggle = sender.as<ToggleSwitch>();
+            bool wantEnable = toggle.IsOn();
+            toggle.IsEnabled(false);
+
+            auto rawState = co_await SettingsManager::SetStartWithWindowsAsync(wantEnable);
+            auto state = static_cast<WindowsStartupState>(rawState);
+
+            toggle.IsEnabled(true);
+            m_isLoadingSettings = true;
+            if (wantEnable)
+            {
+                bool succeeded = (state == WindowsStartupState::Enabled || state == WindowsStartupState::EnabledByPolicy);
+                toggle.IsOn(succeeded);
+                auto s = SettingsManager::Instance().GetSettings();
+                s.autoStart = succeeded;
+                SettingsManager::Instance().UpdateSettings(s);
+                UpdateAutoStartStatus(state);
+            }
+            else
+            {
+                bool isOff = (state == WindowsStartupState::Disabled);
+                toggle.IsOn(!isOff);
+                auto s = SettingsManager::Instance().GetSettings();
+                s.autoStart = !isOff;
+                SettingsManager::Instance().UpdateSettings(s);
+                UpdateAutoStartStatus(state);
+            }
+            m_isLoadingSettings = false;
+        });
+
+        // 0b. Close on Escape key
+        SettingsRootGrid().KeyDown([this](auto&&, Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args)
+        {
+            if (args.Key() == Windows::System::VirtualKey::Escape)
+            {
+                SaveSettings();
+                Close();
+                args.Handled(true);
+            }
+        });
+
+        // 1. Live Theme switching
+        ThemeCombo().SelectionChanged([this](auto&&, auto&&)
+        {
+            int idx = ThemeCombo().SelectedIndex();
+            std::wstring themeName = L"Default";
+            if (idx == 1) themeName = L"Light";
+            else if (idx == 2) themeName = L"Dark";
+
+            ApplyTheme(themeName);
+
+            auto s = SettingsManager::Instance().GetSettings();
+            s.theme = themeName;
+            SettingsManager::Instance().UpdateSettings(s);
+        });
+
+        // 2. Language switching
+        AppLanguageCombo().SelectionChanged([this](auto&&, auto&&)
+        {
+            int idx = AppLanguageCombo().SelectedIndex();
+            std::wstring newLang = (idx == 1) ? L"ru" : L"en";
+            auto s = SettingsManager::Instance().GetSettings();
+            if (s.appLanguage != newLang)
+            {
+                s.appLanguage = newLang;
+                SettingsManager::Instance().UpdateSettings(s);
+                LocalizationManager::Instance().SetLanguage(newLang);
+            }
+        });
+
+        // 3. Hotkey recording helper
+        auto SetupHotkeyRecorder = [this](TextBox box)
+        {
+            box.KeyDown([this, box](auto&&, Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args)
             {
                 auto vk = args.Key();
-
-                // Ignore standalone modifiers
                 if (vk == Windows::System::VirtualKey::Control ||
-                    vk == Windows::System::VirtualKey::LeftControl ||
-                    vk == Windows::System::VirtualKey::RightControl ||
                     vk == Windows::System::VirtualKey::Menu ||
-                    vk == Windows::System::VirtualKey::LeftMenu ||
-                    vk == Windows::System::VirtualKey::RightMenu ||
                     vk == Windows::System::VirtualKey::Shift ||
-                    vk == Windows::System::VirtualKey::LeftShift ||
-                    vk == Windows::System::VirtualKey::RightShift ||
                     vk == Windows::System::VirtualKey::LeftWindows ||
                     vk == Windows::System::VirtualKey::RightWindows)
                 {
@@ -242,179 +437,131 @@ namespace winrt::dTranslate::implementation
                 }
 
                 box.Text(winrt::hstring(combo));
-                HotkeyStatusText().Text(winrt::hstring(L"Captured: " + combo));
+                auto const& loc = LocalizationManager::Instance();
+                HotkeyStatusText().Text(winrt::hstring(loc.Format(L"HotkeyCaptured", combo)));
                 args.Handled(true);
             });
         };
 
-        SetupHotkeyRecorder(HotkeySelectionBox());
-        SetupHotkeyRecorder(HotkeyMainBox());
+        SetupHotkeyRecorder(HotkeyTranslateBox());
         SetupHotkeyRecorder(HotkeyOcrBox());
 
-        HotkeyResetBtn().Click([this](auto&&, auto&&)
+        // 4. Independent reset buttons
+        ResetTranslateHotkeyBtn().Click([this](auto&&, auto&&)
         {
-            HotkeySelectionBox().Text(L"Ctrl+Alt+T");
-            HotkeyMainBox().Text(L"Ctrl+Alt+D");
+            HotkeyTranslateBox().Text(L"Ctrl+Alt+T");
+            auto const& loc = LocalizationManager::Instance();
+            HotkeyStatusText().Text(winrt::hstring(loc.Get(L"HotkeyResetSuccess")));
+        });
+
+        ResetOcrHotkeyBtn().Click([this](auto&&, auto&&)
+        {
             HotkeyOcrBox().Text(L"Ctrl+Alt+O");
-            HotkeyStatusText().Text(L"Reset to defaults.");
+            auto const& loc = LocalizationManager::Instance();
+            HotkeyStatusText().Text(winrt::hstring(loc.Get(L"HotkeyResetSuccess")));
         });
 
-        SettingsCancelBtn().Click([this](auto&&, auto&&)
+        // 5. Close button
+        SettingsCloseBtn().Click([this](auto&&, auto&&)
         {
-            Close();
-        });
-
-        SettingsSaveBtn().Click([this](auto&&, auto&&)
-        {
-            // Validate hotkeys
-            std::wstring hkSel = HotkeySelectionBox().Text().c_str();
-            std::wstring hkMain = HotkeyMainBox().Text().c_str();
-            std::wstring hkOcr = HotkeyOcrBox().Text().c_str();
-
-            std::wstring err;
-            if (!WindowsIntegration::ValidateHotkey(hkSel, err) ||
-                !WindowsIntegration::ValidateHotkey(hkMain, err) ||
-                !WindowsIntegration::ValidateHotkey(hkOcr, err))
-            {
-                HotkeyStatusText().Text(winrt::hstring(err));
-                SelectSettingsTab(3); // Switch to hotkeys tab to show error
-                return;
-            }
-
-            // Re-register hotkeys immediately
-            if (!WindowsIntegration::Instance().ReRegisterHotkeys(hkSel, hkMain, hkOcr, err))
-            {
-                HotkeyStatusText().Text(winrt::hstring(err));
-                SelectSettingsTab(3);
-                return;
-            }
-
-            // 1. Save settings
-            auto settings = SettingsManager::Instance().GetSettings();
-            auto isChecked = CompareTranslationsCheck().IsChecked();
-            if (isChecked != nullptr)
-            {
-                settings.compareTranslations = isChecked.Value();
-            }
-
-            settings.autoStart = AutoStartToggle().IsOn();
-            settings.closeToTray = MinimizeToTrayToggle().IsOn();
-            SettingsManager::SetStartWithWindows(settings.autoStart);
-
-            int themeIdx = ThemeCombo().SelectedIndex();
-            if (themeIdx == 1) settings.theme = L"Light";
-            else if (themeIdx == 2) settings.theme = L"Dark";
-            else settings.theme = L"Default";
-
-            // Languages
-            int sIdx = DefaultSourceLangCombo().SelectedIndex();
-            auto const& allLangs = LanguageCatalog::GetAllLanguages();
-            if (sIdx >= 0 && sIdx < static_cast<int>(allLangs.size()))
-            {
-                settings.sourceLanguage = allLangs[sIdx].code;
-            }
-
-            int tIdx = DefaultTargetLangCombo().SelectedIndex();
-            int realTgtIdx = tIdx + 1;
-            if (realTgtIdx >= 1 && realTgtIdx < static_cast<int>(allLangs.size()))
-            {
-                settings.targetLanguage = allLangs[realTgtIdx].code;
-            }
-
-            settings.globalHotkey = hkSel;
-            settings.quickHotkey = hkMain;
-            settings.ocrHotkey = hkOcr;
-
-            SettingsManager::Instance().UpdateSettings(settings);
-
-            // 2. Save or remove API credentials
-            auto saveKey = [](std::wstring const& targetName, winrt::hstring const& key)
-            {
-                std::wstring val = key.c_str();
-                if (!val.empty())
-                {
-                    CredentialStore::SetCredential(targetName, val);
-                }
-                else
-                {
-                    CredentialStore::DeleteCredential(targetName);
-                }
-            };
-
-            saveKey(CredentialStore::KeyGemini, KeyGeminiBox().Password());
-            saveKey(CredentialStore::KeyOpenAI, KeyOpenAiBox().Password());
-
+            SaveSettings();
             Close();
         });
     }
 
-    winrt::fire_and_forget SettingsWindow::TestGeminiAsync()
+    void SettingsWindow::SaveSettings()
     {
-        auto key = KeyGeminiBox().Password();
-        if (key.empty())
+        std::wstring hkTrans = HotkeyTranslateBox().Text().c_str();
+        std::wstring hkOcr = HotkeyOcrBox().Text().c_str();
+
+        std::wstring err;
+        if (!WindowsIntegration::ValidateHotkey(hkTrans, err))
         {
-            GeminiTestResultText().Text(L"Please enter an API key first.");
-            co_return;
+            HotkeyStatusText().Text(winrt::hstring(L"Error: " + err));
+            return;
+        }
+        if (!WindowsIntegration::ValidateHotkey(hkOcr, err))
+        {
+            HotkeyStatusText().Text(winrt::hstring(L"Error: " + err));
+            return;
         }
 
-        GeminiTestResultText().Text(L"Connecting to Gemini...");
-        TestGeminiBtn().IsEnabled(false);
-
-        CredentialStore::SetCredential(CredentialStore::KeyGemini, key.c_str());
-
-        co_await resume_background();
-        AIRequest req;
-        req.operation = AIOperation::Rewrite;
-        req.text = L"Hello";
-        auto res = GeminiService::Instance().Execute(req);
-
-        DispatcherQueue().TryEnqueue([this, res]()
+        std::wstring regErr;
+        if (!WindowsIntegration::Instance().ReRegisterHotkeys(hkTrans, hkOcr, regErr))
         {
-            TestGeminiBtn().IsEnabled(true);
-            if (res.success)
-            {
-                GeminiTestResultText().Text(L"Connected successfully (gemini-2.5-flash) ✓");
-            }
-            else
-            {
-                GeminiTestResultText().Text(winrt::hstring(res.errorMessage));
-            }
-            UpdateAiStatuses();
-        });
+            HotkeyStatusText().Text(winrt::hstring(regErr.empty() ? L"Hotkey registration failed" : regErr));
+        }
+
+        auto settings = SettingsManager::Instance().GetSettings();
+        settings.autoStart = AutoStartToggle().IsOn();
+
+        int themeIdx = ThemeCombo().SelectedIndex();
+        if (themeIdx == 1) settings.theme = L"Light";
+        else if (themeIdx == 2) settings.theme = L"Dark";
+        else settings.theme = L"Default";
+
+        settings.appLanguage = (AppLanguageCombo().SelectedIndex() == 1) ? L"ru" : L"en";
+
+        settings.compareTranslations = CompareTranslationsToggle().IsOn();
+
+        // Default languages
+        int sIdx = DefaultSourceLangCombo().SelectedIndex();
+        auto const& allLangs = LanguageCatalog::GetAllLanguages();
+        if (sIdx >= 0 && sIdx < static_cast<int>(allLangs.size()))
+        {
+            settings.sourceLanguage = allLangs[sIdx].code;
+        }
+
+        int tIdx = DefaultTargetLangCombo().SelectedIndex();
+        int realTgtIdx = tIdx + 1;
+        if (realTgtIdx >= 1 && realTgtIdx < static_cast<int>(allLangs.size()))
+        {
+            settings.targetLanguage = allLangs[realTgtIdx].code;
+        }
+
+        settings.translateSelectedHotkey = hkTrans;
+        settings.ocrHotkey = hkOcr;
+
+        SettingsManager::Instance().UpdateSettings(settings);
     }
 
-    winrt::fire_and_forget SettingsWindow::TestOpenAiAsync()
+    void SettingsWindow::ApplyLocalization()
     {
-        auto key = KeyOpenAiBox().Password();
-        if (key.empty())
-        {
-            OpenAiTestResultText().Text(L"Please enter an API key first.");
-            co_return;
-        }
+        auto const& loc = LocalizationManager::Instance();
+        Title(winrt::hstring(loc.Get(L"SettingsTitle")));
+        SettingsTitleTextBlock().Text(winrt::hstring(loc.Get(L"SettingsTitle")));
 
-        OpenAiTestResultText().Text(L"Connecting to OpenAI...");
-        TestOpenAiBtn().IsEnabled(false);
+        SettingsSectionGeneralText().Text(winrt::hstring(loc.Get(L"SectionGeneral")));
+        SettingsThemeLabel().Text(winrt::hstring(loc.Get(L"Theme")));
+        ThemeItemDefault().Content(box_value(winrt::hstring(loc.Get(L"ThemeSystem"))));
+        ThemeItemLight().Content(box_value(winrt::hstring(loc.Get(L"ThemeLight"))));
+        ThemeItemDark().Content(box_value(winrt::hstring(loc.Get(L"ThemeDark"))));
+        SettingsAutoStartLabel().Text(winrt::hstring(loc.Get(L"StartWithWindows")));
+        SettingsAppLanguageLabel().Text(winrt::hstring(loc.Get(L"AppLanguage")));
 
-        CredentialStore::SetCredential(CredentialStore::KeyOpenAI, key.c_str());
+        SettingsSectionLanguagesText().Text(winrt::hstring(loc.Get(L"SectionLanguages")));
+        SettingsDefaultSourceLabel().Text(winrt::hstring(loc.Get(L"DefaultSource")));
+        SettingsDefaultTargetLabel().Text(winrt::hstring(loc.Get(L"DefaultTarget")));
+        SettingsCompareTranslationsLabel().Text(winrt::hstring(loc.Get(L"CompareTranslations")));
 
-        co_await resume_background();
-        AIRequest req;
-        req.operation = AIOperation::Rewrite;
-        req.text = L"Hello";
-        auto res = OpenAIService::Instance().Execute(req);
+        SettingsSectionHotkeysText().Text(winrt::hstring(loc.Get(L"SectionHotkeys")));
+        SettingsHotkeyTranslateLabel().Text(winrt::hstring(loc.Get(L"HotkeyTranslateSelected")));
+        SettingsHotkeyOcrLabel().Text(winrt::hstring(loc.Get(L"HotkeyOcr")));
+        ToolTipService::SetToolTip(HotkeyTranslateBox(), box_value(winrt::hstring(loc.Get(L"TipHotkeyRecord"))));
+        ToolTipService::SetToolTip(HotkeyOcrBox(), box_value(winrt::hstring(loc.Get(L"TipHotkeyRecord"))));
+        ToolTipService::SetToolTip(ResetTranslateHotkeyBtn(), box_value(winrt::hstring(loc.Format(L"TipResetHotkey", L"Ctrl+Alt+T"))));
+        ToolTipService::SetToolTip(ResetOcrHotkeyBtn(), box_value(winrt::hstring(loc.Format(L"TipResetHotkey", L"Ctrl+Alt+O"))));
 
-        DispatcherQueue().TryEnqueue([this, res]()
-        {
-            TestOpenAiBtn().IsEnabled(true);
-            if (res.success)
-            {
-                OpenAiTestResultText().Text(L"Connected successfully (gpt-4o-mini) ✓");
-            }
-            else
-            {
-                OpenAiTestResultText().Text(winrt::hstring(res.errorMessage));
-            }
-            UpdateAiStatuses();
-        });
+        SettingsAboutVersionText().Text(winrt::hstring(loc.Get(L"AboutVersion")));
+        SettingsAboutSubtitleText().Text(winrt::hstring(loc.Get(L"AboutSubtitle")));
+        SettingsAboutAuthorText().Text(winrt::hstring(loc.Get(L"AboutCreatedBy")));
+
+        SettingsCloseBtn().Content(box_value(winrt::hstring(loc.Get(L"BtnClose"))));
+
+        int curSrc = DefaultSourceLangCombo().SelectedIndex();
+        int curTgt = DefaultTargetLangCombo().SelectedIndex();
+        PopulateLanguageDropdowns();
+        if (curSrc >= 0) DefaultSourceLangCombo().SelectedIndex(curSrc);
+        if (curTgt >= 0) DefaultTargetLangCombo().SelectedIndex(curTgt);
     }
 }

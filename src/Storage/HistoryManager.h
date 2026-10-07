@@ -21,6 +21,7 @@ namespace dTranslate::Storage
         static HistoryManager& Instance();
 
         std::vector<HistoryItem> const& GetItems() const { return m_items; }
+        std::vector<HistoryItem> Search(std::wstring const& query) const;
         void AddItem(HistoryItem const& item);
         void Clear();
         void Save();

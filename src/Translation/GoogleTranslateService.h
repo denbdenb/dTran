@@ -15,6 +15,7 @@ namespace dTranslate::Translation
 
     private:
         GoogleTranslateService() = default;
+        TranslationResult TranslateSingleChunk(TranslationRequest const& request);
         TranslationResult TranslateWithInstantApi(TranslationRequest const& request);
         TranslationResult TranslateWithFallbackApi(TranslationRequest const& request);
 

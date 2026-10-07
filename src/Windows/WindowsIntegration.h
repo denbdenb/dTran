@@ -17,8 +17,8 @@ namespace dTranslate::Windows
         void Shutdown();
 
         // Callback hooks
-        void SetOnShowMainWindow(std::function<void()> callback) { m_onShowMainWindow = callback; }
-        void SetOnTranslateSelection(std::function<void(std::wstring const&)> callback) { m_onTranslateSelection = callback; }
+        void SetOnOpenPopup(std::function<void()> callback) { m_onOpenPopup = callback; }
+        void SetOnTranslateSelection(std::function<void(std::wstring const&, HWND, bool)> callback) { m_onTranslateSelection = callback; }
         void SetOnTranslateClipboard(std::function<void()> callback) { m_onTranslateClipboard = callback; }
         void SetOnScreenOcr(std::function<void()> callback) { m_onScreenOcr = callback; }
         void SetOnOpenSettings(std::function<void()> callback) { m_onOpenSettings = callback; }
@@ -28,11 +28,14 @@ namespace dTranslate::Windows
 
         bool ReRegisterHotkeys(
             std::wstring const& selectionKey,
-            std::wstring const& mainKey,
             std::wstring const& ocrKey,
             std::wstring& outError);
 
         static bool ValidateHotkey(std::wstring const& hotkeyStr, std::wstring& outError);
+        static void SetWindowAppIcon(HWND hwnd);
+        void UpdateTrayTooltip();
+
+        void SetOnShowTrayMenu(std::function<void(int x, int y)> cb) { m_onShowTrayMenu = cb; }
 
     private:
         WindowsIntegration();
@@ -52,8 +55,9 @@ namespace dTranslate::Windows
         bool m_trayAdded{ false };
         HICON m_hCustomIcon{ nullptr };
 
-        std::function<void()> m_onShowMainWindow;
-        std::function<void(std::wstring const&)> m_onTranslateSelection;
+        std::function<void(int x, int y)> m_onShowTrayMenu;
+        std::function<void()> m_onOpenPopup;
+        std::function<void(std::wstring const&, HWND, bool)> m_onTranslateSelection;
         std::function<void()> m_onTranslateClipboard;
         std::function<void()> m_onScreenOcr;
         std::function<void()> m_onOpenSettings;
@@ -61,8 +65,7 @@ namespace dTranslate::Windows
 
         static constexpr UINT WM_TRAYICON = WM_USER + 101;
         static constexpr int HOTKEY_ID_SELECTION = 2001;
-        static constexpr int HOTKEY_ID_MAIN = 2002;
-        static constexpr int HOTKEY_ID_OCR = 2003;
+        static constexpr int HOTKEY_ID_OCR = 2002;
 
         static constexpr UINT IDM_TRAY_OPEN = 3001;
         static constexpr UINT IDM_TRAY_CLIPBOARD = 3002;

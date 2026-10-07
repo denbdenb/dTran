@@ -1,0 +1,29 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build & Verify (Release x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Release x64
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release
+
+      - name: Run Automated Test Suite
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\scripts\build_test_runner.ps1

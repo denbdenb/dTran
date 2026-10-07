@@ -10,7 +10,15 @@ $manifest = Join-Path $layout 'AppxManifest.xml'
 if (-not (Test-Path $manifest)) { throw "Nothing built yet. Run .\build.ps1 -Configuration $Configuration first." }
 
 Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force
-Add-AppxPackage -Register $manifest -ForceApplicationShutdown
+try {
+    Add-AppxPackage -Register $manifest -ForceApplicationShutdown
+} catch {
+    $existing = Get-AppxPackage -Name dTranslate -ErrorAction SilentlyContinue
+    if ($existing) {
+        Remove-AppxPackage -Package $existing.PackageFullName -ErrorAction SilentlyContinue
+    }
+    Add-AppxPackage -Register $manifest -ForceApplicationShutdown
+}
 $pkg = Get-AppxPackage -Name dTranslate
 if (-not $pkg) { throw 'Package registration failed. Is Developer Mode enabled?' }
 Start-Process "shell:AppsFolder\$($pkg.PackageFamilyName)!App"

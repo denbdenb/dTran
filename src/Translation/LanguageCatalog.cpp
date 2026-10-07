@@ -8,28 +8,28 @@ namespace dTranslate::Translation
 
     static const std::vector<LanguageInfo> s_languages = {
         // Auto-detect (source only)
-        { L"auto", L"Auto-detect", L"Auto-detect", L"🌐", L"", L"", Google | Yandex | Gemini | OpenAI },
+        { L"auto", L"Auto-detect", L"Auto-detect", L"🌐", L"", L"", AllCore },
 
         // Major European & Global Languages
-        { L"en", L"English", L"English", L"🇺🇸", L"EN", L"en-US", AllCore | Reverso | WindowsOcr },
-        { L"ru", L"Russian", L"Русский", L"🇷🇺", L"RU", L"ru-RU", AllCore | Reverso | WindowsOcr },
-        { L"es", L"Spanish", L"Español", L"🇪🇸", L"ES", L"es-ES", AllCore | Reverso | WindowsOcr },
-        { L"de", L"German", L"Deutsch", L"🇩🇪", L"DE", L"de-DE", AllCore | Reverso | WindowsOcr },
-        { L"fr", L"French", L"Français", L"🇫🇷", L"FR", L"fr-FR", AllCore | Reverso | WindowsOcr },
-        { L"it", L"Italian", L"Italiano", L"🇮🇹", L"IT", L"it-IT", AllCore | Reverso | WindowsOcr },
-        { L"pt", L"Portuguese", L"Português", L"🇵🇹", L"PT", L"pt-PT", AllCore | Reverso | WindowsOcr },
-        { L"zh", L"Chinese (Simplified)", L"简体中文", L"🇨🇳", L"ZH", L"zh-Hans-CN", AllCore | Reverso | WindowsOcr },
-        { L"zh-TW", L"Chinese (Traditional)", L"繁體中文", L"🇹🇼", L"ZH-TW", L"zh-Hant-TW", Google | Gemini | OpenAI | Wikipedia | WindowsOcr },
-        { L"ja", L"Japanese", L"日本語", L"🇯🇵", L"JA", L"ja-JP", AllCore | Reverso | WindowsOcr },
+        { L"en", L"English", L"English", L"🇺🇸", L"EN", L"en-US", AllCore | WindowsOcr },
+        { L"ru", L"Russian", L"Русский", L"🇷🇺", L"RU", L"ru-RU", AllCore | WindowsOcr },
+        { L"es", L"Spanish", L"Español", L"🇪🇸", L"ES", L"es-ES", AllCore | WindowsOcr },
+        { L"de", L"German", L"Deutsch", L"🇩🇪", L"DE", L"de-DE", AllCore | WindowsOcr },
+        { L"fr", L"French", L"Français", L"🇫🇷", L"FR", L"fr-FR", AllCore | WindowsOcr },
+        { L"it", L"Italian", L"Italiano", L"🇮🇹", L"IT", L"it-IT", AllCore | WindowsOcr },
+        { L"pt", L"Portuguese", L"Português", L"🇵🇹", L"PT", L"pt-PT", AllCore | WindowsOcr },
+        { L"zh", L"Chinese (Simplified)", L"简体中文", L"🇨🇳", L"ZH", L"zh-Hans-CN", AllCore | WindowsOcr },
+        { L"zh-TW", L"Chinese (Traditional)", L"繁體中文", L"🇹🇼", L"ZH-TW", L"zh-Hant-TW", Google | WindowsOcr },
+        { L"ja", L"Japanese", L"日本語", L"🇯🇵", L"JA", L"ja-JP", AllCore | WindowsOcr },
         { L"ko", L"Korean", L"한국어", L"🇰🇷", L"KO", L"ko-KR", AllCore | WindowsOcr },
-        { L"ar", L"Arabic", L"العربية", L"🇸🇦", L"AR", L"ar-SA", AllCore | Reverso | WindowsOcr },
-        { L"tr", L"Turkish", L"Türkçe", L"🇹🇷", L"TR", L"tr-TR", AllCore | Reverso | WindowsOcr },
-        { L"uk", L"Ukrainian", L"Українська", L"🇺🇦", L"UK", L"uk-UA", AllCore | Reverso | WindowsOcr },
-        { L"pl", L"Polish", L"Polski", L"🇵🇱", L"PL", L"pl-PL", AllCore | Reverso | WindowsOcr },
-        { L"nl", L"Dutch", L"Nederlands", L"🇳🇱", L"NL", L"nl-NL", AllCore | Reverso | WindowsOcr },
+        { L"ar", L"Arabic", L"العربية", L"🇸🇦", L"AR", L"ar-SA", AllCore | WindowsOcr },
+        { L"tr", L"Turkish", L"Türkçe", L"🇹🇷", L"TR", L"tr-TR", AllCore | WindowsOcr },
+        { L"uk", L"Ukrainian", L"Українська", L"🇺🇦", L"UK", L"uk-UA", AllCore | WindowsOcr },
+        { L"pl", L"Polish", L"Polski", L"🇵🇱", L"PL", L"pl-PL", AllCore | WindowsOcr },
+        { L"nl", L"Dutch", L"Nederlands", L"🇳🇱", L"NL", L"nl-NL", AllCore | WindowsOcr },
 
         // Nordic & Central/Eastern European
-        { L"sv", L"Swedish", L"Svenska", L"🇸🇪", L"SV", L"sv-SE", AllCore | Reverso | WindowsOcr },
+        { L"sv", L"Swedish", L"Svenska", L"🇸🇪", L"SV", L"sv-SE", AllCore | WindowsOcr },
         { L"no", L"Norwegian", L"Norsk", L"🇳🇴", L"NO", L"nb-NO", AllCore | WindowsOcr },
         { L"da", L"Danish", L"Dansk", L"🇩🇰", L"DA", L"da-DK", AllCore | WindowsOcr },
         { L"fi", L"Finnish", L"Suomi", L"🇫🇮", L"FI", L"fi-FI", AllCore | WindowsOcr },
@@ -37,12 +37,12 @@ namespace dTranslate::Translation
         { L"cs", L"Czech", L"Čeština", L"🇨🇿", L"CS", L"cs-CZ", AllCore | WindowsOcr },
         { L"sk", L"Slovak", L"Slovenčina", L"🇸🇰", L"SK", L"sk-SK", AllCore | WindowsOcr },
         { L"hu", L"Hungarian", L"Magyar", L"🇭🇺", L"HU", L"hu-HU", AllCore | WindowsOcr },
-        { L"ro", L"Romanian", L"Română", L"🇷🇴", L"RO", L"ro-RO", AllCore | Reverso | WindowsOcr },
+        { L"ro", L"Romanian", L"Română", L"🇷🇴", L"RO", L"ro-RO", AllCore | WindowsOcr },
         { L"bg", L"Bulgarian", L"Български", L"🇧🇬", L"BG", L"bg-BG", AllCore | WindowsOcr },
         { L"sr", L"Serbian", L"Српски", L"🇷🇸", L"SR", L"sr-Cyrl-RS", AllCore | WindowsOcr },
         { L"hr", L"Croatian", L"Hrvatski", L"🇭🇷", L"HR", L"hr-HR", AllCore | WindowsOcr },
         { L"sl", L"Slovenian", L"Slovenščina", L"🇸🇮", L"SL", L"sl-SI", AllCore | WindowsOcr },
-        { L"he", L"Hebrew", L"עברית", L"🇮🇱", L"HE", L"he-IL", AllCore | Reverso | WindowsOcr },
+        { L"he", L"Hebrew", L"עברית", L"🇮🇱", L"HE", L"he-IL", AllCore | WindowsOcr },
 
         // Asian & South Asian
         { L"hi", L"Hindi", L"हिन्दी", L"🇮🇳", L"HI", L"hi-IN", AllCore | WindowsOcr },
@@ -52,7 +52,7 @@ namespace dTranslate::Translation
         { L"id", L"Indonesian", L"Bahasa Indonesia", L"🇮🇩", L"ID", L"id-ID", AllCore | WindowsOcr },
         { L"ms", L"Malay", L"Bahasa Melayu", L"🇲🇾", L"MS", L"ms-MY", AllCore },
         { L"fil", L"Filipino", L"Tagalog", L"🇵🇭", L"FIL", L"fil-PH", AllCore },
-        { L"fa", L"Persian", L"فارسی", L"🇮🇷", L"FA", L"fa-IR", AllCore | Reverso },
+        { L"fa", L"Persian", L"فارسی", L"🇮🇷", L"FA", L"fa-IR", AllCore },
         { L"ur", L"Urdu", L"اردو", L"🇵🇰", L"UR", L"ur-PK", AllCore },
         { L"ta", L"Tamil", L"தமிழ்", L"🇮🇳", L"TA", L"ta-IN", AllCore },
         { L"te", L"Telugu", L"తెలుగు", L"🇮🇳", L"TE", L"te-IN", AllCore },
@@ -93,7 +93,7 @@ namespace dTranslate::Translation
         { L"ca", L"Catalan", L"Català", L"🇪🇸", L"CA", L"ca-ES", AllCore },
         { L"gl", L"Galician", L"Galego", L"🇪🇸", L"GL", L"gl-ES", AllCore },
         { L"mt", L"Maltese", L"Malti", L"🇲🇹", L"MT", L"mt-MT", AllCore },
-        { L"eo", L"Esperanto", L"Esperanto", L"🟢", L"EO", L"eo", Google | Yandex | Gemini | OpenAI | Wikipedia },
+        { L"eo", L"Esperanto", L"Esperanto", L"🟢", L"EO", L"eo", AllCore },
         { L"la", L"Latin", L"Latina", L"🏛️", L"LA", L"la", AllCore },
 
         // African Languages
@@ -114,7 +114,7 @@ namespace dTranslate::Translation
         { L"lb", L"Luxembourgish", L"Lëtzebuergesch", L"🇱🇺", L"LB", L"lb-LU", AllCore },
         { L"mi", L"Maori", L"Māori", L"🇳🇿", L"MI", L"mi-NZ", AllCore },
         { L"sm", L"Samoan", L"Gagana Sāmoa", L"🇼🇸", L"SM", L"sm-WS", AllCore },
-        { L"haw", L"Hawaiian", L"ʻŌlelo Hawaiʻi", L"🌺", L"HAW", L"haw-US", Google | Gemini | OpenAI | Wikipedia },
+        { L"haw", L"Hawaiian", L"ʻŌlelo Hawaiʻi", L"🌺", L"HAW", L"haw-US", Google },
         { L"jv", L"Javanese", L"Basa Jawa", L"🇮🇩", L"JV", L"jv-ID", AllCore },
         { L"su", L"Sundanese", L"Basa Sunda", L"🇮🇩", L"SU", L"su-ID", AllCore }
     };
@@ -151,7 +151,7 @@ namespace dTranslate::Translation
         if (code == L"auto")
         {
             // Auto is supported as source only for core translation engines (0..3)
-            return serviceId >= 0 && serviceId <= 3;
+            return serviceId == 0 || serviceId == 1;
         }
 
         auto info = FindByCode(code);
@@ -162,11 +162,7 @@ namespace dTranslate::Translation
         {
         case 0: mask = Google; break;
         case 1: mask = Yandex; break;
-        case 2: mask = Gemini; break;
-        case 3: mask = OpenAI; break;
-        case 4: mask = Reverso; break;
-        case 5: mask = Wikipedia; break;
-        case 6: mask = WindowsOcr; break;
+        case 2: mask = WindowsOcr; break;
         default: return true;
         }
 
@@ -230,28 +226,7 @@ namespace dTranslate::Translation
         return code;
     }
 
-    std::wstring LanguageCatalog::GetReversoCode(std::wstring const& code)
-    {
-        if (code == L"en") return L"eng";
-        if (code == L"ru") return L"rus";
-        if (code == L"de") return L"ger";
-        if (code == L"fr") return L"fra";
-        if (code == L"es") return L"spa";
-        if (code == L"it") return L"ita";
-        if (code == L"pt") return L"por";
-        if (code == L"pl") return L"pol";
-        if (code == L"nl") return L"dut";
-        if (code == L"he") return L"heb";
-        if (code == L"ar") return L"ara";
-        if (code == L"ja") return L"jpn";
-        if (code == L"zh") return L"chi";
-        if (code == L"uk") return L"ukr";
-        if (code == L"ro") return L"rum";
-        if (code == L"tr") return L"tur";
-        if (code == L"sv") return L"swe";
-        if (code == L"fa") return L"per";
-        return code.empty() ? L"eng" : code;
-    }
+    
 
     int LanguageCatalog::GetLanguageIndex(std::wstring const& code, bool isSource)
     {
@@ -264,5 +239,161 @@ namespace dTranslate::Translation
             }
         }
         return 0;
+    }
+
+    std::wstring LanguageCatalog::DetectLanguage(std::wstring const& text)
+    {
+        if (text.empty()) return L"en";
+
+        int cyrillicCount = 0;
+        int ukrainianSpecific = 0;
+        int latinCount = 0;
+        int cjkCount = 0;
+        int hangulCount = 0;
+        int hiraganaKatakanaCount = 0;
+        int arabicCount = 0;
+        int hebrewCount = 0;
+        int greekCount = 0;
+        int germanSpecific = 0;
+        int frenchSpecific = 0;
+        int spanishSpecific = 0;
+
+        for (wchar_t ch : text)
+        {
+            if ((ch >= 0x0400 && ch <= 0x04FF) || (ch >= 0x0500 && ch <= 0x052F))
+            {
+                cyrillicCount++;
+                if (ch == 0x0456 || ch == 0x0406 || // і, І
+                    ch == 0x0457 || ch == 0x0407 || // ї, Ї
+                    ch == 0x0454 || ch == 0x0404 || // є, Є
+                    ch == 0x0491 || ch == 0x0490)   // ґ, Ґ
+                {
+                    ukrainianSpecific++;
+                }
+            }
+            else if ((ch >= L'a' && ch <= L'z') || (ch >= L'A' && ch <= L'Z') || (ch >= 0x00C0 && ch <= 0x024F))
+            {
+                latinCount++;
+                if (ch == L'ä' || ch == L'Ä' || ch == L'ö' || ch == L'Ö' || ch == L'ü' || ch == L'Ü' || ch == L'ß')
+                {
+                    germanSpecific += 3;
+                }
+                else if (ch == L'ç' || ch == L'œ' || ch == L'æ' || ch == L'è' || ch == L'ê' || ch == L'ë' || ch == L'à' || ch == L'â' || ch == L'î' || ch == L'ô' || ch == L'û' || ch == L'ù')
+                {
+                    frenchSpecific += 3;
+                }
+                else if (ch == L'ñ' || ch == L'Ñ')
+                {
+                    spanishSpecific += 4;
+                }
+            }
+            else if (ch == 0x00BF || ch == 0x00A1 || ch == L'¿' || ch == L'¡') // ¿, ¡
+            {
+                spanishSpecific += 5;
+            }
+            else if (ch >= 0x4E00 && ch <= 0x9FFF)
+            {
+                cjkCount++;
+            }
+            else if ((ch >= 0x3040 && ch <= 0x309F) || (ch >= 0x30A0 && ch <= 0x30FF))
+            {
+                hiraganaKatakanaCount++;
+            }
+            else if ((ch >= 0xAC00 && ch <= 0xD7AF) || (ch >= 0x1100 && ch <= 0x11FF))
+            {
+                hangulCount++;
+            }
+            else if (ch >= 0x0600 && ch <= 0x06FF)
+            {
+                arabicCount++;
+            }
+            else if (ch >= 0x0590 && ch <= 0x05FF)
+            {
+                hebrewCount++;
+            }
+            else if (ch >= 0x0370 && ch <= 0x03FF)
+            {
+                greekCount++;
+            }
+        }
+
+        if (cyrillicCount > latinCount && cyrillicCount > 0)
+        {
+            return (ukrainianSpecific > 0) ? L"uk" : L"ru";
+        }
+        if (hiraganaKatakanaCount > 0) return L"ja";
+        if (hangulCount > 0) return L"ko";
+        if (cjkCount > 0) return L"zh";
+        if (arabicCount > 0) return L"ar";
+        if (hebrewCount > 0) return L"he";
+        if (greekCount > 0) return L"el";
+
+        // Extract word tokens from text
+        std::vector<std::wstring> tokens;
+        std::wstring currentToken;
+        for (wchar_t ch : text)
+        {
+            if (iswalpha(ch))
+            {
+                currentToken += towlower(ch);
+            }
+            else
+            {
+                if (!currentToken.empty())
+                {
+                    tokens.push_back(currentToken);
+                    currentToken.clear();
+                }
+            }
+        }
+        if (!currentToken.empty())
+        {
+            tokens.push_back(currentToken);
+        }
+
+        int deScore = germanSpecific;
+        int frScore = frenchSpecific;
+        int esScore = spanishSpecific;
+
+        for (auto const& w : tokens)
+        {
+            // German words
+            if (w == L"der" || w == L"die" || w == L"das" || w == L"den" || w == L"dem" || w == L"des" ||
+                w == L"ein" || w == L"eine" || w == L"einer" || w == L"und" || w == L"ist" || w == L"sind" ||
+                w == L"nicht" || w == L"ich" || w == L"du" || w == L"er" || w == L"sie" || w == L"es" ||
+                w == L"wir" || w == L"ihr" || w == L"wie" || w == L"geht" || w == L"ihnen" || w == L"guten" ||
+                w == L"morgen" || w == L"tag" || w == L"abend" || w == L"danke" || w == L"bitte" ||
+                w == L"auf" || w == L"mit" || w == L"haben" || w == L"sein")
+            {
+                deScore += 3;
+            }
+
+            // French words
+            if (w == L"le" || w == L"la" || w == L"les" || w == L"un" || w == L"une" || w == L"des" ||
+                w == L"et" || w == L"est" || w == L"sont" || w == L"pas" || w == L"je" || w == L"tu" ||
+                w == L"il" || w == L"elle" || w == L"nous" || w == L"vous" || w == L"bonjour" || w == L"merci" ||
+                w == L"comment" || w == L"allez" || w == L"avec" || w == L"pour" || w == L"dans" ||
+                w == L"sur" || w == L"qui" || w == L"que")
+            {
+                frScore += 3;
+            }
+
+            // Spanish words
+            if (w == L"el" || w == L"la" || w == L"los" || w == L"las" || w == L"un" || w == L"una" ||
+                w == L"unos" || w == L"unas" || w == L"y" || w == L"es" || w == L"son" || w == L"no" ||
+                w == L"yo" || w == L"tú" || w == L"él" || w == L"ella" || w == L"nosotros" || w == L"vosotros" ||
+                w == L"ellos" || w == L"cómo" || w == L"como" || w == L"estás" || w == L"esta" ||
+                w == L"hola" || w == L"gracias" || w == L"por" || w == L"para" || w == L"pero" ||
+                w == L"qué" || w == L"que" || w == L"bien" || w == L"hoy" || w == L"buenos" || w == L"dias")
+            {
+                esScore += 3;
+            }
+        }
+
+        if (deScore > 0 && deScore >= frScore && deScore >= esScore) return L"de";
+        if (frScore > 0 && frScore >= esScore) return L"fr";
+        if (esScore > 0) return L"es";
+
+        return L"en";
     }
 }

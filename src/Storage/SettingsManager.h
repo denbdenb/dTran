@@ -4,36 +4,36 @@
 #include <functional>
 #include <map>
 
+#include <winrt/Windows.Foundation.h>
+
 namespace dTranslate::Storage
 {
+    enum class WindowsStartupState : uint32_t
+    {
+        Disabled = 0,
+        DisabledByUser = 1,
+        Enabled = 2,
+        DisabledByPolicy = 3,
+        EnabledByPolicy = 4,
+        ErrorOrUnavailable = 5
+    };
+
     struct AppSettings
     {
         std::wstring sourceLanguage{ L"auto" };
         std::wstring targetLanguage{ L"ru" };
-        int primaryService{ 0 }; // 0 = Google, 1 = Yandex, 2 = Gemini, 3 = OpenAI
+        int primaryService{ 0 }; // 0 = Google, 1 = Yandex
         std::wstring theme{ L"Default" }; // Default, Light, Dark
+        std::wstring appLanguage{ L"en" }; // "en" or "ru"
         bool autoStart{ false };
         bool closeToTray{ true };
-        std::wstring globalHotkey{ L"Ctrl+Alt+T" };
-        std::wstring quickHotkey{ L"Ctrl+Alt+D" };
+        std::wstring translateSelectedHotkey{ L"Ctrl+Alt+T" };
         std::wstring ocrHotkey{ L"Ctrl+Alt+O" };
         bool compareTranslations{ false };
-        bool sidebarCollapsed{ false };
-        std::wstring geminiModel{ L"gemini-2.5-flash" };
-        std::wstring openAiModel{ L"gpt-4o-mini" };
 
-        // Dictionary settings
-        std::wstring dictSourceLang{ L"en" };
-        std::wstring dictTargetLang{ L"ru" };
-        int dictEngine{ 0 }; // 0 = Reverso, 1 = Wikipedia
-
-        // Window geometry persistence
-        int mainWindowWidth{ 1020 };
-        int mainWindowHeight{ 720 };
+        // Window geometry persistence for QuickPopup
         int quickPopupWidth{ 440 };
-        int quickPopupHeight{ 420 };
-        int settingsWindowWidth{ 960 };
-        int settingsWindowHeight{ 680 };
+        int quickPopupHeight{ 460 };
     };
 
     using SettingsObserver = std::function<void(AppSettings const&)>;
@@ -52,7 +52,11 @@ namespace dTranslate::Storage
         void UnregisterObserver(uintptr_t key);
 
         static std::filesystem::path GetAppDataPath();
-        static bool SetStartWithWindows(bool enable);
+        static WindowsStartupState GetStartupTaskState();
+        static bool IsStartWithWindowsEnabled();
+        static winrt::Windows::Foundation::IAsyncOperation<uint32_t> SetStartWithWindowsAsync(bool enable);
+        static bool SetStartWithWindows(bool enable, WindowsStartupState* outActualState = nullptr);
+        static void CleanupStaleRegistryEntries();
 
     private:
         SettingsManager();

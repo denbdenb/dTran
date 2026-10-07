@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ScreenSnipper.h"
 #include "WindowsOcrService.h"
+#include "LocalizationManager.h"
 #include <vector>
 #include <algorithm>
 
@@ -295,6 +296,46 @@ namespace dTranslate::OCR
             DeleteObject(hPen);
         }
 
+        // 3. Top instruction pill before selection begins
+        if (!m_selectionDone && !m_isSelecting)
+        {
+            UINT dpi = GetDpiForWindow(hWnd);
+            if (dpi == 0) dpi = GetDpiForSystem();
+            float scale = (dpi > 0) ? (static_cast<float>(dpi) / 96.0f) : 1.0f;
+            if (scale < 1.0f) scale = 1.0f;
+
+            auto const& loc = dTranslate::Storage::LocalizationManager::Instance();
+            std::wstring bannerText = loc.Get(L"OcrInstruction");
+
+            int bannerH = static_cast<int>(36 * scale);
+            int fontH = static_cast<int>(14 * scale);
+            int bannerW = static_cast<int>(340 * scale);
+            int bannerX = (m_vw - bannerW) / 2;
+            int bannerY = static_cast<int>(40 * scale);
+            int cornerR = static_cast<int>(8 * scale);
+
+            RECT bRect = { bannerX, bannerY, bannerX + bannerW, bannerY + bannerH };
+            HBRUSH hBg = CreateSolidBrush(RGB(24, 24, 27));
+            HPEN hPen = CreatePen(PS_SOLID, 1, RGB(63, 63, 70));
+            HGDIOBJ oB = SelectObject(hMemDC, hBg);
+            HGDIOBJ oP = SelectObject(hMemDC, hPen);
+            RoundRect(hMemDC, bRect.left, bRect.top, bRect.right, bRect.bottom, cornerR, cornerR);
+            SelectObject(hMemDC, oB);
+            SelectObject(hMemDC, oP);
+            DeleteObject(hBg);
+            DeleteObject(hPen);
+
+            HFONT hFont = CreateFontW(-fontH, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+            HGDIOBJ oFont = SelectObject(hMemDC, hFont);
+            SetBkMode(hMemDC, TRANSPARENT);
+            SetTextColor(hMemDC, RGB(228, 228, 231));
+            DrawTextW(hMemDC, bannerText.c_str(), -1, &bRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            SelectObject(hMemDC, oFont);
+            DeleteObject(hFont);
+        }
+
         // 4. If selection is done, draw floating toolbar
         if (m_selectionDone && selW > 10 && selH > 10)
         {
@@ -303,10 +344,19 @@ namespace dTranslate::OCR
             float scale = (dpi > 0) ? (static_cast<float>(dpi) / 96.0f) : 1.0f;
             if (scale < 1.0f) scale = 1.0f;
 
-            int tbW = static_cast<int>(360 * scale);
+            auto const& loc = dTranslate::Storage::LocalizationManager::Instance();
+            std::wstring transText = loc.Get(L"OcrBtnTranslate");
+            std::wstring copyText = loc.Get(L"OcrBtnCopy");
+            std::wstring cancelText = loc.Get(L"OcrBtnCancel");
+
+            int btnW1 = static_cast<int>(120 * scale);
+            int btnW2 = static_cast<int>(125 * scale);
+            int btnW3 = static_cast<int>(95 * scale);
+            int btnGap = static_cast<int>(8 * scale);
+            int padding = static_cast<int>(8 * scale);
+            int tbW = padding * 2 + btnW1 + btnW2 + btnW3 + btnGap * 2;
             int tbH = static_cast<int>(48 * scale);
             int margin = static_cast<int>(10 * scale);
-            int padding = static_cast<int>(8 * scale);
             int btnH = static_cast<int>(34 * scale);
             int fontH = static_cast<int>(14 * scale);
             int cornerR = static_cast<int>(8 * scale);
@@ -329,11 +379,6 @@ namespace dTranslate::OCR
             SelectObject(hMemDC, hOldP);
             DeleteObject(hTbBg);
             DeleteObject(hTbBorder);
-
-            int btnW1 = static_cast<int>(115 * scale);
-            int btnW2 = static_cast<int>(115 * scale);
-            int btnW3 = static_cast<int>(95 * scale);
-            int btnGap = static_cast<int>(8 * scale);
 
             int b1Left = tbX + padding;
             int b2Left = b1Left + btnW1 + btnGap;
@@ -368,13 +413,13 @@ namespace dTranslate::OCR
             };
 
             COLORREF btn1Bg = (m_hoveredBtn == 1) ? RGB(29, 78, 216) : RGB(37, 99, 235);
-            DrawBtn(m_btnTranslateRect, L"Translate", btn1Bg, RGB(255, 255, 255));
+            DrawBtn(m_btnTranslateRect, transText.c_str(), btn1Bg, RGB(255, 255, 255));
 
             COLORREF btn2Bg = (m_hoveredBtn == 2) ? RGB(63, 63, 70) : RGB(45, 45, 48);
-            DrawBtn(m_btnCopyRect, L"Copy Text", btn2Bg, RGB(255, 255, 255));
+            DrawBtn(m_btnCopyRect, copyText.c_str(), btn2Bg, RGB(255, 255, 255));
 
             COLORREF btn3Bg = (m_hoveredBtn == 3) ? RGB(185, 28, 28) : RGB(45, 45, 48);
-            DrawBtn(m_btnCancelRect, L"Cancel", btn3Bg, RGB(220, 220, 220));
+            DrawBtn(m_btnCancelRect, cancelText.c_str(), btn3Bg, RGB(220, 220, 220));
 
             SelectObject(hMemDC, hOldFont);
             DeleteObject(hFont);

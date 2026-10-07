@@ -107,9 +107,6 @@
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="..\UI\MainWindow\MainWindow.xaml.h">
-      <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
-    </ClInclude>
     <ClInclude Include="..\UI\QuickPopup\QuickPopupWindow.xaml.h">
       <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
     </ClInclude>
@@ -121,29 +118,24 @@
     <ClInclude Include="..\Windows\WindowsIntegration.h" />
     <ClInclude Include="..\Networking\HttpClient.h" />
     <ClInclude Include="..\Networking\UrlEncoder.h" />
-    <ClInclude Include="..\Storage\CredentialStore.h" />
     <ClInclude Include="..\Storage\SettingsManager.h" />
     <ClInclude Include="..\Storage\HistoryManager.h" />
+    <ClInclude Include="..\Storage\LocalizationManager.h" />
+    <ClInclude Include="..\Translation\TextChunker.h" />
     <ClInclude Include="..\Translation\TranslationTypes.h" />
     <ClInclude Include="..\Translation\LanguageCatalog.h" />
     <ClInclude Include="..\Translation\GoogleTranslateService.h" />
     <ClInclude Include="..\Translation\YandexTranslateService.h" />
     <ClInclude Include="..\Translation\TranslationManager.h" />
-    <ClInclude Include="..\AI\AITypes.h" />
-    <ClInclude Include="..\AI\GeminiService.h" />
-    <ClInclude Include="..\AI\OpenAIService.h" />
-    <ClInclude Include="..\Dictionary\DictionaryTypes.h" />
-    <ClInclude Include="..\Dictionary\WikipediaService.h" />
-    <ClInclude Include="..\Dictionary\ReversoService.h" />
     <ClInclude Include="..\Audio\GoogleTtsService.h" />
     <ClInclude Include="..\OCR\WindowsOcrService.h" />
     <ClInclude Include="..\OCR\ScreenSnipper.h" />
+    <ClInclude Include="..\UI\Tray\TrayMenuManager.h" />
   </ItemGroup>
 
   <!-- XAML -->
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
-    <Page Include="..\UI\MainWindow\MainWindow.xaml" />
     <Page Include="..\UI\QuickPopup\QuickPopupWindow.xaml" />
     <Page Include="..\UI\Settings\SettingsWindow.xaml" />
   </ItemGroup>
@@ -156,9 +148,6 @@
     <ClCompile Include="App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
-    <ClCompile Include="..\UI\MainWindow\MainWindow.xaml.cpp">
-      <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
-    </ClCompile>
     <ClCompile Include="..\UI\QuickPopup\QuickPopupWindow.xaml.cpp">
       <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
     </ClCompile>
@@ -169,29 +158,23 @@
     <ClCompile Include="..\Windows\SelectionCapture.cpp" />
     <ClCompile Include="..\Windows\WindowsIntegration.cpp" />
     <ClCompile Include="..\Networking\HttpClient.cpp" />
-    <ClCompile Include="..\Storage\CredentialStore.cpp" />
     <ClCompile Include="..\Storage\SettingsManager.cpp" />
     <ClCompile Include="..\Storage\HistoryManager.cpp" />
+    <ClCompile Include="..\Storage\LocalizationManager.cpp" />
+    <ClCompile Include="..\Translation\TextChunker.cpp" />
     <ClCompile Include="..\Translation\GoogleTranslateService.cpp" />
     <ClCompile Include="..\Translation\LanguageCatalog.cpp" />
     <ClCompile Include="..\Translation\YandexTranslateService.cpp" />
     <ClCompile Include="..\Translation\TranslationManager.cpp" />
-    <ClCompile Include="..\AI\GeminiService.cpp" />
-    <ClCompile Include="..\AI\OpenAIService.cpp" />
-    <ClCompile Include="..\Dictionary\WikipediaService.cpp" />
-    <ClCompile Include="..\Dictionary\ReversoService.cpp" />
     <ClCompile Include="..\Audio\GoogleTtsService.cpp" />
     <ClCompile Include="..\OCR\WindowsOcrService.cpp" />
     <ClCompile Include="..\OCR\ScreenSnipper.cpp" />
+    <ClCompile Include="..\UI\Tray\TrayMenuManager.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
 
   <!-- WinRT interface definitions -->
   <ItemGroup>
-    <Midl Include="..\UI\MainWindow\MainWindow.idl">
-      <DependentUpon>..\UI\MainWindow\MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
     <Midl Include="..\UI\QuickPopup\QuickPopupWindow.idl">
       <DependentUpon>..\UI\QuickPopup\QuickPopupWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -208,6 +191,9 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\assets\SplashScreen.png">

@@ -40,5 +40,7 @@ namespace dTranslate::Audio
         std::atomic<uint64_t> m_sessionCounter{ 0 };
         std::thread m_workerThread;
         std::mutex m_threadMutex;
+        std::wstring m_currentAlias;
+        std::mutex m_aliasMutex;
     };
 }

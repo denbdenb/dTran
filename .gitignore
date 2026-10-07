@@ -6,6 +6,7 @@ x64/
 ARM64/
 Debug/
 Release/
+dist/
 AppPackages/
 BundleArtifacts/
 *.msix

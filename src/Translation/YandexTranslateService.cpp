@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "YandexTranslateService.h"
+#include "TextChunker.h"
+#include "LanguageCatalog.h"
+#include "LocalizationManager.h"
 #include "HttpClient.h"
 #include "UrlEncoder.h"
 #include <winrt/Windows.Data.Json.h>
@@ -16,6 +19,62 @@ namespace dTranslate::Translation
     }
 
     TranslationResult YandexTranslateService::Translate(TranslationRequest const& request)
+    {
+        TranslationResult result;
+        result.serviceName = L"Yandex Translate (Web)";
+        result.originalText = request.text;
+
+        if (request.text.empty())
+        {
+            result.success = true;
+            result.translatedText = L"";
+            return result;
+        }
+
+        // Validate language support for Yandex
+        if ((!request.sourceLang.empty() && request.sourceLang != L"auto" && !LanguageCatalog::IsServiceSupported(1, request.sourceLang)) ||
+            (!request.targetLang.empty() && !LanguageCatalog::IsServiceSupported(1, request.targetLang)))
+        {
+            result.success = false;
+            result.errorMessage = Storage::LocalizationManager::Instance().Get(L"ErrorYandexUnsupportedLanguage");
+            return result;
+        }
+
+        // For large texts (> 1500 characters), split into natural chunks
+        if (request.text.size() > 1500)
+        {
+            auto chunks = TextChunker::Split(request.text, 1500);
+            if (chunks.size() > 1)
+            {
+                std::vector<std::wstring> translatedParts;
+                translatedParts.reserve(chunks.size());
+
+                for (size_t i = 0; i < chunks.size(); ++i)
+                {
+                    TranslationRequest subReq = request;
+                    subReq.text = chunks[i].text;
+                    auto subRes = TranslateSingleChunk(subReq);
+                    if (!subRes.success)
+                    {
+                        return subRes;
+                    }
+                    if (result.detectedLanguage.empty() && !subRes.detectedLanguage.empty())
+                    {
+                        result.detectedLanguage = subRes.detectedLanguage;
+                    }
+                    translatedParts.push_back(subRes.translatedText);
+                }
+
+                result.translatedText = TextChunker::Combine(translatedParts, chunks);
+                result.success = true;
+                return result;
+            }
+        }
+
+        return TranslateSingleChunk(request);
+    }
+
+    TranslationResult YandexTranslateService::TranslateSingleChunk(TranslationRequest const& request)
     {
         TranslationResult result;
         result.serviceName = L"Yandex Translate (Web)";
@@ -59,7 +118,7 @@ namespace dTranslate::Translation
         // If all web endpoints failed
         if (result.errorMessage.empty())
         {
-            result.errorMessage = L"Yandex Web service is temporarily unavailable. Please try again later.";
+            result.errorMessage = Storage::LocalizationManager::Instance().Get(L"ServiceUnavailable");
         }
         return result;
     }
@@ -71,12 +130,15 @@ namespace dTranslate::Translation
         result.originalText = request.text;
 
         std::wstring targetLang = request.targetLang.empty() ? L"ru" : request.targetLang;
-        std::wstring encodedText = UrlEncode(request.text);
+        std::wstring srcLang = (request.sourceLang.empty() || request.sourceLang == L"auto") ? L"auto" : request.sourceLang;
+        if (srcLang == L"zh-CN" || srcLang == L"zh-TW") srcLang = L"zh";
+        if (targetLang == L"zh-CN" || targetLang == L"zh-TW") targetLang = L"zh";
 
-        std::string formData = "text=" + ToUtf8(encodedText) +
+        std::string formData = "text=" + ToUtf8(UrlEncode(request.text)) +
             "&brandID=int" +
+            "&srcLang=" + ToUtf8(srcLang) +
+            "&targetLang=" + ToUtf8(targetLang) +
             "&statLang=" + ToUtf8(targetLang) +
-            "&targetLang=auto" +
             "&locale=" + ToUtf8(targetLang) +
             "&clid=2270494&disable=serp&use_llm_srv=0";
 
@@ -131,9 +193,11 @@ namespace dTranslate::Translation
         result.originalText = request.text;
 
         std::wstring targetLang = request.targetLang.empty() ? L"ru" : request.targetLang;
-        std::wstring encodedText = UrlEncode(request.text);
+        std::wstring srcLang = (request.sourceLang.empty() || request.sourceLang == L"auto") ? L"auto" : request.sourceLang;
+        if (srcLang == L"zh-CN" || srcLang == L"zh-TW") srcLang = L"zh";
+        if (targetLang == L"zh-CN" || targetLang == L"zh-TW") targetLang = L"zh";
 
-        std::wstring url = host + L"/api/translate?engine=yandex&from=auto&to=" + targetLang + L"&text=" + encodedText;
+        std::wstring url = host + L"/api/translate?engine=yandex&from=" + srcLang + L"&to=" + targetLang + L"&text=" + UrlEncode(request.text);
 
         std::vector<std::pair<std::wstring, std::wstring>> headers = {
             { L"User-Agent", L"dTranslate/1.0 (Windows 11)" }

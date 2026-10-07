@@ -10,12 +10,8 @@ namespace dTranslate::Translation
         constexpr uint32_t None        = 0;
         constexpr uint32_t Google      = 1 << 0;
         constexpr uint32_t Yandex      = 1 << 1;
-        constexpr uint32_t Gemini      = 1 << 2;
-        constexpr uint32_t OpenAI      = 1 << 3;
-        constexpr uint32_t Reverso     = 1 << 4;
-        constexpr uint32_t Wikipedia   = 1 << 5;
-        constexpr uint32_t WindowsOcr  = 1 << 6;
-        constexpr uint32_t AllCore     = Google | Yandex | Gemini | OpenAI | Wikipedia;
+        constexpr uint32_t WindowsOcr  = 1 << 2;
+        constexpr uint32_t AllCore     = Google | Yandex;
     }
 
     struct LanguageInfo
@@ -75,7 +71,7 @@ namespace dTranslate::Translation
         static std::vector<LanguageInfo> GetLanguagesForService(int serviceId, bool isSource);
         static std::wstring ValidateLanguageForService(int serviceId, std::wstring const& code, bool isSource);
         static std::wstring GetBcp47Tag(std::wstring const& code);
-        static std::wstring GetReversoCode(std::wstring const& code);
         static int GetLanguageIndex(std::wstring const& code, bool isSource = false);
+        static std::wstring DetectLanguage(std::wstring const& text);
     };
 }

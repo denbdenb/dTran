@@ -33,6 +33,18 @@ namespace dTranslate::Audio
         m_cancelRequested.store(true);
         m_sessionCounter.fetch_add(1);
 
+        {
+            std::lock_guard<std::mutex> lk(m_aliasMutex);
+            if (!m_currentAlias.empty())
+            {
+                std::wstring stopCmd = L"stop " + m_currentAlias;
+                mciSendStringW(stopCmd.c_str(), nullptr, 0, nullptr);
+                std::wstring closeCmd = L"close " + m_currentAlias;
+                mciSendStringW(closeCmd.c_str(), nullptr, 0, nullptr);
+                m_currentAlias.clear();
+            }
+        }
+
         mciSendStringW(L"stop all", nullptr, 0, nullptr);
         mciSendStringW(L"close all", nullptr, 0, nullptr);
 
@@ -157,7 +169,7 @@ namespace dTranslate::Audio
             std::wstring url = L"https://translate.google.com/translate_tts?ie=UTF-8&tl=" +
                 tl + L"&client=tw-ob&q=" + encodedText;
 
-            auto response = HttpClient::Instance().Get(url, headers);
+            auto response = HttpClient::Instance().Get(url, headers, 4000);
 
             if (m_cancelRequested.load() || playSessionId != m_sessionCounter.load())
             {
@@ -185,10 +197,41 @@ namespace dTranslate::Audio
 
                     if (!m_cancelRequested.load() && playSessionId == m_sessionCounter.load())
                     {
-                        std::wstring playCmd = L"play " + aliasName + L" wait";
+                        {
+                            std::lock_guard<std::mutex> lk(m_aliasMutex);
+                            m_currentAlias = aliasName;
+                        }
+
+                        // Non-blocking play command
+                        std::wstring playCmd = L"play " + aliasName;
                         mciSendStringW(playCmd.c_str(), nullptr, 0, nullptr);
+
+                        wchar_t statusBuf[128] = {};
+                        std::wstring statusCmd = L"status " + aliasName + L" mode";
+
+                        // Responsive polling loop checking cancellation every 20ms
+                        while (!m_cancelRequested.load() && playSessionId == m_sessionCounter.load())
+                        {
+                            statusBuf[0] = 0;
+                            mciSendStringW(statusCmd.c_str(), statusBuf, _countof(statusBuf), nullptr);
+                            if (_wcsicmp(statusBuf, L"playing") != 0)
+                            {
+                                break;
+                            }
+                            Sleep(20);
+                        }
+
+                        {
+                            std::lock_guard<std::mutex> lk(m_aliasMutex);
+                            if (m_currentAlias == aliasName)
+                            {
+                                m_currentAlias.clear();
+                            }
+                        }
                     }
 
+                    std::wstring stopCmd = L"stop " + aliasName;
+                    mciSendStringW(stopCmd.c_str(), nullptr, 0, nullptr);
                     std::wstring closeCmd = L"close " + aliasName;
                     mciSendStringW(closeCmd.c_str(), nullptr, 0, nullptr);
                 }

@@ -3,19 +3,20 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  IgnorableNamespaces="uap uap5 rescap">
 
   <Identity
     Name="dTranslate"
     Publisher="CN=dTranslate Dev"
-    Version="0.1.0.0" />
+    Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="6f1f4c0e-5b0a-4f6c-9d2e-7c1b2a3d4e5f" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 
   <Properties>
-    <DisplayName>dTranslate</DisplayName>
-    <PublisherDisplayName>dTranslate</PublisherDisplayName>
+    <DisplayName>dTran</DisplayName>
+    <PublisherDisplayName>dTran Dev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -30,14 +31,22 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="dTranslate"
-        Description="Fast, lightweight native translator for Windows 11"
+        DisplayName="dTran"
+        Description="Fast, lightweight popup translator for Windows 11"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap5:Extension Category="windows.startupTask">
+          <uap5:StartupTask
+            TaskId="dTranStartupTask"
+            Enabled="false"
+            DisplayName="dTran" />
+        </uap5:Extension>
+      </Extensions>
     </Application>
   </Applications>
 
