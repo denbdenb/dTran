@@ -36,8 +36,8 @@
 3. dTran launches automatically in your system tray.
 4. Highlight any text and press `Ctrl+Alt+T` to translate!
 
-### Alternative (MSIX Package)
-* Download **`dTran-1.0.0-x64.msix`** from GitHub Releases and install using Windows App Installer.
+### Developer / Testing Package (MSIX)
+* **`dTran-1.0.0-x64.msix`** is provided as an unsigned package for developers and testing in environments with Windows Developer Mode or custom certificate deployment. For end-users, please use the recommended **Setup.exe** installer above.
 
 ### Uninstallation
 * To uninstall, open **Windows Settings** → **Apps** → **Installed apps** → search for **dTran** → click **Uninstall**, or run the uninstaller from the Start Menu.

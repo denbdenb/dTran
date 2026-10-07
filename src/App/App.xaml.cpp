@@ -7,9 +7,31 @@
 #include "../UI/Tray/TrayMenuManager.h"
 #include <microsoft.ui.xaml.window.h>
 #include <winrt/Microsoft.Windows.AppLifecycle.h>
+#include <appmodel.h>
+#include <shellapi.h>
+
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "shell32.lib")
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
+
+static void SafeLogCrash(const wchar_t* msg)
+{
+    wchar_t tempPath[MAX_PATH];
+    if (GetTempPathW(MAX_PATH, tempPath) > 0)
+    {
+        std::wstring logPath = std::wstring(tempPath) + L"dTran_crash.log";
+        FILE* f = nullptr;
+        _wfopen_s(&f, logPath.c_str(), L"a");
+        if (f)
+        {
+            fwprintf(f, L"%s\n", msg);
+            fflush(f);
+            fclose(f);
+        }
+    }
+}
 
 namespace winrt::dTranslate::implementation
 {
@@ -23,14 +45,7 @@ namespace winrt::dTranslate::implementation
         UnhandledException([](IInspectable const&, UnhandledExceptionEventArgs const& e)
         {
             auto errorMessage = e.Message();
-            FILE* f = nullptr;
-            _wfopen_s(&f, L"C:\\Users\\denb\\.gemini\\antigravity\\scratch\\dTranslate\\crash_log.txt", L"a");
-            if (f)
-            {
-                fwprintf(f, L"UnhandledException: %s\n", errorMessage.c_str());
-                fflush(f);
-                fclose(f);
-            }
+            SafeLogCrash((L"UnhandledException: " + std::wstring(errorMessage)).c_str());
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION
             if (IsDebuggerPresent())
             {
@@ -271,36 +286,45 @@ namespace winrt::dTranslate::implementation
         }
         catch (winrt::hresult_error const& ex)
         {
-            FILE* f = nullptr;
-            _wfopen_s(&f, L"C:\\Users\\denb\\.gemini\\antigravity\\scratch\\dTranslate\\crash_log.txt", L"a");
-            if (f)
-            {
-                fwprintf(f, L"hresult_error in OnLaunched: 0x%08X: %s\n", ex.code().value, ex.message().c_str());
-                fflush(f);
-                fclose(f);
-            }
+            SafeLogCrash((L"hresult_error in OnLaunched: 0x" + std::to_wstring(ex.code().value) + L": " + std::wstring(ex.message())).c_str());
         }
         catch (std::exception const& ex)
         {
-            FILE* f = nullptr;
-            _wfopen_s(&f, L"C:\\Users\\denb\\.gemini\\antigravity\\scratch\\dTranslate\\crash_log.txt", L"a");
-            if (f)
-            {
-                fprintf(f, "std::exception in OnLaunched: %s\n", ex.what());
-                fflush(f);
-                fclose(f);
-            }
+            SafeLogCrash(L"std::exception in OnLaunched");
         }
         catch (...)
         {
-            FILE* f = nullptr;
-            _wfopen_s(&f, L"C:\\Users\\denb\\.gemini\\antigravity\\scratch\\dTranslate\\crash_log.txt", L"a");
-            if (f)
-            {
-                fprintf(f, "unknown exception in OnLaunched\n");
-                fflush(f);
-                fclose(f);
-            }
+            SafeLogCrash(L"unknown exception in OnLaunched");
         }
     }
+}
+
+int __stdcall wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+{
+    // 1. Check if running with package identity
+    UINT32 length = 0;
+    LONG rc = GetCurrentPackageFullName(&length, nullptr);
+    if (rc == APPMODEL_ERROR_NO_PACKAGE)
+    {
+        // Started directly outside package identity (e.g. user double-clicked dTranslate.exe in install directory).
+        // Forward launch through Windows Shell using registered AUMID so Windows runs it with Package Identity.
+        SHELLEXECUTEINFOW sei = { sizeof(sei) };
+        sei.fMask = SEE_MASK_FLAG_NO_UI;
+        sei.lpVerb = L"open";
+        sei.lpFile = L"shell:AppsFolder\\dTranslate_4evqteexctg80!App";
+        sei.lpParameters = pCmdLine;
+        sei.nShow = nCmdShow;
+        ShellExecuteExW(&sei);
+        return 0;
+    }
+
+    // 2. Normal execution under Package Identity
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
+    ::winrt::Microsoft::UI::Xaml::Application::Start(
+        [](auto&&)
+        {
+            ::winrt::make<::winrt::dTranslate::implementation::App>();
+        });
+
+    return 0;
 }

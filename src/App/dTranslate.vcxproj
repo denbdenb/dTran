@@ -73,7 +73,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>%(AdditionalOptions) /bigobj /utf-8</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\UI\MainWindow;$(ProjectDir)..\UI\QuickPopup;$(ProjectDir)..\UI\Settings;$(ProjectDir)..\Windows;$(ProjectDir)..\Networking;$(ProjectDir)..\Translation;$(ProjectDir)..\AI;$(ProjectDir)..\Dictionary;$(ProjectDir)..\Storage;$(ProjectDir)..\Audio;$(ProjectDir)..\OCR;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DISABLE_XAML_GENERATED_MAIN;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ProcessorNumber>2</ProcessorNumber>

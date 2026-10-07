@@ -7,6 +7,7 @@
 #define MyAppURL "https://github.com/denb/dTran"
 #define MyAppExeName "dTranslate.exe"
 #define MyPackageFamily "dTranslate_4evqteexctg80"
+#define MyAUMID "dTranslate_4evqteexctg80!App"
 
 [Setup]
 AppId={{8B1A2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D}}
@@ -45,20 +46,28 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\build\layout\x64\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "explorer.exe"; Parameters: "shell:AppsFolder\{#MyPackageFamily}!App"; IconFilename: "{app}\Assets\app.ico"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "explorer.exe"; Parameters: "shell:AppsFolder\{#MyPackageFamily}!App"; IconFilename: "{app}\Assets\app.ico"; Tasks: desktopicon
+; Start Menu shortcut: strictly separated TargetPath and Arguments
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{win}\explorer.exe"; Parameters: "shell:AppsFolder\{#MyAUMID}"; WorkingDir: "{win}"; IconFilename: "{app}\Assets\app.ico"
+; Desktop shortcut: strictly separated TargetPath and Arguments
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{win}\explorer.exe"; Parameters: "shell:AppsFolder\{#MyAUMID}"; WorkingDir: "{win}"; IconFilename: "{app}\Assets\app.ico"; Tasks: desktopicon
 
 [Run]
-; Launch dTran on user request
-Filename: "explorer.exe"; Parameters: "shell:AppsFolder\{#MyPackageFamily}!App"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
+; Launch dTran on user request using ShellExecute (prevents CreateProcess error 2)
+Filename: "{win}\explorer.exe"; Parameters: "shell:AppsFolder\{#MyAUMID}"; WorkingDir: "{win}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: shellexec nowait postinstall skipifsilent
 
 [Code]
+// Full path to PowerShell executable on all Windows 10/11 systems
+function GetPowerShellExe(): String;
+begin
+  Result := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
+end;
+
 // Helper to terminate running instance before upgrade/uninstall
 function InitializeSetup(): Boolean;
 var
   ResultCode: Integer;
 begin
-  Exec('powershell.exe', '-NoProfile -Command "Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(GetPowerShellExe(), '-NoProfile -Command "Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Result := True;
 end;
 
@@ -66,7 +75,7 @@ function InitializeUninstall(): Boolean;
 var
   ResultCode: Integer;
 begin
-  Exec('powershell.exe', '-NoProfile -Command "Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(GetPowerShellExe(), '-NoProfile -Command "Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Result := True;
 end;
 
@@ -79,7 +88,7 @@ begin
   if CurStep = ssPostInstall then
   begin
     ManifestPath := ExpandConstant('{app}') + '\AppxManifest.xml';
-    Exec('powershell.exe', '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Add-AppxPackage -Register ''' + ManifestPath + ''' -ForceApplicationShutdown"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec(GetPowerShellExe(), '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Add-AppxPackage -Register ''' + ManifestPath + ''' -ForceApplicationShutdown"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
 
@@ -90,6 +99,6 @@ var
 begin
   if CurUninstallStep = usUninstall then
   begin
-    Exec('powershell.exe', '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Get-AppxPackage -Name dTranslate -ErrorAction SilentlyContinue | Remove-AppxPackage"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec(GetPowerShellExe(), '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Get-AppxPackage -Name dTranslate -ErrorAction SilentlyContinue | Remove-AppxPackage"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
