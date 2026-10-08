@@ -2,9 +2,13 @@
 
 > Lightweight popup translator for Windows with Google Translate and Yandex Translate.
 
+[English](README.md) | [Русский](README.ru.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20x64-blue)](https://github.com/denbdenb/dTran)
 [![Release](https://img.shields.io/badge/Release-v1.0.0-green.svg)](https://github.com/denbdenb/dTran/releases)
+
+![dTran Screenshot](docs/screenshot.png)
 
 **dTran** is a fast, native Windows desktop translator that lives in your system tray. Highlight text in any application, press a global hotkey, read the translation in an instant popup window, and optionally replace the original selection in-place.
 
