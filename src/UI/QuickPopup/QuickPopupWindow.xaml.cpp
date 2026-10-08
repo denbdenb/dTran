@@ -78,7 +78,7 @@ namespace winrt::dTranslate::implementation
         }
 
         auto const& settings = SettingsManager::Instance().GetSettings();
-        int w = settings.quickPopupWidth > 350 ? settings.quickPopupWidth : 440;
+        int w = settings.quickPopupWidth > 350 ? settings.quickPopupWidth : 460;
         int h = settings.quickPopupHeight > 350 ? settings.quickPopupHeight : 460;
         AppWindow().Resize({ w, h });
 
@@ -515,15 +515,21 @@ namespace winrt::dTranslate::implementation
         ScreenSnipper::Instance().StartSnipping(
             GetSourceLangCode(),
             DispatcherQueue(),
-            [this](std::wstring const& recognizedText, bool /*autoTranslate*/)
+            [this](std::wstring const& recognizedText, bool autoTranslate)
             {
-                if (!recognizedText.empty())
+                if (autoTranslate)
                 {
-                    PopupSourceTextBox().Text(winrt::hstring(recognizedText));
-                    m_hasSelectionContext = false;
-                    m_sourceHwnd = nullptr;
-                    PopupReplaceBtn().IsEnabled(false);
-                    OnTranslateAsync();
+                    if (!recognizedText.empty())
+                    {
+                        SetSelectedTextWithContext(winrt::hstring(recognizedText), nullptr, false);
+                    }
+                }
+                else
+                {
+                    if (!recognizedText.empty())
+                    {
+                        CopyTextToClipboard(winrt::hstring(recognizedText));
+                    }
                 }
             });
     }

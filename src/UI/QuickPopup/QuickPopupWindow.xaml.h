@@ -16,6 +16,7 @@ namespace winrt::dTranslate::implementation
         void SetSelectedText(winrt::hstring const& text);
         void SetSelectedTextWithContext(winrt::hstring const& text, HWND sourceHwnd, bool hasSelection);
         void OnScreenSnippingOcr();
+        std::wstring GetSourceLangCode();
 
     private:
         int m_selectedServiceIndex{ 0 };
@@ -45,7 +46,6 @@ namespace winrt::dTranslate::implementation
         void RefreshHistory();
         void ApplyLocalization();
         void UpdateCharCount();
-        std::wstring GetSourceLangCode();
         std::wstring GetTargetLangCode();
     };
 }

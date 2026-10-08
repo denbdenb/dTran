@@ -39,9 +39,9 @@
         <!-- 1. Top Language Row: Source | Swap | Target | Restore Defaults | Spacer | OCR -->
         <Grid Grid.Row="1" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="110" MaxWidth="140" />
+                <ColumnDefinition Width="*" MinWidth="135" MaxWidth="175" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" MinWidth="110" MaxWidth="140" />
+                <ColumnDefinition Width="*" MinWidth="135" MaxWidth="175" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -52,7 +52,7 @@
 
             <!-- Swap Languages Button -->
             <Button x:Name="PopupSwapLanguagesBtn" Grid.Column="1" Width="30" Height="30" CornerRadius="5"
-                    Margin="5,0,5,0" Padding="0" ToolTipService.ToolTip="Swap languages">
+                    Margin="4,0,4,0" Padding="0" ToolTipService.ToolTip="Swap languages">
                 <FontIcon Glyph="&#xE8AB;" FontSize="12" />
             </Button>
 
@@ -61,7 +61,7 @@
 
             <!-- Restore Defaults Button (icon-only) -->
             <Button x:Name="PopupRestoreDefaultsBtn" Grid.Column="3" Width="30" Height="30" CornerRadius="5"
-                    Margin="5,0,0,0" Padding="0" ToolTipService.ToolTip="Restore default languages">
+                    Margin="4,0,0,0" Padding="0" ToolTipService.ToolTip="Restore default languages">
                 <FontIcon Glyph="&#xE777;" FontSize="12" />
             </Button>
 

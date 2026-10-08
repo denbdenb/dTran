@@ -43,7 +43,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="175" />
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="SettingsThemeLabel" Text="Theme" VerticalAlignment="Center" FontSize="12" />
                         <ComboBox x:Name="ThemeCombo" Grid.Column="1" HorizontalAlignment="Stretch" Height="28" CornerRadius="4">
@@ -57,7 +57,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="175" />
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="SettingsAppLanguageLabel" Text="Application language" VerticalAlignment="Center" FontSize="12" />
                         <ComboBox x:Name="AppLanguageCombo" Grid.Column="1" HorizontalAlignment="Stretch" Height="28" CornerRadius="4">

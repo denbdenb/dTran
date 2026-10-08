@@ -32,7 +32,7 @@ namespace dTranslate::Storage
         bool compareTranslations{ false };
 
         // Window geometry persistence for QuickPopup
-        int quickPopupWidth{ 440 };
+        int quickPopupWidth{ 460 };
         int quickPopupHeight{ 460 };
     };
 

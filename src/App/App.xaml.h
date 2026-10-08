@@ -17,6 +17,7 @@ namespace winrt::dTranslate::implementation
 
         void ShowOrActivateSettings();
         void ShowOrActivateQuickPopup(std::wstring const& text = L"", HWND sourceHwnd = nullptr, bool hasSelection = false);
+        void StartScreenOcr();
 
     private:
         static App* s_currentApp;

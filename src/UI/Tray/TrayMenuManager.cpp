@@ -56,7 +56,7 @@ namespace dTranslate::UI
 
         // Light Theme Brushes
         m_lightBgBrush       = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(246, 250, 250, 250));
-        m_lightBorderBrush   = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(50, 0, 0, 0));
+        m_lightBorderBrush   = m_transparentBrush;
         m_lightHoverBrush    = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(24, 0, 0, 0));    // ~10% black, distinct & clean
         m_lightPressedBrush  = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(42, 0, 0, 0));    // ~16% black
         m_lightTextBrush     = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(240, 20, 20, 20));
@@ -66,7 +66,7 @@ namespace dTranslate::UI
 
         // Dark Theme Brushes
         m_darkBgBrush        = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(242, 36, 36, 36));
-        m_darkBorderBrush    = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(55, 255, 255, 255));
+        m_darkBorderBrush    = m_transparentBrush;
         m_darkHoverBrush     = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(38, 255, 255, 255)); // ~15% white, distinct & clean
         m_darkPressedBrush   = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(62, 255, 255, 255)); // ~24% white
         m_darkTextBrush      = SolidColorBrush(Microsoft::UI::ColorHelper::FromArgb(245, 255, 255, 255));
@@ -156,6 +156,7 @@ namespace dTranslate::UI
             wchar_t const* glyph,
             TextBlock& outTextBlock,
             std::wstring const& initialText,
+            TextBlock* outHintBlock,
             std::wstring const& shortcutHint,
             std::function<void()> onClick) -> Button
         {
@@ -202,8 +203,10 @@ namespace dTranslate::UI
                 hint.Text(winrt::hstring(shortcutHint));
                 hint.FontSize(11);
                 hint.VerticalAlignment(VerticalAlignment::Center);
+                hint.Margin({ 14, 0, 4, 0 });
                 Grid::SetColumn(hint, 2);
                 grid.Children().Append(hint);
+                if (outHintBlock) *outHintBlock = hint;
             }
 
             btn.Content(grid);
@@ -254,26 +257,26 @@ namespace dTranslate::UI
         };
 
         // Build items: (Open dTran completely omitted)
-        auto btnClipboard = createMenuItemHelper(L"\uE774", m_tbClipboard, loc.Get(L"TrayTranslateClipboard"), L"", [this]()
+        auto btnClipboard = createMenuItemHelper(L"\uE774", m_tbClipboard, loc.Get(L"TrayTranslateClipboard"), &m_hintClipboard, settings.translateSelectedHotkey, [this]()
         {
             if (m_onTranslateClipboard) m_onTranslateClipboard();
         });
 
-        auto btnOcr = createMenuItemHelper(L"\uEE6F", m_tbOcr, loc.Get(L"TrayScreenOcr"), settings.ocrHotkey, [this]()
+        auto btnOcr = createMenuItemHelper(L"\uEE6F", m_tbOcr, loc.Get(L"TrayScreenOcr"), &m_hintOcr, settings.ocrHotkey, [this]()
         {
             if (m_onScreenOcr) m_onScreenOcr();
         });
 
         auto sep1 = createSeparatorHelper();
 
-        auto btnSettings = createMenuItemHelper(L"\uE713", m_tbSettings, loc.Get(L"TraySettings"), L"", [this]()
+        auto btnSettings = createMenuItemHelper(L"\uE713", m_tbSettings, loc.Get(L"TraySettings"), nullptr, L"", [this]()
         {
             if (m_onOpenSettings) m_onOpenSettings();
         });
 
         auto sep2 = createSeparatorHelper();
 
-        auto btnExit = createMenuItemHelper(L"\uE7E8", m_tbExit, loc.Get(L"TrayExit"), L"", [this]()
+        auto btnExit = createMenuItemHelper(L"\uE7E8", m_tbExit, loc.Get(L"TrayExit"), nullptr, L"", [this]()
         {
             if (m_onExit) m_onExit();
         });
@@ -289,7 +292,8 @@ namespace dTranslate::UI
 
         Border rootBorder;
         rootBorder.CornerRadius({ 8, 8, 8, 8 });
-        rootBorder.BorderThickness({ 1, 1, 1, 1 });
+        rootBorder.BorderThickness({ 0, 0, 0, 0 });
+        rootBorder.BorderBrush(m_transparentBrush);
         rootBorder.Padding({ 4, 4, 4, 4 });
         rootBorder.Child(sp);
 
@@ -300,6 +304,8 @@ namespace dTranslate::UI
         {
             DWM_WINDOW_CORNER_PREFERENCE pref = DWMWCP_ROUND;
             DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(pref));
+            COLORREF noBorderColor = 0xFFFFFFFE; // DWMWA_COLOR_NONE eliminates window border outline
+            DwmSetWindowAttribute(m_hwnd, 34 /* DWMWA_BORDER_COLOR */, &noBorderColor, sizeof(noBorderColor));
             SetWindowSubclass(m_hwnd, TrayMenuSubclassProc, 1, 0);
         }
 
@@ -338,7 +344,8 @@ namespace dTranslate::UI
         {
             m_rootBorder.RequestedTheme(isDark ? ElementTheme::Dark : ElementTheme::Light);
             m_rootBorder.Background(isDark ? m_darkBgBrush : m_lightBgBrush);
-            m_rootBorder.BorderBrush(isDark ? m_darkBorderBrush : m_lightBorderBrush);
+            m_rootBorder.BorderThickness({ 0, 0, 0, 0 });
+            m_rootBorder.BorderBrush(m_transparentBrush);
         }
 
         auto textBrush = isDark ? m_darkTextBrush : m_lightTextBrush;
@@ -372,20 +379,20 @@ namespace dTranslate::UI
         bool isDark = IsSystemDarkTheme();
         ApplyTheme(isDark);
 
-        // 2. Ensure localized strings are up to date
+        // 2. Ensure localized strings and hotkey hints are up to date
         UpdateLocalization();
 
         UINT dpi = GetDpiForWindow(m_hwnd);
         if (dpi == 0) dpi = GetDpiForSystem();
         float scale = (dpi > 0) ? (static_cast<float>(dpi) / 96.0f) : 1.0f;
 
-        int w = static_cast<int>(230 * scale);
+        int w = static_cast<int>(270 * scale);
 
         // Measure content dynamically to eliminate extra vertical whitespace
         int h = static_cast<int>(162 * scale);
         if (m_rootBorder)
         {
-            m_rootBorder.Measure({ static_cast<float>(230), 10000.0f });
+            m_rootBorder.Measure({ static_cast<float>(270), 10000.0f });
             float desiredH = m_rootBorder.DesiredSize().Height;
             if (desiredH > 50.0f && desiredH < 350.0f)
             {
@@ -425,9 +432,12 @@ namespace dTranslate::UI
     void TrayMenuManager::UpdateLocalization()
     {
         auto const& loc = LocalizationManager::Instance();
+        auto const& settings = SettingsManager::Instance().GetSettings();
         if (m_tbClipboard) m_tbClipboard.Text(winrt::hstring(loc.Get(L"TrayTranslateClipboard")));
         if (m_tbOcr) m_tbOcr.Text(winrt::hstring(loc.Get(L"TrayScreenOcr")));
         if (m_tbSettings) m_tbSettings.Text(winrt::hstring(loc.Get(L"TraySettings")));
         if (m_tbExit) m_tbExit.Text(winrt::hstring(loc.Get(L"TrayExit")));
+        if (m_hintClipboard) m_hintClipboard.Text(winrt::hstring(settings.translateSelectedHotkey));
+        if (m_hintOcr) m_hintOcr.Text(winrt::hstring(settings.ocrHotkey));
     }
 }

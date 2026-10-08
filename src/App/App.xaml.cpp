@@ -5,6 +5,8 @@
 #include "../Windows/WindowsIntegration.h"
 #include "../Windows/ClipboardHelper.h"
 #include "../UI/Tray/TrayMenuManager.h"
+#include "../OCR/ScreenSnipper.h"
+#include "../Storage/SettingsManager.h"
 #include <microsoft.ui.xaml.window.h>
 #include <winrt/Microsoft.Windows.AppLifecycle.h>
 #include <appmodel.h>
@@ -153,6 +155,45 @@ namespace winrt::dTranslate::implementation
         LogAppDebug(L"App::ShowOrActivateQuickPopup finished");
     }
 
+    void App::StartScreenOcr()
+    {
+        std::wstring langCode = L"auto";
+        if (m_popupWindow)
+        {
+            if (auto popupImpl = winrt::get_self<QuickPopupWindow>(m_popupWindow.as<winrt::dTranslate::QuickPopupWindow>()))
+            {
+                langCode = popupImpl->GetSourceLangCode();
+            }
+        }
+        else
+        {
+            langCode = ::dTranslate::Storage::SettingsManager::Instance().GetSettings().sourceLanguage;
+        }
+
+        auto dispatcher = winrt::Microsoft::UI::Dispatching::DispatcherQueue::GetForCurrentThread();
+
+        ::dTranslate::OCR::ScreenSnipper::Instance().StartSnipping(
+            langCode,
+            dispatcher,
+            [this](std::wstring const& recognizedText, bool autoTranslate)
+            {
+                if (autoTranslate)
+                {
+                    if (!recognizedText.empty())
+                    {
+                        ShowOrActivateQuickPopup(recognizedText, nullptr, false);
+                    }
+                }
+                else
+                {
+                    if (!recognizedText.empty())
+                    {
+                        ::dTranslate::Windows::ClipboardHelper::SetText(recognizedText);
+                    }
+                }
+            });
+    }
+
     void App::OnLaunched(LaunchActivatedEventArgs const&)
     {
         LogAppDebug(L"App::OnLaunched enter");
@@ -186,7 +227,6 @@ namespace winrt::dTranslate::implementation
             // 3. Setup Modern WinUI 3 Tray Menu callbacks (initialized on demand)
             auto& trayMenu = ::dTranslate::UI::TrayMenuManager::Instance();
 
-
             trayMenu.SetOnTranslateClipboard([this]()
             {
                 auto text = ::dTranslate::Windows::ClipboardHelper::GetText();
@@ -195,14 +235,7 @@ namespace winrt::dTranslate::implementation
 
             trayMenu.SetOnScreenOcr([this]()
             {
-                ShowOrActivateQuickPopup();
-                if (m_popupWindow)
-                {
-                    if (auto popupImpl = winrt::get_self<QuickPopupWindow>(m_popupWindow.as<winrt::dTranslate::QuickPopupWindow>()))
-                    {
-                        popupImpl->OnScreenSnippingOcr();
-                    }
-                }
+                StartScreenOcr();
             });
 
             trayMenu.SetOnOpenSettings([this]()
@@ -238,14 +271,7 @@ namespace winrt::dTranslate::implementation
 
             win.SetOnScreenOcr([this]()
             {
-                ShowOrActivateQuickPopup();
-                if (m_popupWindow)
-                {
-                    if (auto popupImpl = winrt::get_self<QuickPopupWindow>(m_popupWindow.as<winrt::dTranslate::QuickPopupWindow>()))
-                    {
-                        popupImpl->OnScreenSnippingOcr();
-                    }
-                }
+                StartScreenOcr();
             });
 
             win.SetOnOpenSettings([this]()

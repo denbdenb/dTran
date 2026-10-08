@@ -76,5 +76,7 @@ namespace dTranslate::UI
         winrt::Microsoft::UI::Xaml::Controls::TextBlock m_tbOcr{ nullptr };
         winrt::Microsoft::UI::Xaml::Controls::TextBlock m_tbSettings{ nullptr };
         winrt::Microsoft::UI::Xaml::Controls::TextBlock m_tbExit{ nullptr };
+        winrt::Microsoft::UI::Xaml::Controls::TextBlock m_hintClipboard{ nullptr };
+        winrt::Microsoft::UI::Xaml::Controls::TextBlock m_hintOcr{ nullptr };
     };
 }
