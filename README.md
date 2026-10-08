@@ -86,8 +86,6 @@ Popup Translator
     └── Settings Dialog
 ```
 
-* Cloud AI (Gemini, OpenAI) and Dictionary services were completely eliminated to maximize speed, maintain privacy, and achieve a minimal memory footprint.
-
 ---
 
 ## Privacy
