@@ -33,12 +33,17 @@ namespace dTranslate::OCR
         std::wstring line = L"[dTranslate OCR] " + message + L"\n";
         OutputDebugStringW(line.c_str());
 
-        FILE* f = nullptr;
-        _wfopen_s(&f, L"ocr_diagnostic.log", L"a");
-        if (f)
+        wchar_t tempPath[MAX_PATH];
+        if (GetTempPathW(MAX_PATH, tempPath) > 0)
         {
-            fwprintf(f, L"%s", line.c_str());
-            fclose(f);
+            std::wstring logPath = std::wstring(tempPath) + L"ocr_diagnostic.log";
+            FILE* f = nullptr;
+            _wfopen_s(&f, logPath.c_str(), L"a");
+            if (f)
+            {
+                fwprintf(f, L"%s", line.c_str());
+                fclose(f);
+            }
         }
     }
 

@@ -3,7 +3,6 @@
 #include "QuickPopupWindow.xaml.h"
 #include "SettingsWindow.xaml.h"
 #include "../Windows/WindowsIntegration.h"
-#include "../Windows/PackagedAppLauncher.h"
 #include "../Windows/ClipboardHelper.h"
 #include "../UI/Tray/TrayMenuManager.h"
 #include <microsoft.ui.xaml.window.h>
@@ -302,31 +301,11 @@ namespace winrt::dTranslate::implementation
 
 int __stdcall wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-    // 1. Check if running with package identity
-    UINT32 length = 0;
-    LONG rc = GetCurrentPackageFullName(&length, nullptr);
-    if (rc == APPMODEL_ERROR_NO_PACKAGE)
-    {
-        // Started directly outside package identity (e.g. user double-clicked dTranslate.exe in install directory).
-        // Forward launch via IApplicationActivationManager so Windows runs it with full Package Identity.
-        DWORD pid = 0;
-        HRESULT hr = ::dTranslate::Windows::PackagedAppLauncher::ActivateApp(pCmdLine, &pid);
-        if (SUCCEEDED(hr))
-        {
-            return 0;
-        }
+    UNREFERENCED_PARAMETER(hInstance);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(pCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
-        wchar_t msg[512];
-        std::wstring aumid = ::dTranslate::Windows::PackagedAppLauncher::ResolveAumid();
-        swprintf_s(msg,
-            L"Failed to launch dTran (AUMID: %s)\nError: 0x%08X\n\n"
-            L"The application package may not be properly registered. Please reinstall dTran using Setup.",
-            aumid.c_str(), hr);
-        MessageBoxW(nullptr, msg, L"dTran Activation Error", MB_ICONERROR | MB_OK);
-        return 1;
-    }
-
-    // 2. Normal execution under Package Identity
     winrt::init_apartment(winrt::apartment_type::single_threaded);
     ::winrt::Microsoft::UI::Xaml::Application::Start(
         [](auto&&)
