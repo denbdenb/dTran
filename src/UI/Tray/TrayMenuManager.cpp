@@ -40,6 +40,10 @@ namespace dTranslate::UI
         {
             ShowWindow(hWnd, SW_HIDE);
         }
+        else if (uMsg == WM_NCPAINT)
+        {
+            return 0; // Suppress any non-client frame/border drawing
+        }
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
@@ -138,8 +142,6 @@ namespace dTranslate::UI
             m_window.SystemBackdrop(DesktopAcrylicBackdrop());
         }
         catch (...) {}
-
-        m_window.ExtendsContentIntoTitleBar(true);
 
         if (auto windowNative = m_window.try_as<IWindowNative>())
         {
@@ -302,10 +304,22 @@ namespace dTranslate::UI
 
         if (m_hwnd)
         {
+            // Strip any legacy window borders, caption and sizing frame
+            LONG_PTR style = GetWindowLongPtrW(m_hwnd, GWL_STYLE);
+            style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_BORDER | WS_DLGFRAME);
+            style |= WS_POPUP;
+            SetWindowLongPtrW(m_hwnd, GWL_STYLE, style);
+
+            LONG_PTR exStyle = GetWindowLongPtrW(m_hwnd, GWL_EXSTYLE);
+            exStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
+            exStyle |= (WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
+            SetWindowLongPtrW(m_hwnd, GWL_EXSTYLE, exStyle);
+
+            SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0, 
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
             DWM_WINDOW_CORNER_PREFERENCE pref = DWMWCP_ROUND;
             DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(pref));
-            COLORREF noBorderColor = 0xFFFFFFFE; // DWMWA_COLOR_NONE eliminates window border outline
-            DwmSetWindowAttribute(m_hwnd, 34 /* DWMWA_BORDER_COLOR */, &noBorderColor, sizeof(noBorderColor));
             SetWindowSubclass(m_hwnd, TrayMenuSubclassProc, 1, 0);
         }
 
@@ -338,6 +352,12 @@ namespace dTranslate::UI
         {
             BOOL dwmDark = isDark ? TRUE : FALSE;
             DwmSetWindowAttribute(m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dwmDark, sizeof(dwmDark));
+
+            DWM_WINDOW_CORNER_PREFERENCE pref = DWMWCP_ROUND;
+            DwmSetWindowAttribute(m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof(pref));
+
+            COLORREF borderColor = isDark ? RGB(36, 36, 36) : RGB(250, 250, 250);
+            DwmSetWindowAttribute(m_hwnd, 34 /* DWMWA_BORDER_COLOR */, &borderColor, sizeof(borderColor));
         }
 
         if (m_rootBorder)
@@ -419,6 +439,10 @@ namespace dTranslate::UI
         appWin.Show();
         SetForegroundWindow(m_hwnd);
         SetActiveWindow(m_hwnd);
+
+        // Ensure border color matches background after activation
+        COLORREF borderColor = isDark ? RGB(36, 36, 36) : RGB(250, 250, 250);
+        DwmSetWindowAttribute(m_hwnd, 34 /* DWMWA_BORDER_COLOR */, &borderColor, sizeof(borderColor));
     }
 
     void TrayMenuManager::Hide()
