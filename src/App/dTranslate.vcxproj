@@ -116,6 +116,7 @@
     <ClInclude Include="..\Windows\ClipboardHelper.h" />
     <ClInclude Include="..\Windows\SelectionCapture.h" />
     <ClInclude Include="..\Windows\WindowsIntegration.h" />
+    <ClInclude Include="..\Windows\PackagedAppLauncher.h" />
     <ClInclude Include="..\Networking\HttpClient.h" />
     <ClInclude Include="..\Networking\UrlEncoder.h" />
     <ClInclude Include="..\Storage\SettingsManager.h" />
@@ -157,6 +158,7 @@
     <ClCompile Include="..\Windows\ClipboardHelper.cpp" />
     <ClCompile Include="..\Windows\SelectionCapture.cpp" />
     <ClCompile Include="..\Windows\WindowsIntegration.cpp" />
+    <ClCompile Include="..\Windows\PackagedAppLauncher.cpp" />
     <ClCompile Include="..\Networking\HttpClient.cpp" />
     <ClCompile Include="..\Storage\SettingsManager.cpp" />
     <ClCompile Include="..\Storage\HistoryManager.cpp" />

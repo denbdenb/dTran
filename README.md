@@ -32,15 +32,16 @@
 
 ### Recommended (Installer)
 1. Download **[`dTran-1.0.0-x64-Setup.exe`](https://github.com/denb/dTran/releases/latest)** from the latest GitHub Release.
-2. Run the installer (installs per-user to your local profile without requiring administrator privileges).
-3. dTran launches automatically in your system tray.
-4. Highlight any text and press `Ctrl+Alt+T` to translate!
+2. Run the installer (installs into standard `C:\Program Files\dTran` with UAC elevation; runtime runs with normal non-elevated user permissions).
+3. All framework dependencies (Windows App SDK Runtime and VCLibs) are automatically checked and provisioned.
+4. Launch dTran from the Start Menu, Desktop shortcut, or automatically on setup completion.
+5. Highlight any text and press `Ctrl+Alt+T` to translate!
 
 ### Developer / Testing Package (MSIX)
-* **`dTran-1.0.0-x64.msix`** is provided as an unsigned package for developers and testing in environments with Windows Developer Mode or custom certificate deployment. For end-users, please use the recommended **Setup.exe** installer above.
+* **`dTran-1.0.0-x64.msix`** is provided as a lightweight package for developers and testing in environments with Windows Developer Mode or custom certificate deployment. For end-users, please use the recommended **Setup.exe** installer above.
 
 ### Uninstallation
-* To uninstall, open **Windows Settings** → **Apps** → **Installed apps** → search for **dTran** → click **Uninstall**, or run the uninstaller from the Start Menu.
+* To uninstall, open **Windows Settings** → **Apps** → **Installed apps** → search for **dTran** → click **Uninstall**, or use the Start Menu uninstaller. User settings and history in `%LOCALAPPDATA%\dTranslate` are safely preserved.
 
 ---
 
