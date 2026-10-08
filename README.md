@@ -3,8 +3,8 @@
 > Lightweight popup translator for Windows with Google Translate and Yandex Translate.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20x64-blue)](https://github.com/denb/dTran)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-green.svg)](https://github.com/denb/dTran/releases)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20x64-blue)](https://github.com/denbdenb/dTran)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-green.svg)](https://github.com/denbdenb/dTran/releases)
 
 **dTran** is a fast, native Windows desktop translator that lives in your system tray. Highlight text in any application, press a global hotkey, read the translation in an instant popup window, and optionally replace the original selection in-place.
 
@@ -31,14 +31,15 @@
 ## Installation
 
 ### Recommended (Installer)
-1. Download **[`dTran-1.0.0-x64-Setup.exe`](https://github.com/denb/dTran/releases/latest)** from the latest GitHub Release.
-2. Run the installer (installs into standard `C:\Program Files\dTran` with UAC elevation; runtime runs with normal non-elevated user permissions).
-3. All framework dependencies (Windows App SDK Runtime and VCLibs) are automatically checked and provisioned.
-4. Launch dTran from the Start Menu, Desktop shortcut, or automatically on setup completion.
+1. Download **[`dTran-1.0.0-x64-Setup.exe`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
+2. Run the installer (installs into standard `C:\Program Files\dTran` without requiring Developer Mode).
+3. All framework dependencies (Windows App SDK Runtime and VCLibs) are self-contained.
+4. Launch dTran from the Start Menu, Desktop shortcut, or system tray.
 5. Highlight any text and press `Ctrl+Alt+T` to translate!
 
-### Developer / Testing Package (MSIX)
-* **`dTran-1.0.0-x64.msix`** is provided as a lightweight package for developers and testing in environments with Windows Developer Mode or custom certificate deployment. For end-users, please use the recommended **Setup.exe** installer above.
+### Standalone (Portable Zip)
+1. Download **[`dTran-1.0.0-x64-Portable.zip`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
+2. Unpack the archive to any folder and run `dTranslate.exe`. No installation required.
 
 ### Uninstallation
 * To uninstall, open **Windows Settings** → **Apps** → **Installed apps** → search for **dTran** → click **Uninstall**, or use the Start Menu uninstaller. User settings and history in `%LOCALAPPDATA%\dTranslate` are safely preserved.
