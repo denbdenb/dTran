@@ -59,6 +59,7 @@ namespace dTranslate::Storage
         static bool SetStartWithWindows(bool enable, WindowsStartupState* outActualState = nullptr);
         static bool IsPackagedProcess();
         static void CleanupStaleRegistryEntries();
+        static std::wstring DetectDefaultSystemLanguage();
 
     private:
         SettingsManager();

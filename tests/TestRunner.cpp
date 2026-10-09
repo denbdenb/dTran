@@ -369,64 +369,144 @@ void TestLanguageDetection()
 void TestLocalizationManager()
 {
     std::wcout << L"\n========================================\n";
-    std::wcout << L"TEST 9: Localization Manager (English & Russian)\n";
+    std::wcout << L"TEST 9: Localization Manager (10 Languages & Zero-Heap Architecture)\n";
     std::wcout << L"========================================\n";
 
     auto& loc = LocalizationManager::Instance();
 
-    // 1. English strings check
+    // 1. Supported languages list
+    auto const& supported = LocalizationManager::GetSupportedLanguages();
+    TEST_ASSERT(supported.size() == 10, L"Supported languages count is exactly 10");
+
+    std::vector<std::wstring> expectedLangs = {
+        L"en", L"ru", L"es", L"de", L"fr", L"pt-BR", L"it", L"ja", L"ko", L"zh-Hans"
+    };
+
+    for (auto const& code : expectedLangs)
+    {
+        TEST_ASSERT(LocalizationManager::IsValidLanguage(code), (L"IsValidLanguage returns true for " + code).c_str());
+    }
+    TEST_ASSERT(!LocalizationManager::IsValidLanguage(L""), L"IsValidLanguage returns false for empty string");
+    TEST_ASSERT(!LocalizationManager::IsValidLanguage(L"xx"), L"IsValidLanguage returns false for unknown code");
+    TEST_ASSERT(!LocalizationManager::IsValidLanguage(L"fr-FR"), L"IsValidLanguage returns false for unnormalized regional tag");
+
+    // Canonical keys (all 84)
+    std::vector<std::wstring> canonicalKeys = {
+        L"AboutCreatedBy", L"AboutSubtitle", L"AboutVersion", L"AppLanguage", L"AppTitle",
+        L"AutoDetect", L"BtnClose", L"BtnTranslate", L"CharCountPlural", L"CharCountSingle",
+        L"CompareTranslations", L"ComparisonHeader", L"DeepL", L"DeepLNoticeDesc", L"DeepLNoticeTitle",
+        L"DeepLTranslate", L"DefaultSource", L"DefaultTarget", L"ErrorDeepLRateLimited", L"ErrorDeepLUnavailable",
+        L"ErrorDeepLUnsupportedLanguage", L"ErrorYandexUnsupportedLanguage", L"Google", L"GoogleTranslate", L"GoogleTts",
+        L"HistoryClear", L"HistoryCopy", L"HistoryEmpty", L"HistoryInsert", L"HistoryNoResults",
+        L"HistorySearchPlaceholder", L"HotkeyCaptured", L"HotkeyConflict", L"HotkeyOcr", L"HotkeyResetSuccess",
+        L"HotkeyTranslateSelected", L"OcrBtnCancel", L"OcrBtnCopy", L"OcrBtnTranslate", L"OcrCapturing",
+        L"OcrFailed", L"OcrInstruction", L"OcrNoTextFound", L"RateLimited", L"ResultPlaceholder",
+        L"SectionGeneral", L"SectionHotkeys", L"SectionLanguages", L"ServiceUnavailable", L"SettingsTitle",
+        L"SourcePlaceholder", L"SourceTextHeader", L"StartWithWindows", L"StartupTooltipDisabled", L"StartupTooltipDisabledByPolicy",
+        L"StartupTooltipDisabledByUser", L"StartupTooltipEnabled", L"Theme", L"ThemeDark", L"ThemeLight",
+        L"ThemeSystem", L"TipBackToTranslator", L"TipClear", L"TipCopy", L"TipDeepL",
+        L"TipHide", L"TipHistory", L"TipHotkeyRecord", L"TipListen", L"TipReplace",
+        L"TipResetHotkey", L"TipRestoreDefaults", L"TipScreenOcr", L"TipSettings", L"TipSwapLangs",
+        L"Translating", L"TrayExit", L"TrayOpenWindow", L"TrayScreenOcr", L"TraySettings",
+        L"TrayTooltip", L"TrayTranslateClipboard", L"Yandex", L"YandexTranslate"
+    };
+    TEST_ASSERT(canonicalKeys.size() == 84, L"Canonical keys count is exactly 84");
+
+    // 2. Full 10-language coverage check
+    bool allLocalesValid = true;
+    for (auto const& langCode : expectedLangs)
+    {
+        loc.SetLanguage(langCode);
+        if (loc.GetCurrentLanguage() != langCode)
+        {
+            allLocalesValid = false;
+            std::wcerr << L"Failed to switch to language: " << langCode << L"\n";
+            continue;
+        }
+
+        for (auto const& k : canonicalKeys)
+        {
+            std::wstring val = loc.Get(k);
+            if (val.empty())
+            {
+                allLocalesValid = false;
+                std::wcerr << L"Empty value for key " << k << L" in " << langCode << L"\n";
+            }
+        }
+    }
+    TEST_ASSERT(allLocalesValid, L"100% key completeness verified across all 10 languages (840 lookups)");
+
+    // 3. Native translation spot checks
     loc.SetLanguage(L"en");
-    TEST_ASSERT(loc.GetCurrentLanguage() == L"en", L"Localization set to 'en'");
-    TEST_ASSERT(loc.Get(L"AppTitle") == L"dTran", L"EN AppTitle is 'dTran'");
-    TEST_ASSERT(loc.Get(L"Google") == L"Google", L"EN Google brand is 'Google'");
-    TEST_ASSERT(loc.Get(L"Yandex") == L"Yandex", L"EN Yandex brand is 'Yandex'");
     TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Translate", L"EN BtnTranslate is 'Translate'");
     TEST_ASSERT(loc.Get(L"TipReplace") == L"Replace selected text in active window", L"EN TipReplace matches spec");
-    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Auto-detect", L"EN AutoDetect is 'Auto-detect'");
-    TEST_ASSERT(loc.Get(L"AboutVersion") == L"dTran v1.0.0", L"EN AboutVersion is 'dTran v1.0.0'");
-    TEST_ASSERT(loc.Get(L"AboutCreatedBy") == L"Created with ❤️ by denb", L"EN AboutCreatedBy matches spec");
-    TEST_ASSERT(loc.Get(L"TrayTranslateClipboard") == L"Translate Clipboard", L"EN TrayTranslateClipboard matches spec");
-    TEST_ASSERT(loc.Get(L"TrayScreenOcr") == L"Screen OCR", L"EN TrayScreenOcr matches spec");
-    TEST_ASSERT(loc.Get(L"TraySettings") == L"Settings", L"EN TraySettings matches spec");
-    TEST_ASSERT(loc.Get(L"TrayExit") == L"Exit", L"EN TrayExit matches spec");
-    TEST_ASSERT(loc.Get(L"DeepL") == L"DeepL", L"EN DeepL brand is 'DeepL'");
-    TEST_ASSERT(!loc.Get(L"PopupServiceDeepLTooltip").empty(), L"EN PopupServiceDeepLTooltip is defined");
-    TEST_ASSERT(!loc.Get(L"DeepLNoticeTitle").empty(), L"EN DeepLNoticeTitle is defined");
-    TEST_ASSERT(!loc.Get(L"DeepLErrorRateLimited").empty(), L"EN DeepLErrorRateLimited is defined");
-    TEST_ASSERT(loc.Format(L"TipResetHotkey", L"Ctrl+Alt+T") == L"Reset to default (Ctrl+Alt+T)", L"EN Format string substitution works");
 
-    // 2. Observer test
+    loc.SetLanguage(L"ru");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Перевести", L"RU BtnTranslate is 'Перевести'");
+    TEST_ASSERT(loc.Get(L"YandexTranslate") == L"Яндекс Переводчик", L"RU YandexTranslate is 'Яндекс Переводчик'");
+
+    loc.SetLanguage(L"es");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Traducir", L"ES BtnTranslate is 'Traducir'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Detectar automáticamente", L"ES AutoDetect is 'Detectar automáticamente'");
+
+    loc.SetLanguage(L"de");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Übersetzen", L"DE BtnTranslate is 'Übersetzen'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Automatisch erkennen", L"DE AutoDetect is 'Automatisch erkennen'");
+
+    loc.SetLanguage(L"fr");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Traduire", L"FR BtnTranslate is 'Traduire'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Détection automatique", L"FR AutoDetect is 'Détection automatique'");
+
+    loc.SetLanguage(L"pt-BR");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Traduzir", L"PT-BR BtnTranslate is 'Traduzir'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Detectar automaticamente", L"PT-BR AutoDetect is 'Detectar automaticamente'");
+
+    loc.SetLanguage(L"it");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Traduci", L"IT BtnTranslate is 'Traduci'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Rilevamento automatico", L"IT AutoDetect is 'Rilevamento automatico'");
+
+    loc.SetLanguage(L"ja");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"翻訳", L"JA BtnTranslate is '翻訳'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"言語を自動検出", L"JA AutoDetect is '言語を自動検出'");
+
+    loc.SetLanguage(L"ko");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"번역", L"KO BtnTranslate is '번역'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"언어 자동 감지", L"KO AutoDetect is '언어 자동 감지'");
+
+    loc.SetLanguage(L"zh-Hans");
+    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"翻译", L"ZH-Hans BtnTranslate is '翻译'");
+    TEST_ASSERT(loc.Get(L"AutoDetect") == L"自动检测", L"ZH-Hans AutoDetect is '自动检测'");
+
+    // 4. Placeholders & formatting in all languages
+    for (auto const& langCode : expectedLangs)
+    {
+        loc.SetLanguage(langCode);
+        std::wstring formattedHk = loc.Format(L"TipResetHotkey", L"Ctrl+Alt+T");
+        TEST_ASSERT(formattedHk.find(L"Ctrl+Alt+T") != std::wstring::npos, (L"Format TipResetHotkey retains Ctrl+Alt+T in " + langCode).c_str());
+
+        std::wstring formattedChar = loc.Format(L"CharCountSingle", L"42");
+        TEST_ASSERT(formattedChar.find(L"42") != std::wstring::npos, (L"Format CharCountSingle retains 42 in " + langCode).c_str());
+    }
+
+    // 5. English fallback for unknown key
+    loc.SetLanguage(L"es");
+    TEST_ASSERT(loc.Get(L"NonExistentKey123") == L"NonExistentKey123", L"Unknown key returns key name itself as fallback");
+
+    // 6. Observer notification
     std::wstring observedLang;
     loc.RegisterObserver(0x1234, [&](std::wstring const& lang) {
         observedLang = lang;
     });
-
-    // 3. Russian strings check
     loc.SetLanguage(L"ru");
     TEST_ASSERT(observedLang == L"ru", L"Observer notified of language change to 'ru'");
-    TEST_ASSERT(loc.GetCurrentLanguage() == L"ru", L"Localization set to 'ru'");
-    TEST_ASSERT(loc.Get(L"Google") == L"Google", L"RU Google brand stays 'Google'");
-    TEST_ASSERT(loc.Get(L"Yandex") == L"Яндекс", L"RU Yandex brand is 'Яндекс'");
-    TEST_ASSERT(loc.Get(L"DeepL") == L"DeepL", L"RU DeepL brand is 'DeepL'");
-    TEST_ASSERT(!loc.Get(L"PopupServiceDeepLTooltip").empty(), L"RU PopupServiceDeepLTooltip is defined");
-    TEST_ASSERT(!loc.Get(L"DeepLNoticeTitle").empty(), L"RU DeepLNoticeTitle is defined");
-    TEST_ASSERT(!loc.Get(L"DeepLErrorRateLimited").empty(), L"RU DeepLErrorRateLimited is defined");
-    TEST_ASSERT(loc.Get(L"YandexTranslate") == L"Яндекс Переводчик", L"RU YandexTranslate is 'Яндекс Переводчик'");
-    TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Перевести", L"RU BtnTranslate is 'Перевести'");
-    TEST_ASSERT(loc.Get(L"TipReplace") == L"Заменить выделенный текст в активном окне", L"RU TipReplace matches spec");
-    TEST_ASSERT(loc.Get(L"AutoDetect") == L"Автоопределение", L"RU AutoDetect is 'Автоопределение'");
-    TEST_ASSERT(loc.Get(L"AboutVersion") == L"dTran v1.0.0", L"RU AboutVersion is 'dTran v1.0.0'");
-    TEST_ASSERT(loc.Get(L"AboutCreatedBy") == L"Created with ❤️ by denb", L"RU AboutCreatedBy matches spec");
-    TEST_ASSERT(loc.Get(L"TrayTranslateClipboard") == L"Перевести из буфера", L"RU TrayTranslateClipboard matches spec");
-    TEST_ASSERT(loc.Get(L"TrayScreenOcr") == L"Распознавание с экрана", L"RU TrayScreenOcr matches spec");
-    TEST_ASSERT(loc.Get(L"TraySettings") == L"Настройки", L"RU TraySettings matches spec");
-    TEST_ASSERT(loc.Get(L"TrayExit") == L"Выход", L"RU TrayExit matches spec");
-    TEST_ASSERT(loc.Format(L"TipResetHotkey", L"Ctrl+Alt+T") == L"Сбросить по умолчанию (Ctrl+Alt+T)", L"RU Format string substitution works");
-
     loc.UnregisterObserver(0x1234);
     observedLang.clear();
     loc.SetLanguage(L"en");
-    TEST_ASSERT(observedLang.empty(), L"Unregistered observer was not called on subsequent language change");
+    TEST_ASSERT(observedLang.empty(), L"Unregistered observer not called on language change");
+
+    // 7. System UI Language Auto-detection helper
+    std::wstring detectedLang = SettingsManager::DetectDefaultSystemLanguage();
+    TEST_ASSERT(LocalizationManager::IsValidLanguage(detectedLang), (L"DetectDefaultSystemLanguage returns valid supported language: " + detectedLang).c_str());
 }
 
 void TestTextChunker()

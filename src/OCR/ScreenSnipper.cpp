@@ -349,17 +349,34 @@ namespace dTranslate::OCR
             std::wstring copyText = loc.Get(L"OcrBtnCopy");
             std::wstring cancelText = loc.Get(L"OcrBtnCancel");
 
-            int btnW1 = static_cast<int>(120 * scale);
-            int btnW2 = static_cast<int>(125 * scale);
-            int btnW3 = static_cast<int>(95 * scale);
             int btnGap = static_cast<int>(8 * scale);
             int padding = static_cast<int>(8 * scale);
-            int tbW = padding * 2 + btnW1 + btnW2 + btnW3 + btnGap * 2;
             int tbH = static_cast<int>(48 * scale);
             int margin = static_cast<int>(10 * scale);
             int btnH = static_cast<int>(34 * scale);
             int fontH = static_cast<int>(14 * scale);
             int cornerR = static_cast<int>(8 * scale);
+
+            HFONT hFont = CreateFontW(-fontH, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+            HGDIOBJ hOldFont = SelectObject(hMemDC, hFont);
+
+            auto CalcBtnWidth = [&](std::wstring const& text) -> int
+            {
+                RECT rc = { 0, 0, 0, 0 };
+                DrawTextW(hMemDC, text.c_str(), -1, &rc, DT_CALCRECT | DT_SINGLELINE);
+                int textW = rc.right - rc.left;
+                int minW = static_cast<int>(85 * scale);
+                int pad = static_cast<int>(24 * scale);
+                return (std::max)(minW, textW + pad);
+            };
+
+            int btnW1 = CalcBtnWidth(transText);
+            int btnW2 = CalcBtnWidth(copyText);
+            int btnW3 = CalcBtnWidth(cancelText);
+
+            int tbW = padding * 2 + btnW1 + btnW2 + btnW3 + btnGap * 2;
 
             int tbX = sel.left + (selW - tbW) / 2;
             if (tbX < margin) tbX = margin;
@@ -389,10 +406,6 @@ namespace dTranslate::OCR
             m_btnCopyRect = { b2Left, btnTop, b2Left + btnW2, btnTop + btnH };
             m_btnCancelRect = { b3Left, btnTop, b3Left + btnW3, btnTop + btnH };
 
-            HFONT hFont = CreateFontW(-fontH, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
-                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
-                DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
-            HGDIOBJ hOldFont = SelectObject(hMemDC, hFont);
             SetBkMode(hMemDC, TRANSPARENT);
 
             auto DrawBtn = [&](RECT const& rc, wchar_t const* text, COLORREF bgCol, COLORREF textCol)

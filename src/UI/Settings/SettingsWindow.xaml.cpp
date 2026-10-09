@@ -293,7 +293,22 @@ namespace winrt::dTranslate::implementation
         else
             ThemeCombo().SelectedIndex(0);
 
-        AppLanguageCombo().SelectedIndex(settings.appLanguage == L"ru" ? 1 : 0);
+        std::wstring curLang = settings.appLanguage;
+        int langIdx = 0;
+        for (uint32_t i = 0; i < AppLanguageCombo().Items().Size(); ++i)
+        {
+            auto item = AppLanguageCombo().Items().GetAt(i).try_as<ComboBoxItem>();
+            if (item && item.Tag())
+            {
+                auto tagStr = unbox_value<winrt::hstring>(item.Tag());
+                if (tagStr == curLang)
+                {
+                    langIdx = static_cast<int>(i);
+                    break;
+                }
+            }
+        }
+        AppLanguageCombo().SelectedIndex(langIdx);
 
         ApplyTheme(settings.theme);
 
@@ -369,14 +384,18 @@ namespace winrt::dTranslate::implementation
         // 2. Language switching
         AppLanguageCombo().SelectionChanged([this](auto&&, auto&&)
         {
-            int idx = AppLanguageCombo().SelectedIndex();
-            std::wstring newLang = (idx == 1) ? L"ru" : L"en";
-            auto s = SettingsManager::Instance().GetSettings();
-            if (s.appLanguage != newLang)
+            if (m_isLoadingSettings) return;
+            auto selItem = AppLanguageCombo().SelectedItem().try_as<ComboBoxItem>();
+            if (selItem && selItem.Tag())
             {
-                s.appLanguage = newLang;
-                SettingsManager::Instance().UpdateSettings(s);
-                LocalizationManager::Instance().SetLanguage(newLang);
+                std::wstring newLang = unbox_value<winrt::hstring>(selItem.Tag()).c_str();
+                auto s = SettingsManager::Instance().GetSettings();
+                if (s.appLanguage != newLang)
+                {
+                    s.appLanguage = newLang;
+                    SettingsManager::Instance().UpdateSettings(s);
+                    LocalizationManager::Instance().SetLanguage(newLang);
+                }
             }
         });
 
@@ -500,7 +519,11 @@ namespace winrt::dTranslate::implementation
         else if (themeIdx == 2) settings.theme = L"Dark";
         else settings.theme = L"Default";
 
-        settings.appLanguage = (AppLanguageCombo().SelectedIndex() == 1) ? L"ru" : L"en";
+        auto selLangItem = AppLanguageCombo().SelectedItem().try_as<ComboBoxItem>();
+        if (selLangItem && selLangItem.Tag())
+        {
+            settings.appLanguage = unbox_value<winrt::hstring>(selLangItem.Tag()).c_str();
+        }
 
         settings.compareTranslations = CompareTranslationsToggle().IsOn();
 

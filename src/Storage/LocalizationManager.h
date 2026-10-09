@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-#include <unordered_map>
+#include <string_view>
+#include <vector>
 #include <functional>
 #include <mutex>
 #include <map>
@@ -8,6 +9,12 @@
 namespace dTranslate::Storage
 {
     using LocalizationObserver = std::function<void(std::wstring const&)>;
+
+    struct SupportedLanguageInfo
+    {
+        std::wstring code;
+        std::wstring nativeName;
+    };
 
     class LocalizationManager
     {
@@ -20,16 +27,16 @@ namespace dTranslate::Storage
         std::wstring Get(std::wstring const& key) const;
         std::wstring Format(std::wstring const& key, std::wstring const& arg1) const;
 
+        static bool IsValidLanguage(std::wstring_view langCode);
+        static const std::vector<SupportedLanguageInfo>& GetSupportedLanguages();
+
         void RegisterObserver(uintptr_t key, LocalizationObserver observer);
         void UnregisterObserver(uintptr_t key);
 
     private:
         LocalizationManager();
-        void LoadBundles();
 
         std::wstring m_currentLang{ L"en" };
-        std::unordered_map<std::wstring, std::wstring> m_enStrings;
-        std::unordered_map<std::wstring, std::wstring> m_ruStrings;
         std::map<uintptr_t, LocalizationObserver> m_observers;
         mutable std::mutex m_mutex;
     };

@@ -45,7 +45,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="175" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsThemeLabel" Text="Theme" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsThemeLabel" Text="Theme" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <ComboBox x:Name="ThemeCombo" Grid.Column="1" HorizontalAlignment="Stretch" Height="28" CornerRadius="4">
                             <ComboBoxItem x:Name="ThemeItemDefault" Content="System default" />
                             <ComboBoxItem x:Name="ThemeItemLight" Content="Light" />
@@ -59,10 +59,18 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="175" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsAppLanguageLabel" Text="Application language" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsAppLanguageLabel" Text="Application language" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <ComboBox x:Name="AppLanguageCombo" Grid.Column="1" HorizontalAlignment="Stretch" Height="28" CornerRadius="4">
-                            <ComboBoxItem Content="English" />
-                            <ComboBoxItem Content="Русский" />
+                            <ComboBoxItem Content="English" Tag="en" />
+                            <ComboBoxItem Content="Русский" Tag="ru" />
+                            <ComboBoxItem Content="Español" Tag="es" />
+                            <ComboBoxItem Content="Deutsch" Tag="de" />
+                            <ComboBoxItem Content="Français" Tag="fr" />
+                            <ComboBoxItem Content="Português (Brasil)" Tag="pt-BR" />
+                            <ComboBoxItem Content="Italiano" Tag="it" />
+                            <ComboBoxItem Content="日本語" Tag="ja" />
+                            <ComboBoxItem Content="한국어" Tag="ko" />
+                            <ComboBoxItem Content="简体中文" Tag="zh-Hans" />
                         </ComboBox>
                     </Grid>
 
@@ -72,7 +80,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsAutoStartLabel" Text="Start with Windows" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsAutoStartLabel" Text="Start with Windows" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <ToggleSwitch x:Name="AutoStartToggle" Grid.Column="1" HorizontalAlignment="Right" MinWidth="0" OnContent="" OffContent="" Margin="0,-6,0,-6" />
                     </Grid>
                 </StackPanel>
@@ -107,7 +115,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsCompareTranslationsLabel" Text="Compare Google and Yandex translations" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsCompareTranslationsLabel" Text="Compare Google and Yandex translations" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <ToggleSwitch x:Name="CompareTranslationsToggle" Grid.Column="1" HorizontalAlignment="Right" MinWidth="0" OnContent="" OffContent="" Margin="0,-6,0,-6" />
                     </Grid>
                 </StackPanel>
@@ -126,11 +134,11 @@
                             <ColumnDefinition Width="130" />
                             <ColumnDefinition Width="34" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsHotkeyTranslateLabel" Text="Translate selected" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsHotkeyTranslateLabel" Text="Translate selected" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <TextBox x:Name="HotkeyTranslateBox" Grid.Column="1" Height="28" CornerRadius="4"
                                  IsReadOnly="True" FontSize="11" TextAlignment="Center" ToolTipService.ToolTip="Click and press key combination" />
                         <Button x:Name="ResetTranslateHotkeyBtn" Grid.Column="2" Width="28" Height="28" CornerRadius="4"
-                                Padding="0" Margin="6,0,0,0" ToolTipService.ToolTip="Reset to default (Ctrl+Alt+T)">
+                                 Padding="0" Margin="6,0,0,0" ToolTipService.ToolTip="Reset to default (Ctrl+Alt+T)">
                             <FontIcon Glyph="&#xE777;" FontSize="11" />
                         </Button>
                     </Grid>
@@ -141,7 +149,7 @@
                             <ColumnDefinition Width="130" />
                             <ColumnDefinition Width="34" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SettingsHotkeyOcrLabel" Text="Screen OCR &amp; translate" VerticalAlignment="Center" FontSize="12" />
+                        <TextBlock x:Name="SettingsHotkeyOcrLabel" Text="Screen OCR &amp; translate" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" />
                         <TextBox x:Name="HotkeyOcrBox" Grid.Column="1" Height="28" CornerRadius="4"
                                  IsReadOnly="True" FontSize="11" TextAlignment="Center" ToolTipService.ToolTip="Click and press key combination" />
                         <Button x:Name="ResetOcrHotkeyBtn" Grid.Column="2" Width="28" Height="28" CornerRadius="4"

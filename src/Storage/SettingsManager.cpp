@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "SettingsManager.h"
+#include "LocalizationManager.h"
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <string_view>
 #include <winrt/Windows.Data.Json.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <appmodel.h>
@@ -24,13 +27,72 @@ namespace dTranslate::Storage
         return instance;
     }
 
+    std::wstring SettingsManager::DetectDefaultSystemLanguage()
+    {
+        ULONG numLanguages = 0;
+        ULONG bufferSize = 0;
+        if (GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, nullptr, &bufferSize) && bufferSize > 0)
+        {
+            std::vector<wchar_t> buffer(bufferSize);
+            if (GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, buffer.data(), &bufferSize))
+            {
+                const wchar_t* p = buffer.data();
+                for (ULONG i = 0; i < numLanguages && *p; ++i)
+                {
+                    std::wstring_view tag(p);
+                    p += tag.length() + 1;
+
+                    // Skip Traditional Chinese tags so next preferred language can be evaluated
+                    if (tag.starts_with(L"zh-Hant") || tag.starts_with(L"zh-TW") || tag.starts_with(L"zh-HK") || tag.starts_with(L"zh-MO"))
+                    {
+                        continue;
+                    }
+
+                    if (tag.starts_with(L"zh-Hans") || tag.starts_with(L"zh-CN") || tag.starts_with(L"zh-SG") || tag.starts_with(L"zh-CHS"))
+                    {
+                        return L"zh-Hans";
+                    }
+                    if (tag.starts_with(L"ru")) return L"ru";
+                    if (tag.starts_with(L"es")) return L"es";
+                    if (tag.starts_with(L"de")) return L"de";
+                    if (tag.starts_with(L"fr")) return L"fr";
+                    if (tag.starts_with(L"pt")) return L"pt-BR";
+                    if (tag.starts_with(L"it")) return L"it";
+                    if (tag.starts_with(L"ja")) return L"ja";
+                    if (tag.starts_with(L"ko")) return L"ko";
+                    if (tag.starts_with(L"en")) return L"en";
+                }
+            }
+        }
+
+        // Fallback: GetUserDefaultUILanguage()
+        LANGID langId = GetUserDefaultUILanguage();
+        switch (PRIMARYLANGID(langId))
+        {
+        case LANG_RUSSIAN: return L"ru";
+        case LANG_SPANISH: return L"es";
+        case LANG_GERMAN: return L"de";
+        case LANG_FRENCH: return L"fr";
+        case LANG_PORTUGUESE: return L"pt-BR";
+        case LANG_ITALIAN: return L"it";
+        case LANG_JAPANESE: return L"ja";
+        case LANG_KOREAN: return L"ko";
+        case LANG_CHINESE:
+            if (SUBLANGID(langId) == SUBLANG_CHINESE_SIMPLIFIED || SUBLANGID(langId) == SUBLANG_CHINESE_SINGAPORE)
+            {
+                return L"zh-Hans";
+            }
+            break;
+        default:
+            break;
+        }
+
+        return L"en";
+    }
+
     SettingsManager::SettingsManager()
     {
-        LANGID langId = GetUserDefaultUILanguage();
-        if (PRIMARYLANGID(langId) == LANG_RUSSIAN)
-        {
-            m_settings.appLanguage = L"ru";
-        }
+        m_settings.appLanguage = DetectDefaultSystemLanguage();
         Load();
         CleanupStaleRegistryEntries();
         // Synchronize in-memory setting with real Windows startup registration
@@ -286,7 +348,13 @@ namespace dTranslate::Storage
                 if (root.HasKey(L"theme"))
                     m_settings.theme = root.GetNamedString(L"theme").c_str();
                 if (root.HasKey(L"appLanguage"))
-                    m_settings.appLanguage = root.GetNamedString(L"appLanguage").c_str();
+                {
+                    std::wstring loadedLang = root.GetNamedString(L"appLanguage").c_str();
+                    if (LocalizationManager::IsValidLanguage(loadedLang))
+                    {
+                        m_settings.appLanguage = loadedLang;
+                    }
+                }
                 if (root.HasKey(L"autoStart"))
                     m_settings.autoStart = root.GetNamedBoolean(L"autoStart");
                 if (root.HasKey(L"closeToTray"))
