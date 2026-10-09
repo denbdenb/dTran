@@ -22,7 +22,7 @@ namespace dTranslate::Storage
     {
         std::wstring sourceLanguage{ L"auto" };
         std::wstring targetLanguage{ L"ru" };
-        int primaryService{ 0 }; // 0 = Google, 1 = Yandex
+        int primaryService{ 0 }; // 0 = Google, 1 = Yandex, 2 = DeepL
         std::wstring theme{ L"Default" }; // Default, Light, Dark
         std::wstring appLanguage{ L"en" }; // "en" or "ru"
         bool autoStart{ false };
@@ -30,6 +30,7 @@ namespace dTranslate::Storage
         std::wstring translateSelectedHotkey{ L"Ctrl+Alt+T" };
         std::wstring ocrHotkey{ L"Ctrl+Alt+O" };
         bool compareTranslations{ false };
+        bool enableExperimentalDeepL{ true }; // Feature flag: allow disabling DeepL experimental provider
 
         // Window geometry persistence for QuickPopup
         int quickPopupWidth{ 460 };
@@ -56,6 +57,7 @@ namespace dTranslate::Storage
         static bool IsStartWithWindowsEnabled();
         static winrt::Windows::Foundation::IAsyncOperation<uint32_t> SetStartWithWindowsAsync(bool enable);
         static bool SetStartWithWindows(bool enable, WindowsStartupState* outActualState = nullptr);
+        static bool IsPackagedProcess();
         static void CleanupStaleRegistryEntries();
 
     private:

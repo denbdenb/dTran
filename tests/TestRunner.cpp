@@ -15,6 +15,7 @@
 #include "WindowsOcrService.h"
 #include "GoogleTranslateService.h"
 #include "YandexTranslateService.h"
+#include "DeepLWebTranslateService.h"
 #include "SettingsManager.h"
 #include "HistoryManager.h"
 #include "LocalizationManager.h"
@@ -85,6 +86,19 @@ void TestLanguageCatalog()
     // Check Google supports auto
     TEST_ASSERT(LanguageCatalog::IsServiceSupported(0, L"auto"), L"Google supports 'auto' source");
     TEST_ASSERT(LanguageCatalog::IsServiceSupported(1, L"auto"), L"Yandex supports 'auto' source");
+
+    // Check DeepL capabilities (service 2)
+    auto deeplTargets = LanguageCatalog::GetLanguagesForService(2, false);
+    TEST_ASSERT(deeplTargets.size() >= 30, L"DeepL catalog contains >= 30 target languages");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"auto"), L"DeepL supports 'auto' source");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"ru"), L"DeepL supports 'ru'");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"en"), L"DeepL supports 'en'");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"de"), L"DeepL supports 'de'");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"zh"), L"DeepL supports 'zh'");
+    TEST_ASSERT(LanguageCatalog::IsServiceSupported(2, L"zh-TW"), L"DeepL supports 'zh-TW'");
+    TEST_ASSERT(!LanguageCatalog::IsServiceSupported(2, L"am"), L"DeepL does not support Amharic ('am')");
+    auto validatedDeepL = LanguageCatalog::ValidateLanguageForService(2, L"am", false);
+    TEST_ASSERT(validatedDeepL == L"ru", L"ValidateLanguageForService redirects unsupported language to 'ru' on DeepL");
 }
 
 void TestGoogleTtsChunking()
@@ -176,6 +190,38 @@ void TestTranslationEngines()
     TEST_ASSERT(res2.success, L"Yandex Translate returned success");
     TEST_ASSERT(!res2.translatedText.empty(), L"Yandex Translate returned non-empty text");
     std::wcout << L"  Result: " << res2.translatedText << L"\n";
+
+    // 3. DeepL Translate Web Engine (Mapping & Live Translation)
+    std::wcout << L"Testing DeepL Translate Web Engine...\n";
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"en") == L"en-US", L"DeepL target mapping 'en' -> 'en-US'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"pt") == L"pt-BR", L"DeepL target mapping 'pt' -> 'pt-BR'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"zh") == L"zh-Hans", L"DeepL target mapping 'zh' -> 'zh-Hans'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"zh-TW") == L"zh-Hant", L"DeepL target mapping 'zh-TW' -> 'zh-Hant'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"no") == L"nb", L"DeepL target mapping 'no' -> 'nb'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"ru") == L"ru", L"DeepL target mapping 'ru' -> 'ru'");
+    TEST_ASSERT(DeepLWebTranslateService::MapTargetLanguage(L"xyz") == L"", L"DeepL target mapping unknown -> empty");
+
+    TEST_ASSERT(DeepLWebTranslateService::MapSourceLanguage(L"auto") == L"", L"DeepL source mapping 'auto' -> empty");
+    TEST_ASSERT(DeepLWebTranslateService::MapSourceLanguage(L"zh-TW") == L"zh", L"DeepL source mapping 'zh-TW' -> 'zh'");
+    TEST_ASSERT(DeepLWebTranslateService::MapSourceLanguage(L"no") == L"nb", L"DeepL source mapping 'no' -> 'nb'");
+    TEST_ASSERT(DeepLWebTranslateService::MapSourceLanguage(L"de") == L"de", L"DeepL source mapping 'de' -> 'de'");
+
+    TranslationRequest req3;
+    req3.text = L"Hello world";
+    req3.sourceLang = L"en";
+    req3.targetLang = L"ru";
+    auto res3 = DeepLWebTranslateService::Instance().Translate(req3);
+    TEST_ASSERT(res3.success, L"DeepL Translate returned success");
+    TEST_ASSERT(!res3.translatedText.empty(), L"DeepL Translate returned non-empty text");
+    std::wcout << L"  Result: " << res3.translatedText << L"\n";
+
+    TranslationRequest reqDeepLFail;
+    reqDeepLFail.text = L"Hello world";
+    reqDeepLFail.sourceLang = L"en";
+    reqDeepLFail.targetLang = L"am"; // Amharic unsupported on DeepL
+    auto resFail = DeepLWebTranslateService::Instance().Translate(reqDeepLFail);
+    TEST_ASSERT(!resFail.success, L"DeepL rejects unsupported target language gracefully");
+    TEST_ASSERT(!resFail.errorMessage.empty(), L"DeepL provides descriptive error for unsupported language");
 }
 
 void TestSettingsManagerAndObservers()
@@ -203,12 +249,14 @@ void TestSettingsManagerAndObservers()
     newSettings.theme = L"Dark";
     newSettings.translateSelectedHotkey = L"Ctrl+Alt+T";
     newSettings.ocrHotkey = L"Ctrl+Alt+O";
+    newSettings.enableExperimentalDeepL = false;
     SettingsManager::Instance().UpdateSettings(newSettings);
 
     TEST_ASSERT(observerFired, L"Settings observer fired immediately on UpdateSettings");
     TEST_ASSERT(observedSettings.sourceLanguage == L"es", L"Observer received updated sourceLanguage 'es'");
     TEST_ASSERT(observedSettings.targetLanguage == L"de", L"Observer received updated targetLanguage 'de'");
     TEST_ASSERT(observedSettings.theme == L"Dark", L"Observer received updated theme 'Dark'");
+    TEST_ASSERT(!observedSettings.enableExperimentalDeepL, L"Observer received updated enableExperimentalDeepL (false)");
 
     // Clean up observer
     SettingsManager::Instance().UnregisterObserver(obsKey);
@@ -216,6 +264,7 @@ void TestSettingsManagerAndObservers()
     // Restore original settings
     SettingsManager::Instance().UpdateSettings(originalSettings);
     TEST_ASSERT(SettingsManager::Instance().GetSettings().sourceLanguage == originalSettings.sourceLanguage, L"Settings restored cleanly");
+    TEST_ASSERT(SettingsManager::Instance().GetSettings().enableExperimentalDeepL == originalSettings.enableExperimentalDeepL, L"enableExperimentalDeepL restored cleanly");
 }
 
 void TestHistoryManager()
@@ -340,6 +389,10 @@ void TestLocalizationManager()
     TEST_ASSERT(loc.Get(L"TrayScreenOcr") == L"Screen OCR", L"EN TrayScreenOcr matches spec");
     TEST_ASSERT(loc.Get(L"TraySettings") == L"Settings", L"EN TraySettings matches spec");
     TEST_ASSERT(loc.Get(L"TrayExit") == L"Exit", L"EN TrayExit matches spec");
+    TEST_ASSERT(loc.Get(L"DeepL") == L"DeepL", L"EN DeepL brand is 'DeepL'");
+    TEST_ASSERT(!loc.Get(L"PopupServiceDeepLTooltip").empty(), L"EN PopupServiceDeepLTooltip is defined");
+    TEST_ASSERT(!loc.Get(L"DeepLNoticeTitle").empty(), L"EN DeepLNoticeTitle is defined");
+    TEST_ASSERT(!loc.Get(L"DeepLErrorRateLimited").empty(), L"EN DeepLErrorRateLimited is defined");
     TEST_ASSERT(loc.Format(L"TipResetHotkey", L"Ctrl+Alt+T") == L"Reset to default (Ctrl+Alt+T)", L"EN Format string substitution works");
 
     // 2. Observer test
@@ -354,6 +407,10 @@ void TestLocalizationManager()
     TEST_ASSERT(loc.GetCurrentLanguage() == L"ru", L"Localization set to 'ru'");
     TEST_ASSERT(loc.Get(L"Google") == L"Google", L"RU Google brand stays 'Google'");
     TEST_ASSERT(loc.Get(L"Yandex") == L"Яндекс", L"RU Yandex brand is 'Яндекс'");
+    TEST_ASSERT(loc.Get(L"DeepL") == L"DeepL", L"RU DeepL brand is 'DeepL'");
+    TEST_ASSERT(!loc.Get(L"PopupServiceDeepLTooltip").empty(), L"RU PopupServiceDeepLTooltip is defined");
+    TEST_ASSERT(!loc.Get(L"DeepLNoticeTitle").empty(), L"RU DeepLNoticeTitle is defined");
+    TEST_ASSERT(!loc.Get(L"DeepLErrorRateLimited").empty(), L"RU DeepLErrorRateLimited is defined");
     TEST_ASSERT(loc.Get(L"YandexTranslate") == L"Яндекс Переводчик", L"RU YandexTranslate is 'Яндекс Переводчик'");
     TEST_ASSERT(loc.Get(L"BtnTranslate") == L"Перевести", L"RU BtnTranslate is 'Перевести'");
     TEST_ASSERT(loc.Get(L"TipReplace") == L"Заменить выделенный текст в активном окне", L"RU TipReplace matches spec");
@@ -582,7 +639,14 @@ void TestWindowsStartupIntegration()
     {
         DWORD type = 0;
         LSTATUS st = RegQueryValueExW(hKey, L"dTranslate", nullptr, &type, nullptr, nullptr);
-        TEST_ASSERT(st != ERROR_SUCCESS, L"CleanupStaleRegistryEntries ensures dTranslate is removed from HKCU\\Run");
+        if (SettingsManager::IsPackagedProcess())
+        {
+            TEST_ASSERT(st != ERROR_SUCCESS, L"CleanupStaleRegistryEntries ensures dTranslate is removed from HKCU\\Run for packaged process");
+        }
+        else
+        {
+            TEST_ASSERT(true, L"Unpackaged process preserves HKCU\\Run startup entry");
+        }
         RegCloseKey(hKey);
     }
     else

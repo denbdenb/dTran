@@ -127,9 +127,21 @@ namespace winrt::dTranslate::implementation
 
         SettingsManager::Instance().RegisterObserver(reinterpret_cast<uintptr_t>(this), [this](AppSettings const& s)
         {
-            DispatcherQueue().TryEnqueue([this, theme = s.theme]()
+            DispatcherQueue().TryEnqueue([this, theme = s.theme, enableDeepL = s.enableExperimentalDeepL]()
             {
                 ApplyTheme(theme);
+                if (!enableDeepL)
+                {
+                    PopupServiceDeepLBtn().Visibility(Visibility::Collapsed);
+                    if (m_selectedServiceIndex == 2)
+                    {
+                        SelectService(0);
+                    }
+                }
+                else
+                {
+                    PopupServiceDeepLBtn().Visibility(Visibility::Visible);
+                }
             });
         });
 
@@ -144,6 +156,11 @@ namespace winrt::dTranslate::implementation
         SelectService(0);
         SetupEventHandlers();
         ApplyLocalization();
+
+        if (!settings.enableExperimentalDeepL)
+        {
+            PopupServiceDeepLBtn().Visibility(Visibility::Collapsed);
+        }
     }
 
     QuickPopupWindow::~QuickPopupWindow()
@@ -387,6 +404,8 @@ namespace winrt::dTranslate::implementation
         // 11. Service buttons
         PopupServiceGoogleBtn().Click([this](auto&&, auto&&) { SelectService(0); });
         PopupServiceYandexBtn().Click([this](auto&&, auto&&) { SelectService(1); });
+        PopupServiceDeepLBtn().Click([this](auto&&, auto&&) { SelectService(2); });
+        PopupDeepLNoticeCloseBtn().Click([this](auto&&, auto&&) { PopupDeepLNoticeCard().Visibility(Visibility::Collapsed); });
 
         // 12. Bottom utility buttons: History & Settings
         PopupHistoryBtn().Click([this](auto&&, auto&&) { ToggleHistoryView(); });
@@ -679,7 +698,22 @@ namespace winrt::dTranslate::implementation
         PopupServiceYandexBtn().BorderBrush(serviceId == 1 ? activeBorder : defaultBorder);
         PopupServiceYandexBtn().BorderThickness(serviceId == 1 ? Thickness{ 1.5, 1.5, 1.5, 1.5 } : Thickness{ 1, 1, 1, 1 });
 
+        PopupServiceDeepLBtn().BorderBrush(serviceId == 2 ? activeBorder : defaultBorder);
+        PopupServiceDeepLBtn().BorderThickness(serviceId == 2 ? Thickness{ 1.5, 1.5, 1.5, 1.5 } : Thickness{ 1, 1, 1, 1 });
+
+        if (serviceId == 2 && !m_hasShownDeepLNotice)
+        {
+            m_hasShownDeepLNotice = true;
+            PopupDeepLNoticeCard().Visibility(Visibility::Visible);
+        }
+
         PopulateLanguagesForService(serviceId);
+
+        auto text = PopupSourceTextBox().Text();
+        if (!text.empty())
+        {
+            OnTranslateAsync();
+        }
     }
 
     void QuickPopupWindow::ToggleHistoryView()
@@ -767,6 +801,11 @@ namespace winrt::dTranslate::implementation
 
         ToolTipService::SetToolTip(PopupServiceYandexBtn(), box_value(winrt::hstring(loc.Get(L"YandexTranslate"))));
         PopupServiceYandexText().Text(winrt::hstring(loc.Get(L"Yandex")));
+
+        ToolTipService::SetToolTip(PopupServiceDeepLBtn(), box_value(winrt::hstring(loc.Get(L"TipDeepL"))));
+        PopupServiceDeepLText().Text(winrt::hstring(loc.Get(L"DeepL")));
+        PopupDeepLNoticeTitle().Text(winrt::hstring(loc.Get(L"DeepLNoticeTitle")));
+        PopupDeepLNoticeDesc().Text(winrt::hstring(loc.Get(L"DeepLNoticeDesc")));
 
         ToolTipService::SetToolTip(PopupHistoryBtn(), box_value(winrt::hstring(m_inHistoryMode ? loc.Get(L"TipBackToTranslator") : loc.Get(L"TipHistory"))));
         ToolTipService::SetToolTip(PopupSettingsBtn(), box_value(winrt::hstring(loc.Get(L"TipSettings"))));

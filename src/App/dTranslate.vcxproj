@@ -126,6 +126,7 @@
     <ClInclude Include="..\Translation\LanguageCatalog.h" />
     <ClInclude Include="..\Translation\GoogleTranslateService.h" />
     <ClInclude Include="..\Translation\YandexTranslateService.h" />
+    <ClInclude Include="..\Translation\DeepLWebTranslateService.h" />
     <ClInclude Include="..\Translation\TranslationManager.h" />
     <ClInclude Include="..\Audio\GoogleTtsService.h" />
     <ClInclude Include="..\OCR\WindowsOcrService.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="..\Translation\GoogleTranslateService.cpp" />
     <ClCompile Include="..\Translation\LanguageCatalog.cpp" />
     <ClCompile Include="..\Translation\YandexTranslateService.cpp" />
+    <ClCompile Include="..\Translation\DeepLWebTranslateService.cpp" />
     <ClCompile Include="..\Translation\TranslationManager.cpp" />
     <ClCompile Include="..\Audio\GoogleTtsService.cpp" />
     <ClCompile Include="..\OCR\WindowsOcrService.cpp" />

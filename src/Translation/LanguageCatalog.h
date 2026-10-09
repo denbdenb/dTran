@@ -11,6 +11,7 @@ namespace dTranslate::Translation
         constexpr uint32_t Google      = 1 << 0;
         constexpr uint32_t Yandex      = 1 << 1;
         constexpr uint32_t WindowsOcr  = 1 << 2;
+        constexpr uint32_t DeepL       = 1 << 3;
         constexpr uint32_t AllCore     = Google | Yandex;
     }
 

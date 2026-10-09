@@ -117,7 +117,15 @@ namespace dTranslate::Storage
             // Errors & Notifications
             { L"RateLimited", L"Service is temporarily rate-limited. Please wait a moment." },
             { L"ServiceUnavailable", L"Translation service is temporarily unavailable." },
-            { L"ErrorYandexUnsupportedLanguage", L"Yandex Translate does not support this language. Please use Google Translate." }
+            { L"ErrorYandexUnsupportedLanguage", L"Yandex Translate does not support this language. Please use Google Translate." },
+            { L"DeepLTranslate", L"DeepL" },
+            { L"DeepL", L"DeepL" },
+            { L"TipDeepL", L"DeepL Web Translation — Experimental" },
+            { L"DeepLNoticeTitle", L"DeepL Experimental Web Translation" },
+            { L"DeepLNoticeDesc", L"Unofficial experimental client. Availability depends on web service. Do not send confidential personal data." },
+            { L"ErrorDeepLUnsupportedLanguage", L"DeepL does not support this language pair. Please switch to Google or Yandex Translate." },
+            { L"ErrorDeepLRateLimited", L"DeepL is temporarily rate-limiting requests (HTTP 429). Please wait a moment or switch to Google / Yandex." },
+            { L"ErrorDeepLUnavailable", L"DeepL service is temporarily unavailable. Please try again later or use Google / Yandex." }
         };
 
         // 2. Русский (Fully Localized)
@@ -211,7 +219,15 @@ namespace dTranslate::Storage
             // Errors & Notifications
             { L"RateLimited", L"Сервис временно ограничил запросы. Пожалуйста, подождите." },
             { L"ServiceUnavailable", L"Сервис перевода временно недоступен." },
-            { L"ErrorYandexUnsupportedLanguage", L"Яндекс Переводчик не поддерживает этот язык. Пожалуйста, используйте Google Translate." }
+            { L"ErrorYandexUnsupportedLanguage", L"Яндекс Переводчик не поддерживает этот язык. Пожалуйста, используйте Google Translate." },
+            { L"DeepLTranslate", L"DeepL" },
+            { L"DeepL", L"DeepL" },
+            { L"TipDeepL", L"Перевод DeepL — экспериментальный режим" },
+            { L"DeepLNoticeTitle", L"Экспериментальный перевод DeepL" },
+            { L"DeepLNoticeDesc", L"Неофициальный экспериментальный веб-провайдер. Доступность зависит от веб-сервиса. Не отправляйте конфиденциальные персональные данные." },
+            { L"ErrorDeepLUnsupportedLanguage", L"DeepL не поддерживает эту языковую пару. Пожалуйста, переключитесь на Google или Яндекс." },
+            { L"ErrorDeepLRateLimited", L"DeepL временно ограничил запросы (HTTP 429). Пожалуйста, подождите или переключитесь на Google / Яндекс." },
+            { L"ErrorDeepLUnavailable", L"Сервис DeepL временно недоступен. Попробуйте позже или используйте Google / Яндекс." }
         };
     }
 

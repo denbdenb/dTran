@@ -2,6 +2,7 @@
 #include "TranslationManager.h"
 #include "GoogleTranslateService.h"
 #include "YandexTranslateService.h"
+#include "DeepLWebTranslateService.h"
 #include "SettingsManager.h"
 #include "HistoryManager.h"
 #include <chrono>
@@ -50,6 +51,10 @@ namespace dTranslate::Translation
 
         case 1: // Yandex Translate
             result = YandexTranslateService::Instance().Translate(request);
+            break;
+
+        case 2: // DeepL (Experimental Web)
+            result = DeepLWebTranslateService::Instance().Translate(request);
             break;
 
         default:

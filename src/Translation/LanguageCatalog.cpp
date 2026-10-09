@@ -8,40 +8,40 @@ namespace dTranslate::Translation
 
     static const std::vector<LanguageInfo> s_languages = {
         // Auto-detect (source only)
-        { L"auto", L"Auto-detect", L"Auto-detect", L"🌐", L"", L"", AllCore },
+        { L"auto", L"Auto-detect", L"Auto-detect", L"🌐", L"", L"", AllCore | DeepL },
 
         // Major European & Global Languages
-        { L"en", L"English", L"English", L"🇺🇸", L"EN", L"en-US", AllCore | WindowsOcr },
-        { L"ru", L"Russian", L"Русский", L"🇷🇺", L"RU", L"ru-RU", AllCore | WindowsOcr },
-        { L"es", L"Spanish", L"Español", L"🇪🇸", L"ES", L"es-ES", AllCore | WindowsOcr },
-        { L"de", L"German", L"Deutsch", L"🇩🇪", L"DE", L"de-DE", AllCore | WindowsOcr },
-        { L"fr", L"French", L"Français", L"🇫🇷", L"FR", L"fr-FR", AllCore | WindowsOcr },
-        { L"it", L"Italian", L"Italiano", L"🇮🇹", L"IT", L"it-IT", AllCore | WindowsOcr },
-        { L"pt", L"Portuguese", L"Português", L"🇵🇹", L"PT", L"pt-PT", AllCore | WindowsOcr },
-        { L"zh", L"Chinese (Simplified)", L"简体中文", L"🇨🇳", L"ZH", L"zh-Hans-CN", AllCore | WindowsOcr },
-        { L"zh-TW", L"Chinese (Traditional)", L"繁體中文", L"🇹🇼", L"ZH-TW", L"zh-Hant-TW", Google | WindowsOcr },
-        { L"ja", L"Japanese", L"日本語", L"🇯🇵", L"JA", L"ja-JP", AllCore | WindowsOcr },
-        { L"ko", L"Korean", L"한국어", L"🇰🇷", L"KO", L"ko-KR", AllCore | WindowsOcr },
-        { L"ar", L"Arabic", L"العربية", L"🇸🇦", L"AR", L"ar-SA", AllCore | WindowsOcr },
-        { L"tr", L"Turkish", L"Türkçe", L"🇹🇷", L"TR", L"tr-TR", AllCore | WindowsOcr },
-        { L"uk", L"Ukrainian", L"Українська", L"🇺🇦", L"UK", L"uk-UA", AllCore | WindowsOcr },
-        { L"pl", L"Polish", L"Polski", L"🇵🇱", L"PL", L"pl-PL", AllCore | WindowsOcr },
-        { L"nl", L"Dutch", L"Nederlands", L"🇳🇱", L"NL", L"nl-NL", AllCore | WindowsOcr },
+        { L"en", L"English", L"English", L"🇺🇸", L"EN", L"en-US", AllCore | WindowsOcr | DeepL },
+        { L"ru", L"Russian", L"Русский", L"🇷🇺", L"RU", L"ru-RU", AllCore | WindowsOcr | DeepL },
+        { L"es", L"Spanish", L"Español", L"🇪🇸", L"ES", L"es-ES", AllCore | WindowsOcr | DeepL },
+        { L"de", L"German", L"Deutsch", L"🇩🇪", L"DE", L"de-DE", AllCore | WindowsOcr | DeepL },
+        { L"fr", L"French", L"Français", L"🇫🇷", L"FR", L"fr-FR", AllCore | WindowsOcr | DeepL },
+        { L"it", L"Italian", L"Italiano", L"🇮🇹", L"IT", L"it-IT", AllCore | WindowsOcr | DeepL },
+        { L"pt", L"Portuguese", L"Português", L"🇵🇹", L"PT", L"pt-PT", AllCore | WindowsOcr | DeepL },
+        { L"zh", L"Chinese (Simplified)", L"简体中文", L"🇨🇳", L"ZH", L"zh-Hans-CN", AllCore | WindowsOcr | DeepL },
+        { L"zh-TW", L"Chinese (Traditional)", L"繁體中文", L"🇹🇼", L"ZH-TW", L"zh-Hant-TW", Google | WindowsOcr | DeepL },
+        { L"ja", L"Japanese", L"日本語", L"🇯🇵", L"JA", L"ja-JP", AllCore | WindowsOcr | DeepL },
+        { L"ko", L"Korean", L"한국어", L"🇰🇷", L"KO", L"ko-KR", AllCore | WindowsOcr | DeepL },
+        { L"ar", L"Arabic", L"العربية", L"🇸🇦", L"AR", L"ar-SA", AllCore | WindowsOcr | DeepL },
+        { L"tr", L"Turkish", L"Türkçe", L"🇹🇷", L"TR", L"tr-TR", AllCore | WindowsOcr | DeepL },
+        { L"uk", L"Ukrainian", L"Українська", L"🇺🇦", L"UK", L"uk-UA", AllCore | WindowsOcr | DeepL },
+        { L"pl", L"Polish", L"Polski", L"🇵🇱", L"PL", L"pl-PL", AllCore | WindowsOcr | DeepL },
+        { L"nl", L"Dutch", L"Nederlands", L"🇳🇱", L"NL", L"nl-NL", AllCore | WindowsOcr | DeepL },
 
         // Nordic & Central/Eastern European
-        { L"sv", L"Swedish", L"Svenska", L"🇸🇪", L"SV", L"sv-SE", AllCore | WindowsOcr },
-        { L"no", L"Norwegian", L"Norsk", L"🇳🇴", L"NO", L"nb-NO", AllCore | WindowsOcr },
-        { L"da", L"Danish", L"Dansk", L"🇩🇰", L"DA", L"da-DK", AllCore | WindowsOcr },
-        { L"fi", L"Finnish", L"Suomi", L"🇫🇮", L"FI", L"fi-FI", AllCore | WindowsOcr },
-        { L"el", L"Greek", L"Ελληνικά", L"🇬🇷", L"EL", L"el-GR", AllCore | WindowsOcr },
-        { L"cs", L"Czech", L"Čeština", L"🇨🇿", L"CS", L"cs-CZ", AllCore | WindowsOcr },
-        { L"sk", L"Slovak", L"Slovenčina", L"🇸🇰", L"SK", L"sk-SK", AllCore | WindowsOcr },
-        { L"hu", L"Hungarian", L"Magyar", L"🇭🇺", L"HU", L"hu-HU", AllCore | WindowsOcr },
-        { L"ro", L"Romanian", L"Română", L"🇷🇴", L"RO", L"ro-RO", AllCore | WindowsOcr },
-        { L"bg", L"Bulgarian", L"Български", L"🇧🇬", L"BG", L"bg-BG", AllCore | WindowsOcr },
+        { L"sv", L"Swedish", L"Svenska", L"🇸🇪", L"SV", L"sv-SE", AllCore | WindowsOcr | DeepL },
+        { L"no", L"Norwegian", L"Norsk", L"🇳🇴", L"NO", L"nb-NO", AllCore | WindowsOcr | DeepL },
+        { L"da", L"Danish", L"Dansk", L"🇩🇰", L"DA", L"da-DK", AllCore | WindowsOcr | DeepL },
+        { L"fi", L"Finnish", L"Suomi", L"🇫🇮", L"FI", L"fi-FI", AllCore | WindowsOcr | DeepL },
+        { L"el", L"Greek", L"Ελληνικά", L"🇬🇷", L"EL", L"el-GR", AllCore | WindowsOcr | DeepL },
+        { L"cs", L"Czech", L"Čeština", L"🇨🇿", L"CS", L"cs-CZ", AllCore | WindowsOcr | DeepL },
+        { L"sk", L"Slovak", L"Slovenčina", L"🇸🇰", L"SK", L"sk-SK", AllCore | WindowsOcr | DeepL },
+        { L"hu", L"Hungarian", L"Magyar", L"🇭🇺", L"HU", L"hu-HU", AllCore | WindowsOcr | DeepL },
+        { L"ro", L"Romanian", L"Română", L"🇷🇴", L"RO", L"ro-RO", AllCore | WindowsOcr | DeepL },
+        { L"bg", L"Bulgarian", L"Български", L"🇧🇬", L"BG", L"bg-BG", AllCore | WindowsOcr | DeepL },
         { L"sr", L"Serbian", L"Српски", L"🇷🇸", L"SR", L"sr-Cyrl-RS", AllCore | WindowsOcr },
         { L"hr", L"Croatian", L"Hrvatski", L"🇭🇷", L"HR", L"hr-HR", AllCore | WindowsOcr },
-        { L"sl", L"Slovenian", L"Slovenščina", L"🇸🇮", L"SL", L"sl-SI", AllCore | WindowsOcr },
+        { L"sl", L"Slovenian", L"Slovenščina", L"🇸🇮", L"SL", L"sl-SI", AllCore | WindowsOcr | DeepL },
         { L"he", L"Hebrew", L"עברית", L"🇮🇱", L"HE", L"he-IL", AllCore | WindowsOcr },
 
         // Asian & South Asian
@@ -80,9 +80,9 @@ namespace dTranslate::Translation
 
         // Baltic & Eastern Europe
         { L"be", L"Belarusian", L"Беларуская", L"🇧🇾", L"BE", L"be-BY", AllCore },
-        { L"lt", L"Lithuanian", L"Lietuvių", L"🇱🇹", L"LT", L"lt-LT", AllCore },
-        { L"lv", L"Latvian", L"Latviešu", L"🇱🇻", L"LV", L"lv-LV", AllCore },
-        { L"et", L"Estonian", L"Eesti", L"🇪🇪", L"ET", L"et-EE", AllCore },
+        { L"lt", L"Lithuanian", L"Lietuvių", L"🇱🇹", L"LT", L"lt-LT", AllCore | DeepL },
+        { L"lv", L"Latvian", L"Latviešu", L"🇱🇻", L"LV", L"lv-LV", AllCore | DeepL },
+        { L"et", L"Estonian", L"Eesti", L"🇪🇪", L"ET", L"et-EE", AllCore | DeepL },
         { L"sq", L"Albanian", L"Shqip", L"🇦🇱", L"SQ", L"sq-AL", AllCore },
         { L"mk", L"Macedonian", L"Македонски", L"🇲🇰", L"MK", L"mk-MK", AllCore },
         { L"bs", L"Bosnian", L"Bosanski", L"🇧🇦", L"BS", L"bs-BA", AllCore },
@@ -150,8 +150,8 @@ namespace dTranslate::Translation
     {
         if (code == L"auto")
         {
-            // Auto is supported as source only for core translation engines (0..3)
-            return serviceId == 0 || serviceId == 1;
+            // Auto is supported as source only for core translation engines (0=Google, 1=Yandex, 2=DeepL)
+            return serviceId == 0 || serviceId == 1 || serviceId == 2;
         }
 
         auto info = FindByCode(code);
@@ -162,7 +162,8 @@ namespace dTranslate::Translation
         {
         case 0: mask = Google; break;
         case 1: mask = Yandex; break;
-        case 2: mask = WindowsOcr; break;
+        case 2: mask = DeepL; break;
+        case 3: mask = WindowsOcr; break;
         default: return true;
         }
 

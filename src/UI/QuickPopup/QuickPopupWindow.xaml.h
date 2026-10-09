@@ -27,6 +27,7 @@ namespace winrt::dTranslate::implementation
         HWND m_sourceHwnd{ nullptr };
         bool m_hasSelectionContext{ false };
         bool m_inHistoryMode{ false };
+        bool m_hasShownDeepLNotice{ false };
         std::vector<::dTranslate::Storage::HistoryItem> m_currentHistoryItems;
 
         void SetupEventHandlers();

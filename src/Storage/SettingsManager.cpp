@@ -12,7 +12,7 @@ namespace dTranslate::Storage
 {
     using namespace winrt::Windows::Data::Json;
 
-    static bool IsPackagedProcess()
+    bool SettingsManager::IsPackagedProcess()
     {
         UINT32 len = 0;
         return GetCurrentPackageFullName(&len, nullptr) != APPMODEL_ERROR_NO_PACKAGE;
@@ -236,6 +236,7 @@ namespace dTranslate::Storage
             root.SetNamedValue(L"translateSelectedHotkey", JsonValue::CreateStringValue(m_settings.translateSelectedHotkey));
             root.SetNamedValue(L"ocrHotkey", JsonValue::CreateStringValue(m_settings.ocrHotkey));
             root.SetNamedValue(L"compareTranslations", JsonValue::CreateBooleanValue(m_settings.compareTranslations));
+            root.SetNamedValue(L"enableExperimentalDeepL", JsonValue::CreateBooleanValue(m_settings.enableExperimentalDeepL));
             root.SetNamedValue(L"quickPopupWidth", JsonValue::CreateNumberValue(m_settings.quickPopupWidth));
             root.SetNamedValue(L"quickPopupHeight", JsonValue::CreateNumberValue(m_settings.quickPopupHeight));
 
@@ -298,6 +299,8 @@ namespace dTranslate::Storage
                     m_settings.ocrHotkey = root.GetNamedString(L"ocrHotkey").c_str();
                 if (root.HasKey(L"compareTranslations"))
                     m_settings.compareTranslations = root.GetNamedBoolean(L"compareTranslations");
+                if (root.HasKey(L"enableExperimentalDeepL"))
+                    m_settings.enableExperimentalDeepL = root.GetNamedBoolean(L"enableExperimentalDeepL");
                 if (root.HasKey(L"quickPopupWidth"))
                     m_settings.quickPopupWidth = static_cast<int>(root.GetNamedNumber(L"quickPopupWidth"));
                 if (root.HasKey(L"quickPopupHeight"))
