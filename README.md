@@ -14,16 +14,6 @@
 
 ---
 
-## What's New in v1.2.5
-
-* **DeepL Web Translation Provider:** Integrated native C++ web client for DeepL, supporting 30+ languages alongside Google Translate and Yandex Translate without requiring API keys or third-party runtimes.
-* **10-Language UI Localization:** Complete interface localization for **English**, **Русский**, **Español**, **Deutsch**, **Français**, **Português (Brasil)**, **Italiano**, **日本語**, **한국어**, and **简体中文** with instant dynamic switching.
-* **Zero-Heap Memory Architecture:** Dictionaries are compiled into immutable static tables in the binary's `.rdata` section with $O(\log N)$ binary search, guaranteeing zero dynamic heap allocations at startup.
-* **Windows System Language Auto-Detection:** Automatically matches your Windows display language on first run with graceful fallback to English.
-* **Adaptive Screen OCR Toolbar:** Dynamically measures button text using Win32 GDI `DrawTextW` to prevent text truncation across all languages and DPI scales.
-
----
-
 ## Features
 
 * **Triple Translation Engines:** Google Translate, Yandex Translate, and DeepL Web translation with automatic language detection.
