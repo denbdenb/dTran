@@ -5,8 +5,8 @@
 1 ICON "../../assets/app.ico"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     1,0,0,0
-PRODUCTVERSION  1,0,0,0
+FILEVERSION     1,2,5,0
+PRODUCTVERSION  1,2,5,0
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
 FILEFLAGS       VS_FF_DEBUG
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "dTran"
             VALUE "FileDescription",  "dTran - Lightweight System Translator"
-            VALUE "FileVersion",      "1.0.0.0"
+            VALUE "FileVersion",      "1.2.5.0"
             VALUE "InternalName",     "dTran"
             VALUE "LegalCopyright",   "Copyright (C) 2026 denb. All rights reserved."
             VALUE "OriginalFilename", "dTranslate.exe"
             VALUE "ProductName",      "dTran"
-            VALUE "ProductVersion",   "1.0.0"
+            VALUE "ProductVersion",   "1.2.5"
         END
     END
     BLOCK "VarFileInfo"

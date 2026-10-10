@@ -1,4 +1,4 @@
-# Automates the full Release build, test execution, unpackaged self-contained staging, Inno Setup compilation, portable archive, and checksum generation for dTran 1.0.0
+# Automates the full Release build, test execution, unpackaged self-contained staging, Inno Setup compilation, portable archive, and checksum generation for dTran
 param(
     [ValidateSet('Release')] [string]$Configuration = 'Release'
 )
@@ -7,8 +7,10 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = $PSScriptRoot | Split-Path -Parent
 Set-Location $repoRoot
 
+$version = "1.2.5"
+
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "       dTran 1.0.0 - FULL RELEASE AND INSTALLER BUILD     " -ForegroundColor Cyan
+Write-Host "       dTran $version - FULL RELEASE AND INSTALLER BUILD     " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 # 1. Build Solution via build.ps1
@@ -68,13 +70,13 @@ if (-not $iscc -or -not (Test-Path $iscc)) {
 $issFile = Join-Path $repoRoot "installer\dTran-Setup.iss"
 & $iscc $issFile
 if ($LASTEXITCODE -ne 0) { throw "ISCC compilation failed with exit code $LASTEXITCODE" }
-$setupOut = Join-Path $distDir "dTran-1.0.0-x64-Setup.exe"
+$setupOut = Join-Path $distDir "dTran-$version-x64-Setup.exe"
 $setupSize = [Math]::Round((Get-Item $setupOut).Length / 1MB, 2)
 Write-Host "Setup generated: $setupOut ($setupSize MB)" -ForegroundColor Green
 
 # 5. Generate Standalone Portable ZIP
 Write-Host "`n[5/6] Creating standalone portable zip package..." -ForegroundColor Yellow
-$zipOut = Join-Path $distDir "dTran-1.0.0-x64-Portable.zip"
+$zipOut = Join-Path $distDir "dTran-$version-x64-Portable.zip"
 if (Test-Path $zipOut) { Remove-Item $zipOut -Force }
 Compress-Archive -Path "$stageDir\*" -DestinationPath $zipOut -CompressionLevel Optimal
 $zipSize = [Math]::Round((Get-Item $zipOut).Length / 1MB, 2)
@@ -83,9 +85,9 @@ Write-Host "Portable archive generated: $zipOut ($zipSize MB)" -ForegroundColor 
 # 6. Generate SHA-256 Checksums
 Write-Host "`n[6/6] Computing SHA-256 checksums..." -ForegroundColor Yellow
 $checksumFile = Join-Path $distDir "SHA256SUMS.txt"
-$artifacts = @("dTran-1.0.0-x64-Setup.exe", "dTran-1.0.0-x64-Portable.zip")
-if (Test-Path (Join-Path $distDir "dTran-1.0.0-x64.msix")) {
-    $artifacts += "dTran-1.0.0-x64.msix"
+$artifacts = @("dTran-$version-x64-Setup.exe", "dTran-$version-x64-Portable.zip")
+if (Test-Path (Join-Path $distDir "dTran-$version-x64.msix")) {
+    $artifacts += "dTran-$version-x64.msix"
 }
 $lines = @()
 foreach ($art in $artifacts) {
@@ -100,5 +102,5 @@ Write-Host "`nChecksums written to:" $checksumFile -ForegroundColor Cyan
 Get-Content $checksumFile
 
 Write-Host "`n==========================================================" -ForegroundColor Green
-Write-Host "       dTran 1.0.0 - BUILD COMPLETED SUCCESSFULLY         " -ForegroundColor Green
+Write-Host "       dTran $version - BUILD COMPLETED SUCCESSFULLY         " -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green

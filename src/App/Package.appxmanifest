@@ -10,7 +10,7 @@
   <Identity
     Name="dTranslate"
     Publisher="CN=dTranslate Dev"
-    Version="1.0.0.0" />
+    Version="1.2.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="6f1f4c0e-5b0a-4f6c-9d2e-7c1b2a3d4e5f" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 

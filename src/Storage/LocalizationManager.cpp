@@ -16,7 +16,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_en[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Lightweight system translator for Google & Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Application language" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Auto-detect" },
@@ -104,7 +104,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_ru[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Лёгкий системный переводчик для Google и Яндекс" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Язык интерфейса" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Автоопределение" },
@@ -192,7 +192,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_es[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Traductor ligero de escritorio para Google y Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Idioma de la aplicación" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Detectar automáticamente" },
@@ -280,7 +280,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_de[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Leichtgewichtiger Desktop-Übersetzer für Google & Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Programmsprache" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Automatisch erkennen" },
@@ -368,7 +368,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_fr[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Traducteur de bureau léger pour Google et Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Langue de l'application" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Détection automatique" },
@@ -456,7 +456,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_pt_BR[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Tradutor de desktop leve para Google e Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Idioma do aplicativo" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Detectar automaticamente" },
@@ -544,7 +544,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_it[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Traduttore desktop leggero per Google e Yandex" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"Lingua dell'applicazione" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"Rilevamento automatico" },
@@ -632,7 +632,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_ja[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Google & Yandex 向けの軽量デスクトップ翻訳ツール" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"アプリの言語" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"言語を自動検出" },
@@ -720,7 +720,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_ko[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"Google 및 Yandex를 위한 경량 데스크톱 번역기" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"애플리케이션 언어" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"언어 자동 감지" },
@@ -808,7 +808,7 @@ namespace dTranslate::Storage
     static constexpr StringEntry s_strings_zh_Hans[] = {
         { L"AboutCreatedBy", L"Created with ❤️ by denb" },
         { L"AboutSubtitle", L"适用于 Google 与 Yandex 的轻量级桌面翻译工具" },
-        { L"AboutVersion", L"dTran v1.0.0" },
+        { L"AboutVersion", L"dTran v1.2.5" },
         { L"AppLanguage", L"界面语言" },
         { L"AppTitle", L"dTran" },
         { L"AutoDetect", L"自动检测" },

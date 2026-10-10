@@ -1,12 +1,12 @@
 # dTran
 
-> Lightweight popup translator for Windows with Google Translate and Yandex Translate.
+> Lightweight popup translator for Windows with Google Translate, Yandex Translate, and DeepL.
 
 [English](README.md) | [Русский](README.ru.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20x64-blue)](https://github.com/denbdenb/dTran)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-green.svg)](https://github.com/denbdenb/dTran/releases)
+[![Release](https://img.shields.io/badge/Release-v1.2.5-green.svg)](https://github.com/denbdenb/dTran/releases)
 
 ![dTran Screenshot](docs/screenshot.png)
 
@@ -14,18 +14,28 @@
 
 ---
 
+## What's New in v1.2.5
+
+* **DeepL Web Translation Provider:** Integrated native C++ web client for DeepL, supporting 30+ languages alongside Google Translate and Yandex Translate without requiring API keys or third-party runtimes.
+* **10-Language UI Localization:** Complete interface localization for **English**, **Русский**, **Español**, **Deutsch**, **Français**, **Português (Brasil)**, **Italiano**, **日本語**, **한국어**, and **简体中文** with instant dynamic switching.
+* **Zero-Heap Memory Architecture:** Dictionaries are compiled into immutable static tables in the binary's `.rdata` section with $O(\log N)$ binary search, guaranteeing zero dynamic heap allocations at startup.
+* **Windows System Language Auto-Detection:** Automatically matches your Windows display language on first run with graceful fallback to English.
+* **Adaptive Screen OCR Toolbar:** Dynamically measures button text using Win32 GDI `DrawTextW` to prevent text truncation across all languages and DPI scales.
+
+---
+
 ## Features
 
-* **Google Translate & Yandex Translate:** Instant translation powered by dual web engines with automatic language detection.
+* **Triple Translation Engines:** Google Translate, Yandex Translate, and DeepL Web translation with automatic language detection.
 * **Popup-First Workflow:** Stays unobtrusively in the system tray; press a hotkey or click the tray icon to open the lightweight popup.
 * **Translate Selected (`Ctrl+Alt+T`):** Captures highlighted text in any active window (browsers, editors, documents) via UI Automation and clipboard fallback.
 * **Replace Selected Text:** Translates and replaces the selected text directly inside the target application, safely restoring your clipboard afterwards.
 * **Screen OCR (`Ctrl+Alt+O`):** Snip any portion of the screen to recognize text using native `Windows.Media.Ocr` and immediately translate it.
 * **Text-to-Speech (TTS):** Clear audio pronunciation with automatic language detection and sequential streaming.
 * **Long-Text Support:** Smart paragraph and sentence chunking (`TextChunker`) translates long passages without losing structure.
-* **Side-by-Side Comparison:** Compare Google and Yandex translations in a single view with one click.
+* **Side-by-Side Comparison:** Compare translations between services in a single view with one click.
 * **Translation History:** Fast, searchable disk-backed history buffer with instant copy and re-insert capabilities.
-* **Bilingual UI:** Fully localized in **English** and **Русский** with instant runtime switching.
+* **Multilingual UI (10 Languages):** Fully localized into 10 world languages with instant runtime switching.
 * **Start with Windows:** Integrated with native Windows Startup Tasks (`Windows.ApplicationModel.StartupTask`) and synchronized with Windows Task Manager.
 * **Modern Windows 11 UI:** Built with WinUI 3 and Fluent Design, automatically matching system Light/Dark appearance.
 * **Ultralight Memory Footprint:** Consumes only **~9–15 MB** of memory in the background.
@@ -35,14 +45,14 @@
 ## Installation
 
 ### Recommended (Installer)
-1. Download **[`dTran-1.0.0-x64-Setup.exe`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
+1. Download **[`dTran-1.2.5-x64-Setup.exe`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
 2. Run the installer (installs into standard `C:\Program Files\dTran` without requiring Developer Mode).
 3. All framework dependencies (Windows App SDK Runtime and VCLibs) are self-contained.
 4. Launch dTran from the Start Menu, Desktop shortcut, or system tray.
 5. Highlight any text and press `Ctrl+Alt+T` to translate!
 
 ### Standalone (Portable Zip)
-1. Download **[`dTran-1.0.0-x64-Portable.zip`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
+1. Download **[`dTran-1.2.5-x64-Portable.zip`](https://github.com/denbdenb/dTran/releases/latest)** from the latest GitHub Release.
 2. Unpack the archive to any folder and run `dTranslate.exe`. No installation required.
 
 ### Uninstallation
@@ -80,6 +90,7 @@ System Tray
 Popup Translator
     ├── Google Translate Engine
     ├── Yandex Translate Engine
+    ├── DeepL Web Translate Engine
     ├── Windows Media OCR
     ├── Google Text-to-Speech
     ├── Translation History Buffer
@@ -90,7 +101,7 @@ Popup Translator
 
 ## Privacy
 
-* **Direct Provider Communication:** Translation requests are sent directly from your computer to Google and Yandex over HTTPS.
+* **Direct Provider Communication:** Translation requests are sent directly from your computer to translation providers over HTTPS via native WinHTTP.
 * **No Server Intermediary:** dTran does not run an external cloud backend, database, or analytics collector.
 * **No Telemetry or Tracking:** Zero user telemetry, crash uploads, or trackers.
 * **Local Data Storage:** Settings and Translation History are stored exclusively on your local machine in `%LOCALAPPDATA%`.
@@ -99,7 +110,7 @@ Popup Translator
 
 ## Known Limitations
 
-* **Language Support Differences:** While Google Translate supports over 100 languages, Yandex Translate supports a slightly smaller catalog. When a language unsupported by Yandex is chosen, dTran gracefully notifies the user and suggests switching to Google Translate.
+* **Language Support Differences:** While Google Translate supports over 100 languages, DeepL supports ~30 languages and Yandex supports ~90 languages. If an unsupported language pair is requested, dTran gracefully notifies the user and suggests switching engines.
 * **Non-Selectable Controls:** Text inside certain hardened applications (e.g. elevated command prompts or protected games) cannot be read via UI Automation; in such cases, use the **Screen OCR** feature (`Ctrl+Alt+O`).
 
 ---
@@ -118,16 +129,16 @@ Popup Translator
 
 ```powershell
 # 1. Clone repository
-git clone https://github.com/denb/dTran.git
+git clone https://github.com/denbdenb/dTran.git
 cd dTran
 
 # 2. Build Release x64 binary
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release
 
-# 3. Run automated tests (133/133 tests)
+# 3. Run automated tests (189/189 tests)
 powershell -ExecutionPolicy Bypass -File .\scripts\build_test_runner.ps1
 
-# 4. Build distribution packages (Setup.exe + MSIX)
+# 4. Build distribution packages (Setup.exe + Portable Zip)
 powershell -ExecutionPolicy Bypass -File .\scripts\build_installer.ps1
 ```
 

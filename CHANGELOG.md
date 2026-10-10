@@ -2,6 +2,19 @@
 
 All notable changes to **dTran** are documented in this file.
 
+## [1.2.5] — 2026-10-10
+
+### Added
+- **DeepL Web Translation Engine:** Native C++ integration with DeepL Web translation using WinHTTP, supporting 30+ languages, automatic source detection, and graceful rate-limiting handling without external dependencies or API keys.
+- **10-Language UI Localization:** Full interface translation for English (`en`), Russian (`ru`), Spanish (`es`), German (`de`), French (`fr`), Brazilian Portuguese (`pt-BR`), Italian (`it`), Japanese (`ja`), Korean (`ko`), and Simplified Chinese (`zh-Hans`).
+- **Zero-Heap Localization Architecture:** Static read-only string tables in the binary `.rdata` section with binary search lookup, eliminating runtime heap allocations at startup.
+- **Windows System Language Auto-Detection:** Automatically detects the user's preferred Windows UI display language on first startup (`GetUserPreferredUILanguages`) with fallback to English, without overriding existing user choices in `settings.json`.
+- **Adaptive Screen OCR Toolbar:** Dynamic Win32 GDI `DrawTextW` measurement for OCR floating toolbar buttons, preventing text clipping across diverse languages and screen DPI scales.
+
+### Changed
+- **Version Bump:** Updated application version to 1.2.5 across settings dialog, Win32 resources, package manifests, installer, and documentation.
+- **UI Label Flexibility:** Added automatic text wrapping (`TextWrapping="Wrap"`) in the Settings dialog to ensure clean layout across longer localized phrases.
+
 ---
 
 ## [1.0.0] — 2026-10-07

@@ -1,11 +1,11 @@
-; Inno Setup Script for dTran 1.0.0 (x64)
+; Inno Setup Script for dTran 1.2.5 (x64)
 ; Standard Windows 11 installation into C:\Program Files\dTran
 ; Pure unpackaged WinUI 3 desktop application (Self-Contained)
 
 #define MyAppName "dTran"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.2.5"
 #define MyAppPublisher "denb"
-#define MyAppURL "https://github.com/denb/dTran"
+#define MyAppURL "https://github.com/denbdenb/dTran"
 #define MyAppExeName "dTranslate.exe"
 
 [Setup]
@@ -22,7 +22,7 @@ DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
 PrivilegesRequired=admin
 OutputDir=..\dist
-OutputBaseFilename=dTran-1.0.0-x64-Setup
+OutputBaseFilename=dTran-1.2.5-x64-Setup
 SetupIconFile=..\assets\app.ico
 UninstallDisplayIcon={app}\Assets\app.ico
 Compression=lzma2/ultra64

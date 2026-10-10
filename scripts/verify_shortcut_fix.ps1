@@ -6,7 +6,7 @@ Write-Host "=== VERIFYING SHORTCUT & INSTALLER FIX ===" -ForegroundColor Cyan
 Get-Process dTranslate -ErrorAction SilentlyContinue | Stop-Process -Force
 
 # 2. Run new Setup.exe
-$setup = (Resolve-Path "dist\dTran-1.0.0-x64-Setup.exe").Path
+$setup = (Get-ChildItem "dist\dTran-*-x64-Setup.exe" | Select-Object -Last 1).FullName
 Write-Host "Running Setup silently from: $setup" -ForegroundColor Cyan
 $proc = Start-Process -FilePath $setup -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES" -PassThru -Wait
 Write-Host "Setup Exit Code: $($proc.ExitCode)" -ForegroundColor Green

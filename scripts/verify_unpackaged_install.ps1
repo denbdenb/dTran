@@ -1,15 +1,15 @@
-# Verification script for dTran 1.0.0 Unpackaged Self-Contained Deployment
+# Verification script for dTran 1.2.5 Unpackaged Self-Contained Deployment
 $ErrorActionPreference = 'Stop'
 $repoRoot = $PSScriptRoot | Split-Path -Parent
 Set-Location $repoRoot
 
-$setupExe = Join-Path $repoRoot "dist\dTran-1.0.0-x64-Setup.exe"
-$portableZip = Join-Path $repoRoot "dist\dTran-1.0.0-x64-Portable.zip"
+$setupExe = Join-Path $repoRoot "dist\dTran-1.2.5-x64-Setup.exe"
+$portableZip = Join-Path $repoRoot "dist\dTran-1.2.5-x64-Portable.zip"
 $installDir = "C:\Program Files\dTran"
 $exePath = Join-Path $installDir "dTranslate.exe"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "    dTran 1.0.0 - END-TO-END DEPLOYMENT VERIFICATION       " -ForegroundColor Cyan
+Write-Host "    dTran 1.2.5 - END-TO-END DEPLOYMENT VERIFICATION       " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 # 0. Ensure clean state

@@ -178,7 +178,7 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Text="dTran" FontSize="13" FontWeight="Bold" />
-                            <TextBlock x:Name="SettingsAboutVersionText" Text="v1.0 beta1" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                            <TextBlock x:Name="SettingsAboutVersionText" Text="v1.2.5" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
                         </StackPanel>
                         <TextBlock x:Name="SettingsAboutSubtitleText" Text="Lightweight system translator for Google &amp; Yandex" FontSize="11"
                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
